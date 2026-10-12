@@ -1,0 +1,105 @@
+# docker-compose.yml — local development / single-host deployment for Odoo 20.0.
+#
+# Brings up two services:
+#   * `db`     — PostgreSQL 16 (>= MIN_PG_VERSION from `odoo/release.py`).
+#   * `odoo`   — the Odoo server built from the local Dockerfile.
+#
+# Usage:
+#   docker compose up -d            # start
+#   docker compose logs -f odoo     # tail logs
+#   docker compose stop             # stop
+#   docker compose down -v          # nuke state (DB + filestore)
+#
+# To use the upstream prebuilt image instead of building locally, replace the
+# `build:` section with `image: odoo:20.0`.
+
+services:
+  db:
+    image: postgres:16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: "${POSTGRES_DB:-odoo}"
+      POSTGRES_USER: "${POSTGRES_USER:-odoo}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-odoo}"
+    volumes:
+      - odoo-db:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        - "CMD-SHELL"
+        - "pg_isready -U ${POSTGRES_USER:-odoo} -d ${POSTGRES_DB:-odoo}"
+      interval: 10s
+      timeout: 5s
+      retries: 6
+
+  odoo:
+    # Build the local image (see ./Dockerfile). Switch to `image: odoo:20.0`
+    # to use the upstream maintained image and skip the build step.
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: odoo:20.0-local
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      # Default Odoo HTTP port; longpolling (gevent) is reachable only inside
+      # the docker network on 8072 unless you publish it here too.
+      - "${ODOO_HTTP_PORT:-8069}:8069"
+    environment:
+      # ---- Postgres -------------------------------------------------------
+      PGHOST: db
+      PGPORT: "5432"
+      PGUSER: "${POSTGRES_USER:-odoo}"
+      PGPASSWORD: "${POSTGRES_PASSWORD:-odoo}"
+      PGDATABASE: "${POSTGRES_DB:-odoo}"
+
+      # ---- Odoo -----------------------------------------------------------
+      ODOO_RC: /etc/odoo/odoo.conf
+      ODOO_DB: "${POSTGRES_DB:-odoo}"
+      ODOO_ADMIN_PASSWD: "${ODOO_ADMIN_PASSWD:-admin}"
+      ODOO_HTTP_PORT: "8069"
+      ODOO_GEVENT_PORT: "8072"
+      ODOO_WORKERS: "${ODOO_WORKERS:-0}"
+      ODOO_MAX_CRON_THREADS: "${ODOO_MAX_CRON_THREADS:-2}"
+      ODOO_LOG_LEVEL: "${ODOO_LOG_LEVEL:-info}"
+
+      # Bootstrap behaviour:
+      #   * `auto`     — first run: install `base`; later: just start.
+      #   * `skip`     — never auto-install anything.
+      ODOO_BOOTSTRAP: "${ODOO_BOOTSTRAP:-auto}"
+
+      # Override at run time, e.g.:
+      #   ODOO_INIT_MODULES=sale,stock docker compose run odoo
+      ODOO_INIT_MODULES: "${ODOO_INIT_MODULES:-base}"
+      ODOO_UPDATE_MODULES: "${ODOO_UPDATE_MODULES:-}"
+
+      # Limit crash loops on startup if Postgres isn't quite there yet.
+      DB_WAIT_TIMEOUT: "60"
+    volumes:
+      # Filestore, sessions, addons downloaded via `oca`/UI, etc.
+      - odoo-data:/var/lib/odoo
+      # Persist logs out of the container.
+      - odoo-logs:/var/log/odoo
+      # To override the env-driven config, mount a file (not a directory):
+      #   - ./odoo.conf:/etc/odoo/odoo.conf:ro
+      # The bind must point at a *file*; if the source doesn't exist on the
+      # host, compose will create it as a directory and entrypoint.sh will
+      # fail with "Is a directory".
+    # If you need to bind-mount your own addons:
+    #   extra_addons:/opt/odoo/src/extra-addons
+    #   volumes:
+    #     - ./extra-addons:/opt/odoo/src/extra-addons
+    healthcheck:
+      test:
+        - "CMD-SHELL"
+        - "curl -fsS http://localhost:8069/web/login || exit 1"
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  odoo-db:
+  odoo-data:
+  odoo-logs:

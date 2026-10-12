@@ -1,0 +1,81 @@
+# Files/dirs that should never end up inside `docker build` context.
+# Keeps the image small and avoids shipping build tools or VCS metadata.
+
+# VCS / CI
+.git
+.gitignore
+.git-blame-ignore-revs
+.github
+.gitkeep
+
+# Local config that should stay on the host
+.dockerignore
+Dockerfile
+docker-compose.yml
+docker-compose.*.yml
+.env
+.env.*
+odoo.conf
+
+# Python build artefacts and venvs
+**/__pycache__
+**/*.py[cod]
+**/*.egg-info
+**/.pytest_cache
+**/.mypy_cache
+**/.ruff_cache
+.pytest_cache
+.mypy_cache
+.ruff_cache
+dist
+build
+*.egg
+
+# JS toolchains and dependencies — JS assets are not built inside the image
+node_modules
+**/node_modules
+package-lock.json
+yarn.lock
+.husky
+jsconfig.json
+tsconfig.json
+package.json
+
+# Editor / OS metadata
+.idea
+.vscode
+.DS_Store
+*.swp
+*.swo
+*~
+*.orig
+*.rej
+
+# Generated translation catalogues — DO NOT exclude.
+# Odoo reads `<module>/i18n/<lang>.po` at runtime to populate the
+# translations table; without these files the UI never translates.
+# **/*.po
+# **/*.mo
+# **/*.pot
+# **/i18n/
+
+# Documentation / tests that aren't needed at runtime
+doc/
+.claude/
+
+# Setup helpers (Debian/Fedora packagers, IOT box builder, sandboxing)
+debian/
+setup/
+
+# Don't ship user-facing docs into the image (kept locally for devs).
+README.md
+CLAUDE.md
+CONTRIBUTING.md
+SECURITY.md
+COPYRIGHT
+LICENSE
+MANIFEST.in
+
+# NOTE: do NOT add Dockerfile / docker-compose.yml / entrypoint.sh /
+# odoo.conf.example here — they must remain in the build context because
+# Dockerfile COPYs them directly.

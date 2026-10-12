@@ -1,0 +1,56 @@
+; odoo.conf.example — template for mounting a custom Odoo configuration
+; into the container. The default `entrypoint.sh` will render a working
+; config from environment variables; mount this file at
+; `/etc/odoo/odoo.conf` if you want full control.
+;
+; Default values match the environment-driven configuration; only override
+; the entries you actually need.
+
+[options]
+; ---- Database connection -----------------------------------------------
+; These can be left as-is and overridden via PGHOST / PGUSER / etc.
+db_host          = db
+db_port          = 5432
+db_user          = odoo
+db_password      = odoo
+db_name          = odoo
+; Restrict the databases this instance exposes on the login screen.
+db_filter        = ^odoo$
+
+; ---- Odoo bootstrap ----------------------------------------------------
+admin_passwd     = admin
+
+; ---- Addons ------------------------------------------------------------
+; Search order: first match wins. Put local / custom paths first.
+addons_path      = /opt/odoo/src/odoo/addons,
+                    /opt/odoo/src/addons,
+                    /opt/odoo/src/extra-addons
+
+; ---- Server tuning -----------------------------------------------------
+; workers = 0 selects the threaded (dev) mode. For production set this to
+; (2 * CPU cores) + 1 when running behind a prefork proxy (typically 6-12).
+workers          = 0
+max_cron_threads = 2
+
+; Network
+http_port        = 8069
+gevent_port      = 8072
+proxy_mode       = False
+
+; ---- Logging -----------------------------------------------------------
+logfile          = /var/log/odoo/odoo.log
+log_level        = info
+
+; ---- Data dir ----------------------------------------------------------
+data_dir         = /var/lib/odoo/.local/share/Odoo
+
+; ---- Resource limits ---------------------------------------------------
+limit_memory_hard = 0           ; hard limit (0 = unlimited)
+limit_memory_soft = 2147483648  ; 2 GiB — recommended starting point
+limit_time_real   = 0           ; per-request wall-clock (0 = unlimited)
+limit_time_cpu    = 60          ; per-request CPU seconds
+limit_request     = 0           ; per-worker request cap (0 = unlimited)
+
+; ---- Misc --------------------------------------------------------------
+list_db          = True
+without_demo     = False
