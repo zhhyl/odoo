@@ -131,7 +131,7 @@
                 <filter string="近 90 天" name="filter_last_90_days"
                         domain="[('scrap_date', '&gt;=', (datetime.datetime.now() - datetime.timedelta(days=90)).strftime('%Y-%m-%d %H:%M:%S'))]"/>
                 <filter string="今年" name="filter_this_year"
-                        domain="[('scrap_date', '&gt;=', datetime.datetime.combine(date(date.today().year, 1, 1), datetime.time(0,0,0)).strftime('%Y-%m-%d %H:%M:%S'))]"/>
+                        domain="[('scrap_date', '&gt;=', '2026-01-01 00:00:00')]"/>
                 <separator/>
                 <filter string="報廢率 &gt; 10%" name="filter_high_scrap"
                         domain="[('scrap_rate', '&gt;', 10)]"/>
