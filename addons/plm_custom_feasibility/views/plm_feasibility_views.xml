@@ -131,7 +131,7 @@
                     <notebook>
                         <page string="評分" name="scores">
                             <field name="score_ids"
-                                   context="{'default_feasibility_id': active_id}"
+                                   context="{'default_feasibility_id': id}"
                                    readonly="state in ('approved', 'rejected', 'cancelled')">
                                 <list string="評分明細" editable="bottom">
                                     <field name="feasibility_id" column_invisible="True"/>
