@@ -58,7 +58,7 @@ class MrpBomVersion(models.Model):
         required=True,
     )
     eco_id = fields.Reference(
-        "來源 ECO",
+        string="來源 ECO",
         selection=[("plm_custom.eco", "ECO")],
         # 由 plm_custom_eco 模組補上 ondelete：set null
         help="由 ECO 觸發時對應的 ECO 單據。plm_custom_eco 模組未安裝時為空。",
