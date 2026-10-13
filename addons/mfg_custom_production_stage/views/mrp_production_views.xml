@@ -105,7 +105,7 @@
         <field name="model">mrp.production</field>
         <field name="inherit_id" ref="mrp.view_mrp_production_filter"/>
         <field name="arch" type="xml">
-            <xpath expr="//filter[@name='state']" position="after">
+            <xpath expr="//filter[@name='filter_done']" position="after">
                 <separator/>
                 <filter string="樣品" name="mfg_custom_stage_sample" domain="[('mfg_custom_production_stage', '=', 'sample')]"/>
                 <filter string="小批量" name="mfg_custom_stage_pilot" domain="[('mfg_custom_production_stage', '=', 'pilot')]"/>
