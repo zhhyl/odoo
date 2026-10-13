@@ -24,7 +24,6 @@ MFG Custom - Quote BOM Cost Explosion
         "security/ir.access.csv",
         "data/mail_subtype_data.xml",
         "views/sale_order_line_views.xml",
-        "views/sale_order_views.xml",
         "wizard/mfg_quote_cost_wizard_views.xml",
         "views/mfg_quote_cost_menus.xml",
     ],
