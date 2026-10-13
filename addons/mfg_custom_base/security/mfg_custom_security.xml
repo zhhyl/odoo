@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record model="res.groups.privilege" id="res_groups_privilege_mfg_custom">
+        <field name="name">MFG Custom</field>
+        <field name="category_id" ref="base.module_category_supply_chain"/>
+    </record>
+
+    <!-- 共用 User 群組：所有 MFG Custom 使用者都隸屬此群組 -->
+    <record id="group_user" model="res.groups">
+        <field name="name">User</field>
+        <field name="sequence">10</field>
+        <field name="privilege_id" ref="res_groups_privilege_mfg_custom"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+        <field name="comment">一般使用者：可讀取 mfg_custom/plm_custom 模組的資料，並填寫分配的欄位。</field>
+    </record>
+
+    <!-- 共用 Manager 群組：可管理所有 mfg_custom 模組資料 -->
+    <record id="group_manager" model="res.groups">
+        <field name="name">Manager</field>
+        <field name="sequence">20</field>
+        <field name="privilege_id" ref="res_groups_privilege_mfg_custom"/>
+        <field name="implied_ids" eval="[(4, ref('mfg_custom_base.group_user'))]"/>
+        <field name="user_ids" eval="[(4, ref('base.user_admin'))]"/>
+        <field name="comment">管理員：可建立 / 修改 / 刪除 mfg_custom 與 plm_custom 模組的所有資料。</field>
+    </record>
+
+    <!-- 工程部群組：可編輯 PLM 與工程相關單據 -->
+    <record id="group_engineering" model="res.groups">
+        <field name="name">Engineering</field>
+        <field name="sequence">30</field>
+        <field name="privilege_id" ref="res_groups_privilege_mfg_custom"/>
+        <field name="implied_ids" eval="[(4, ref('mfg_custom_base.group_user'))]"/>
+        <field name="comment">工程部：可編輯 BOM、ECO、可行性評估等 PLM 資料。</field>
+    </record>
+
+    <!-- 品保部群組：可編輯品檢、問題点等資料 -->
+    <record id="group_quality" model="res.groups">
+        <field name="name">Quality</field>
+        <field name="sequence">40</field>
+        <field name="privilege_id" ref="res_groups_privilege_mfg_custom"/>
+        <field name="implied_ids" eval="[(4, ref('mfg_custom_base.group_user'))]"/>
+        <field name="comment">品保部：可編輯品檢單、產線問題点等品質資料。</field>
+    </record>
+
+</odoo>

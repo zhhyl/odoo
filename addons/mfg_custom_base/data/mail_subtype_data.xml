@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data noupdate="1">
+
+    <!-- 共用追蹤 subtype：所有 mfg_custom.* 模型繼承此 mixin 後自動啟用追蹤 -->
+    <record id="mt_mfg_custom_state_changed" model="mail.message.subtype">
+        <field name="name">狀態變更</field>
+        <field name="res_model">mfg_custom.model.mixin</field>
+        <field name="default" eval="True"/>
+        <field name="description">當單據狀態改變時通知追蹤者。</field>
+    </record>
+
+</data></odoo>

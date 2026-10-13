@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data noupdate="1">
+
+    <!-- 共用序號：所有 mfg_custom.* 模型的預設編號來源 -->
+    <record id="seq_mfg_custom_mixin" model="ir.sequence">
+        <field name="name">MFG Custom / Mixin Default Code</field>
+        <field name="code">mfg_custom.sequence.mixin</field>
+        <field name="prefix">MFG/%(year)s/</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+        <field name="use_date_range" eval="True"/>
+    </record>
+
+</data></odoo>
