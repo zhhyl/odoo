@@ -121,11 +121,6 @@
         <field name="name">BOM 子件報廢統計</field>
         <field name="res_model">mfg_custom.component.scrap.stat</field>
         <field name="view_mode">list,form,pivot,graph</field>
-        <field name="search_view_id" ref="mfg_component_scrap_stat_view_search"/>
-        <field name="context">{
-            'search_default_filter_last_30_days': 1,
-            'search_default_groupby_component': 1,
-        }</field>
         <field name="help">從 stock.move(is_scrap=True) 聚合每張 MO × 每個 BOM 子件的標準用量、實際消耗、報廢率、有效得料率。用於找出最容易壞的零件、影響良率最大的工單。</field>
     </record>
 
