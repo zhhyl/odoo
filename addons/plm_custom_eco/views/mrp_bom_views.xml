@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="mrp_bom_form_view_inherit_plm_eco" model="ir.ui.view">
+        <field name="name">mrp.bom.form.inherit.plm.custom.eco</field>
+        <field name="model">mrp.bom</field>
+        <field name="inherit_id" ref="mrp.mrp_bom_form_view"/>
+        <field name="arch" type="xml">
+            <div name="button_box" position="inside">
+                <button class="oe_stat_button" type="object" name="action_view_plm_eco"
+                        icon="fa-code-fork"
+                        groups="mfg_custom_base.group_engineering">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_text">ECO</span>
+                    </div>
+                </button>
+            </div>
+        </field>
+    </record>
+
+</odoo>

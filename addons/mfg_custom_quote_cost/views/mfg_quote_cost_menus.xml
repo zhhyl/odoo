@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="mfg_quote_cost_line_view_tree" model="ir.ui.view">
+        <field name="name">mfg_custom.quote.cost.line.view.tree</field>
+        <field name="model">mfg_custom.quote.cost.line</field>
+        <field name="arch" type="xml">
+            <list string="成本展開明細">
+                <field name="sale_order_line_id"/>
+                <field name="level"/>
+                <field name="cost_type"/>
+                <field name="product_id"/>
+                <field name="product_qty"/>
+                <field name="uom_id"/>
+                <field name="unit_cost"/>
+                <field name="subtotal"/>
+                <field name="source"/>
+                <field name="note"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="mfg_quote_cost_line_view_search" model="ir.ui.view">
+        <field name="name">mfg_custom.quote.cost.line.view.search</field>
+        <field name="model">mfg_custom.quote.cost.line</field>
+        <field name="arch" type="xml">
+            <search string="搜尋成本展開">
+                <field name="sale_order_line_id"/>
+                <field name="product_id"/>
+                <field name="cost_type"/>
+                <filter name="material" string="材料" domain="[('cost_type', '=', 'material')]"/>
+                <filter name="labor" string="人工" domain="[('cost_type', '=', 'labor')]"/>
+                <group>
+                    <filter name="group_by_type" string="依成本類型" context="{'group_by': 'cost_type'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="mfg_quote_cost_line_action" model="ir.actions.act_window">
+        <field name="name">報價成本展開</field>
+        <field name="res_model">mfg_custom.quote.cost.line</field>
+        <field name="view_mode">list</field>
+        <field name="search_view_id" ref="mfg_quote_cost_line_view_search"/>
+        <field name="help">報價 BOM 展開後的成本明細。</field>
+    </record>
+
+    <menuitem id="menu_mfg_quote_cost"
+              name="報價成本展開"
+              parent="mfg_custom_base.menu_mfg_custom_root"
+              sequence="60"
+              groups="mfg_custom_base.group_user"
+              action="mfg_quote_cost_line_action"/>
+
+</odoo>

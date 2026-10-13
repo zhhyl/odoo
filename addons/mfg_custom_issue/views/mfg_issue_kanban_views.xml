@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- =============================================================== -->
+    <!--  Issue Kanban                                                  -->
+    <!-- =============================================================== -->
+    <record id="mfg_issue_view_kanban" model="ir.ui.view">
+        <field name="name">mfg_custom.issue.view.kanban</field>
+        <field name="model">mfg_custom.issue</field>
+        <field name="arch" type="xml">
+            <kanban string="問題点"
+                    default_group_by="stage_id"
+                    quick_create="false"
+                    class="o_mfg_issue_kanban">
+                <field name="stage_id" readonly="1"
+                       options="{'no_open': True, 'no_create_edit': True}"
+                       group_expand="_group_expand_stages"/>
+                <field name="color"/>
+                <field name="priority"/>
+                <field name="state"/>
+                <field name="issue_type"/>
+                <field name="user_id"/>
+                <field name="production_id"/>
+                <field name="product_id"/>
+                <field name="action_count"/>
+                <field name="action_done_count"/>
+                <progressbar field="state"
+                             colors='{"open": "arXiv4", "analyzing": "arXiv5", "implementing": "arXiv2", "closed": "arXiv10", "cancelled": "arXiv8"}'
+                             sum="action_count"/>
+                <templates>
+                    <t t-name="card">
+                        <div class="o_mfg_issue_kanban_card oe_kanban_global_click">
+                            <div class="o_kanban_record_top">
+                                <div class="o_kanban_record_headings">
+                                    <strong class="o_kanban_record_title">
+                                        <field name="name"/>
+                                    </strong>
+                                    <span class="o_kanban_record_subtitle">
+                                        <field name="subject"/>
+                                    </span>
+                                </div>
+                                <div class="o_kanban_record_top_right">
+                                    <field name="priority" widget="priority"/>
+                                    <field name="state" widget="state_selection"
+                                           statusbar_visible="open,analyzing,implementing,closed"
+                                           class="ms-2"/>
+                                </div>
+                            </div>
+                            <div class="o_kanban_record_body">
+                                <field name="issue_type" widget="badge"
+                                       decoration-info="issue_type == 'other'"
+                                       decoration-warning="issue_type in ('defect', 'safety')"/>
+                                <div class="text-muted"
+                                     invisible="not production_id">
+                                    MO: <field name="production_id"/>
+                                </div>
+                                <div class="text-muted"
+                                     invisible="not product_id">
+                                    產品: <field name="product_id"/>
+                                </div>
+                                <field name="tag_ids"
+                                       widget="many2many_tags"
+                                       options="{'color_field': 'color'}"/>
+                            </div>
+                            <div class="o_kanban_record_bottom">
+                                <div class="oe_kanban_bottom_left">
+                                        <span invisible="action_count == 0">
+                                            <i class="fa fa-tasks" title="改善行動"/>
+                                            <field name="action_done_count"/>
+                                            /
+                                            <field name="action_count"/>
+                                        </span>
+                                    </div>
+                                <div class="oe_kanban_bottom_right">
+                                    <field name="user_id" widget="many2one_avatar_user"/>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                    <t t-name="menu">
+                        <t t-if="widget.editable">
+                            <a role="menuitem" type="edit" class="dropdown-item">編輯</a>
+                        </t>
+                        <t t-if="widget.deletable">
+                            <a role="menuitem" type="delete" class="dropdown-item">刪除</a>
+                        </t>
+                        <a role="menuitem" type="action" name="%(mfg_issue_action)d" class="dropdown-item">開啟問題点</a>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- =============================================================== -->
+    <!--  Action 子單 Form (inline 用)                                    -->
+    <!-- =============================================================== -->
+    <record id="mfg_issue_action_view_tree_inline" model="ir.ui.view">
+        <field name="name">mfg_custom.issue.action.view.tree.inline</field>
+        <field name="model">mfg_custom.issue.action</field>
+        <field name="arch" type="xml">
+            <list string="改善行動" decoration-info="state == 'todo'"
+                  decoration-warning="state == 'doing'"
+                  decoration-success="state in ('done', 'verified')"
+                  decoration-muted="state == 'cancelled'">
+                <field name="name"/>
+                <field name="owner_id" widget="many2one_avatar_user"/>
+                <field name="deadline"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'todo'"
+                       decoration-warning="state == 'doing'"
+                       decoration-success="state in ('done', 'verified')"
+                       decoration-muted="state == 'cancelled'"/>
+                <field name="done_date"/>
+            </list>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="mfg_issue_stage_view_tree" model="ir.ui.view">
+        <field name="name">mfg_custom.issue.stage.view.tree</field>
+        <field name="model">mfg_custom.issue.stage</field>
+        <field name="arch" type="xml">
+            <list string="問題点階段" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="fold"/>
+                <field name="is_closed"/>
+                <field name="color" widget="color"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="mfg_issue_stage_action" model="ir.actions.act_window">
+        <field name="name">問題点階段</field>
+        <field name="res_model">mfg_custom.issue.stage</field>
+        <field name="view_mode">list</field>
+    </record>
+
+    <menuitem id="menu_mfg_issue_stage"
+              name="問題点階段"
+              parent="mfg_custom_base.menu_mfg_custom_settings"
+              sequence="20"
+              action="mfg_issue_stage_action"
+              groups="mfg_custom_base.group_manager"/>
+
+</odoo>

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 所有選單已於 mfg_issue_views.xml 與 mfg_issue_stage_views.xml 中定義 -->
+</odoo>

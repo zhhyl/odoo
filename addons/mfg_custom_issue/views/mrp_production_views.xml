@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="mrp_production_form_view_inherit_mfg_issue" model="ir.ui.view">
+        <field name="name">mrp.production.form.inherit.mfg.custom.issue</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+        <field name="arch" type="xml">
+            <div name="button_box" position="inside">
+                <button class="oe_stat_button" name="action_view_mfg_custom_issues"
+                        type="object" icon="fa-exclamation-triangle"
+                        groups="mfg_custom_base.group_user">
+                    <field name="mfg_custom_issue_count" widget="statinfo" string="問題点"/>
+                </button>
+                <button class="oe_stat_button" name="action_create_mfg_custom_issue"
+                        type="object" icon="fa-plus"
+                        groups="mfg_custom_base.group_user"
+                        string="新增問題点"/>
+            </div>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,8 @@
+id,name,model_id,group_id/id,operation,domain
+access_mfg_issue_user,mfg_custom.issue,mfg_custom.issue,mfg_custom_base.group_user,cr,
+access_mfg_issue_quality,mfg_custom.issue,mfg_custom.issue,mfg_custom_base.group_quality,cr,
+access_mfg_issue_manager,mfg_custom.issue,mfg_custom.issue,mfg_custom_base.group_manager,crud,
+access_mfg_issue_action_user,mfg_custom.issue.action,mfg_custom.issue.action,mfg_custom_base.group_user,cr,
+access_mfg_issue_action_manager,mfg_custom.issue.action,mfg_custom.issue.action,mfg_custom_base.group_manager,crud,
+access_mfg_issue_stage_user,mfg_custom.issue.stage,mfg_custom.issue.stage,mfg_custom_base.group_user,cr,
+access_mfg_issue_stage_manager,mfg_custom.issue.stage,mfg_custom.issue.stage,mfg_custom_base.group_manager,crud,

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data noupdate="1">
+    <record id="mt_mfg_quote_cost_exploded" model="mail.message.subtype">
+        <field name="name">成本展開更新</field>
+        <field name="res_model">sale.order.line</field>
+        <field name="default" eval="False"/>
+        <field name="description">當 SO line 的成本被重新展開時通知。</field>
+    </record>
+</data></odoo>

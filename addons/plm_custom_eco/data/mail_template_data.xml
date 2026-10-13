@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data noupdate="1">
+    <record id="mail_template_plm_eco_apply" model="mail.template">
+        <field name="name">ECO 套用通知</field>
+        <field name="model_id" ref="model_plm_custom_eco"/>
+        <field name="subject">{{ object.name }} 已套用：BOM 升至 {{ object.to_version }}</field>
+        <field name="body_html"><![CDATA[
+<p>ECO <t t-out="object.name"/> 已套用。</p>
+<ul>
+    <li>主旨：<t t-out="object.subject"/></li>
+    <li>產品：<t t-out="object.product_id.display_name"/></li>
+    <li>BOM 版本：<t t-out="object.from_version"/> → <t t-out="object.to_version"/></li>
+    <li>影響清單：<t t-out="len(object.line_ids)"/> 筆</li>
+</ul>
+        ]]></field>
+        <field name="email_to">{{ object.owner_id.email }}</field>
+    </record>
+</data></odoo>

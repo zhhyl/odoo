@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- 繼承 SO line tree view -->
+    <record id="sale_order_line_view_tree_inherit_mfg_quote_cost" model="ir.ui.view">
+        <field name="name">sale.order.line.view.tree.inherit.mfg.custom.quote.cost</field>
+        <field name="model">sale.order.line</field>
+        <field name="inherit_id" ref="sale.view_order_line_tree"/>
+        <field name="arch" type="xml">
+            <field name="price_unit" position="after">
+                <field name="mfg_custom_cost_explosion_total"
+                       string="成本底價"
+                       optional="show"
+                       decoration-danger="mfg_custom_cost_explosion_total &gt; price_subtotal"/>
+                <field name="mfg_custom_suggested_price"
+                       string="建議報價"
+                       optional="show"/>
+            </field>
+        </field>
+    </record>
+
+</odoo>

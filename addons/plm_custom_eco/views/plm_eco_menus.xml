@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 主要選單定義於 plm_eco_views.xml 內，這個檔案保留作為後續擴充點。 -->
+</odoo>

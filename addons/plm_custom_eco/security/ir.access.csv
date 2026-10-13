@@ -1,0 +1,9 @@
+id,name,model_id,group_id/id,operation,domain
+access_plm_eco_user,plm_custom.eco,plm_custom.eco,mfg_custom_base.group_user,cr,
+access_plm_eco_engineering,plm_custom.eco,plm_custom.eco,mfg_custom_base.group_engineering,cr,
+access_plm_eco_manager,plm_custom.eco,plm_custom.eco,mfg_custom_base.group_manager,crud,
+access_plm_eco_line_user,plm_custom.eco.line,plm_custom.eco.line,mfg_custom_base.group_user,cr,
+access_plm_eco_line_manager,plm_custom.eco.line,plm_custom.eco.line,mfg_custom_base.group_manager,crud,
+access_plm_eco_attachment_user,plm_custom.eco.attachment,plm_custom.eco.attachment,mfg_custom_base.group_user,cr,
+access_plm_eco_attachment_manager,plm_custom.eco.attachment,plm_custom.eco.attachment,mfg_custom_base.group_manager,crud,
+plm_eco_company,plm.eco multi-company,plm_custom.eco,,crud,"[('company_id', 'in', company_ids + [False])]"

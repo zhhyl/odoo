@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="plm_eco_view_tree" model="ir.ui.view">
+        <field name="name">plm_custom.eco.view.tree</field>
+        <field name="model">plm_custom.eco</field>
+        <field name="arch" type="xml">
+            <list string="ECO"
+                  decoration-success="state == 'applied'"
+                  decoration-warning="state == 'pending_approval'"
+                  decoration-danger="state == 'rejected'">
+                <field name="name"/>
+                <field name="subject"/>
+                <field name="type"/>
+                <field name="origin"/>
+                <field name="product_id"/>
+                <field name="bom_id"/>
+                <field name="from_version"/>
+                <field name="to_version"/>
+                <field name="state"/>
+                <field name="risk_level"/>
+                <field name="effective_date"/>
+                <field name="owner_id" widget="many2one_avatar_user"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="plm_eco_view_form" model="ir.ui.view">
+        <field name="name">plm_custom.eco.view.form</field>
+        <field name="model">plm_custom.eco</field>
+        <field name="arch" type="xml">
+            <form string="工程變更單">
+                <header>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,impact_analysis,pending_approval,approved,applied"/>
+                    <button name="action_start_analysis" string="開始影響分析"
+                            type="object" class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_submit_approval" string="送出簽核"
+                            type="object" class="btn-primary"
+                            invisible="state != 'impact_analysis'"/>
+                    <button name="action_approve" string="核准"
+                            type="object" class="btn-primary"
+                            groups="mfg_custom_base.group_manager"
+                            invisible="state not in ('pending_approval', 'impact_analysis')"/>
+                    <button name="action_reject" string="駁回"
+                            type="object" class="btn-secondary"
+                            groups="mfg_custom_base.group_manager"
+                            invisible="state not in ('pending_approval', 'impact_analysis')"/>
+                    <button name="action_apply" string="套用"
+                            type="object" class="btn-primary"
+                            groups="mfg_custom_base.group_manager"
+                            invisible="state != 'approved'"/>
+                    <button name="action_cancel" string="取消"
+                            type="object" class="btn-secondary"
+                            invisible="state in ('applied', 'cancelled')"/>
+                    <button name="action_reset_to_draft" string="重設為草稿"
+                            type="object" class="btn-secondary"
+                            invisible="state == 'applied'"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button class="oe_stat_button" name="action_view_lines"
+                                type="object" icon="fa-list">
+                            <field name="line_ids" widget="statinfo" string="影響項"/>
+                        </button>
+                    </div>
+                    <widget name="web_ribbon" title="已套用" bg_color="text-bg-success"
+                            invisible="state != 'applied'"/>
+                    <div class="oe_title">
+                        <label for="subject"/>
+                        <h1><field name="subject" placeholder="簡述 ECO 目的..."/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="type"/>
+                            <field name="origin"/>
+                            <field name="risk_level"/>
+                            <field name="effective_date"/>
+                        </group>
+                        <group>
+                            <field name="product_id"/>
+                            <field name="bom_id" domain="[('product_tmpl_id', '=', product_id.product_tmpl_id)]"/>
+                            <field name="from_version"/>
+                            <field name="to_version"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="影響分析" name="impact">
+                            <field name="impact_summary" placeholder="影響摘要..."/>
+                            <field name="line_ids" nolabel="1">
+                                <list decoration-muted="handled == True">
+                                    <field name="impact_type"/>
+                                    <field name="res_model"/>
+                                    <field name="res_id"/>
+                                    <field name="description"/>
+                                    <field name="handled"/>
+                                    <field name="handler_id" widget="many2one_avatar_user"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="附件" name="attachments">
+                            <field name="attachment_ids" nolabel="1">
+                                <list editable="bottom">
+                                    <field name="attachment_id"/>
+                                    <field name="role"/>
+                                    <field name="note"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="簽核" name="approval">
+                            <group>
+                                <field name="approval_request_id" readonly="1"/>
+                                <field name="estimated_cost"/>
+                            </group>
+                        </page>
+                        <page string="其他" name="other">
+                            <group>
+                                <field name="owner_id"/>
+                                <field name="user_id"/>
+                                <field name="source_issue_id"/>
+                                <field name="source_feasibility_id"/>
+                                <field name="applied_date" readonly="1"/>
+                                <field name="old_bom_version_id" readonly="1"/>
+                                <field name="new_bom_version_id" readonly="1"/>
+                                <field name="notes"/>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="plm_eco_view_search" model="ir.ui.view">
+        <field name="name">plm_custom.eco.view.search</field>
+        <field name="model">plm_custom.eco</field>
+        <field name="arch" type="xml">
+            <search string="搜尋 ECO">
+                <field name="name"/>
+                <field name="subject"/>
+                <field name="product_id"/>
+                <field name="bom_id"/>
+                <field name="owner_id"/>
+                <filter name="draft" string="草稿" domain="[('state', '=', 'draft')]"/>
+                <filter name="pending" string="待簽核" domain="[('state', '=', 'pending_approval')]"/>
+                <filter name="approved" string="已核准" domain="[('state', '=', 'approved')]"/>
+                <filter name="applied" string="已套用" domain="[('state', '=', 'applied')]"/>
+                <group>
+                    <filter name="group_by_state" string="依狀態" context="{'group_by': 'state'}"/>
+                    <filter name="group_by_type" string="依類型" context="{'group_by': 'type'}"/>
+                    <filter name="group_by_origin" string="依來源" context="{'group_by': 'origin'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="plm_eco_action_all" model="ir.actions.act_window">
+        <field name="name">ECO（全部）</field>
+        <field name="res_model">plm_custom.eco</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="plm_eco_view_search"/>
+    </record>
+
+    <record id="plm_eco_action_pending" model="ir.actions.act_window">
+        <field name="name">待處理 ECO</field>
+        <field name="res_model">plm_custom.eco</field>
+        <field name="view_mode">list,form</field>
+        <field name="domain">[('state', 'in', ['draft', 'impact_analysis', 'pending_approval', 'approved'])]</field>
+    </record>
+
+    <menuitem id="menu_plm_eco_root"
+              name="ECO"
+              parent="plm_custom_feasibility.menu_plm_custom_root"
+              sequence="10"
+              groups="mfg_custom_base.group_user"/>
+
+    <menuitem id="menu_plm_eco_all"
+              name="全部 ECO"
+              parent="menu_plm_eco_root"
+              sequence="10"
+              action="plm_eco_action_all"
+              groups="mfg_custom_base.group_user"/>
+
+    <menuitem id="menu_plm_eco_pending"
+              name="待處理"
+              parent="menu_plm_eco_root"
+              sequence="5"
+              action="plm_eco_action_pending"
+              groups="mfg_custom_base.group_user"/>
+
+</odoo>

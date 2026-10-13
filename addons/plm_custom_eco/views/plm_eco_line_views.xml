@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="plm_eco_line_view_tree" model="ir.ui.view">
+        <field name="name">plm_custom.eco.line.view.tree</field>
+        <field name="model">plm_custom.eco.line</field>
+        <field name="arch" type="xml">
+            <list string="ECO 影響清單">
+                <field name="eco_id"/>
+                <field name="impact_type"/>
+                <field name="res_model"/>
+                <field name="res_id"/>
+                <field name="description"/>
+                <field name="handled"/>
+                <field name="handler_id"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="plm_eco_line_view_form" model="ir.ui.view">
+        <field name="name">plm_custom.eco.line.view.form</field>
+        <field name="model">plm_custom.eco.line</field>
+        <field name="arch" type="xml">
+            <form string="ECO 影響項">
+                <group>
+                    <field name="eco_id"/>
+                    <field name="impact_type"/>
+                    <field name="res_model"/>
+                    <field name="res_id"/>
+                    <field name="description"/>
+                    <field name="handled"/>
+                    <field name="handler_id"/>
+                </group>
+            </form>
+        </field>
+    </record>
+
+</odoo>

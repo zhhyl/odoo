@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data noupdate="1">
+    <record id="mt_mfg_issue_state_changed" model="mail.message.subtype">
+        <field name="name">狀態變更</field>
+        <field name="res_model">mfg_custom.issue</field>
+        <field name="default" eval="True"/>
+    </record>
+    <record id="mt_mfg_issue_escalated" model="mail.message.subtype">
+        <field name="name">升級 ECO</field>
+        <field name="res_model">mfg_custom.issue</field>
+        <field name="default" eval="False"/>
+    </record>
+</data></odoo>

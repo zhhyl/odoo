@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="plm_eco_attachment_view_tree" model="ir.ui.view">
+        <field name="name">plm_custom.eco.attachment.view.tree</field>
+        <field name="model">plm_custom.eco.attachment</field>
+        <field name="arch" type="xml">
+            <list string="ECO 附件">
+                <field name="eco_id"/>
+                <field name="attachment_id"/>
+                <field name="role"/>
+                <field name="note"/>
+            </list>
+        </field>
+    </record>
+
+</odoo>

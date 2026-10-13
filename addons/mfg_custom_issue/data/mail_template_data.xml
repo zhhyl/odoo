@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data noupdate="1">
+    <record id="mail_template_mfg_issue_open" model="mail.template">
+        <field name="name">問題点開立通知</field>
+        <field name="model_id" ref="model_mfg_custom_issue"/>
+        <field name="subject">{{ object.name }} {{ object.subject }}</field>
+        <field name="body_html"><![CDATA[
+<p>問題点 <t t-out="object.name"/> 已開立。</p>
+<ul>
+    <li>主旨：<t t-out="object.subject"/></li>
+    <li>負責人：<t t-out="object.user_id.name"/></li>
+    <li>MO：<t t-out="object.production_id.name or ''"/></li>
+</ul>
+        ]]></field>
+        <field name="email_to">{{ object.user_id.email }}</field>
+    </record>
+</data></odoo>

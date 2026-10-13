@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data noupdate="1">
+    <record id="seq_mfg_issue" model="ir.sequence">
+        <field name="name">MFG Custom / Issue</field>
+        <field name="code">mfg_custom.issue</field>
+        <field name="prefix">ISS/%(year)s/</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+        <field name="use_date_range" eval="True"/>
+    </record>
+</data></odoo>
