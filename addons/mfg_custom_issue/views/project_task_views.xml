@@ -5,14 +5,7 @@
         <field name="name">project.task.view.form.inherit.mfg.custom.issue</field>
         <field name="model">project.task</field>
         <field name="inherit_id" ref="project.view_task_form2"/>
-        <field name="arch" type="xml">
-            <field name="partner_id" position="after">
-                <field name="mfg_custom_issue_id"
-                       domain="[('task_id', '=', False), ('state', '!=', 'closed')]"
-                       groups="mfg_custom_base.group_user"
-                       optional="hide"/>
-            </field>
-        </field>
+        <field name="arch" type="xml"/>
     </record>
 
 </odoo>
