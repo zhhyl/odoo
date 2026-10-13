@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Request: Search View -->
+    <record id="mfg_approval_request_view_search" model="ir.ui.view">
+        <field name="name">mfg_custom.approval.request.view.search</field>
+        <field name="model">mfg_custom.approval.request</field>
+        <field name="arch" type="xml">
+            <search string="搜尋簽核申請">
+                <field name="name"/>
+                <field name="rule_id"/>
+                <field name="res_model"/>
+                <field name="res_id"/>
+                <field name="requester_id"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <separator/>
+                <filter name="pending" string="待簽核" domain="[('state', '=', 'pending')]"/>
+                <filter name="approved" string="已核准" domain="[('state', '=', 'approved')]"/>
+                <filter name="rejected" string="被駁回" domain="[('state', '=', 'rejected')]"/>
+                <filter name="cancelled" string="已取消" domain="[('state', '=', 'cancelled')]"/>
+                <separator/>
+                <filter name="mine" string="我提出的" domain="[('requester_id', '=', uid)]"/>
+                <filter name="my_decision" string="我待簽" domain="[('line_ids.user_id', '=', uid), ('line_ids.decision', '=', 'pending')]"/>
+                <group>
+                    <filter name="group_rule" string="依規則" context="{'group_by': 'rule_id'}"/>
+                    <filter name="group_res_model" string="依業務模型" context="{'group_by': 'res_model'}"/>
+                    <filter name="group_state" string="依狀態" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Request: List View -->
+    <record id="mfg_approval_request_view_tree" model="ir.ui.view">
+        <field name="name">mfg_custom.approval.request.view.tree</field>
+        <field name="model">mfg_custom.approval.request</field>
+        <field name="arch" type="xml">
+            <list string="MFG Custom 簽核申請" decoration-danger="state == 'rejected'"
+                  decoration-success="state == 'approved'" decoration-muted="state == 'cancelled'">
+                <field name="name"/>
+                <field name="rule_id"/>
+                <field name="res_model"/>
+                <field name="res_id"/>
+                <field name="current_step_no"/>
+                <field name="current_step_id"/>
+                <field name="state" widget="badge"
+                       decoration-danger="state == 'rejected'"
+                       decoration-success="state == 'approved'"
+                       decoration-warning="state == 'pending'"
+                       decoration-info="state == 'draft'"
+                       decoration-muted="state == 'cancelled'"/>
+                <field name="requester_id"/>
+                <field name="submit_date"/>
+                <field name="company_id" optional="hide" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Request: Form View -->
+    <record id="mfg_approval_request_view_form" model="ir.ui.view">
+        <field name="name">mfg_custom.approval.request.view.form</field>
+        <field name="model">mfg_custom.approval.request</field>
+        <field name="arch" type="xml">
+            <form string="MFG Custom 簽核申請">
+                <header>
+                    <button name="action_approve" string="核准目前關卡" type="object"
+                            class="btn-primary"
+                            invisible="state != 'pending' or current_step_id == False"/>
+                    <button name="action_reject" string="駁回" type="object"
+                            class="btn-danger"
+                            invisible="state != 'pending' or current_step_id == False"
+                            confirm="確定要駁回此簽核申請？"/>
+                    <button name="action_cancel" string="取消簽核" type="object"
+                            invisible="state not in ('draft', 'pending')"/>
+                    <button name="action_reset_to_draft" string="重置為草稿" type="object"
+                            groups="mfg_custom_base.group_manager"
+                            invisible="state != 'cancelled'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,pending,approved"
+                           readonly="1"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="rule_id" readonly="state != 'draft'"/>
+                            <field name="current_step_no" string="目前關卡"/>
+                            <field name="current_step_id" string="目前關卡名稱"/>
+                        </group>
+                        <group>
+                            <field name="res_model" readonly="state != 'draft'"/>
+                            <field name="res_id" readonly="state != 'draft'"/>
+                            <field name="requester_id" readonly="1"/>
+                            <field name="submit_date" readonly="1"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="reason" placeholder="若被駁回，請填寫原因"
+                               readonly="state != 'pending'"/>
+                    </group>
+                    <notebook>
+                        <page string="簽核紀錄" name="lines">
+                            <field name="line_ids" readonly="1">
+                                <list string="簽核紀錄"
+                                      decoration-success="decision == 'approved'"
+                                      decoration-danger="decision == 'rejected'"
+                                      decoration-muted="decision == 'pending'">
+                                    <field name="step_id"/>
+                                    <field name="user_id"/>
+                                    <field name="decision" widget="badge"
+                                           decoration-success="decision == 'approved'"
+                                           decoration-danger="decision == 'rejected'"
+                                           decoration-warning="decision == 'pending'"/>
+                                    <field name="decision_date"/>
+                                    <field name="comment" optional="hide"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- Request: Action -->
+    <record id="mfg_approval_request_action" model="ir.actions.act_window">
+        <field name="name">MFG Custom 簽核申請</field>
+        <field name="res_model">mfg_custom.approval.request</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="mfg_approval_request_view_search"/>
+        <field name="context">{'search_default_pending': 1}</field>
+        <field name="help">所有業務模型送出來的簽核申請彙總於此。</field>
+    </record>
+
+    <!-- Request: My Decision action (僅顯示當前使用者為潛在簽核者的申請) -->
+    <record id="mfg_approval_request_action_my_decision" model="ir.actions.act_window">
+        <field name="name">待我簽核</field>
+        <field name="res_model">mfg_custom.approval.request</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="mfg_approval_request_view_search"/>
+        <field name="context">{'search_default_my_decision': 1, 'search_default_pending': 1}</field>
+        <field name="domain">[('state', '=', 'pending')]</field>
+        <field name="help">當前使用者在某個關卡中為待簽狀態的申請。</field>
+    </record>
+
+</odoo>

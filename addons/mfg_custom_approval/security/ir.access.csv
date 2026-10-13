@@ -1,0 +1,9 @@
+id,name,model_id,group_id/id,operation,domain
+access_mfg_approval_rule_manager,approval.rule.manager,mfg_custom.approval.rule,mfg_custom_base.group_manager,crud,
+access_mfg_approval_rule_user,approval.rule.user,mfg_custom.approval.rule,mfg_custom_base.group_user,read,
+access_mfg_approval_step_manager,approval.step.manager,mfg_custom.approval.step,mfg_custom_base.group_manager,crud,
+access_mfg_approval_step_user,approval.step.user,mfg_custom.approval.step,mfg_custom_base.group_user,read,
+access_mfg_approval_request_user,approval.request.user,mfg_custom.approval.request,mfg_custom_base.group_user,crud,
+access_mfg_approval_request_manager,approval.request.manager,mfg_custom.approval.request,mfg_custom_base.group_manager,crud,
+access_mfg_approval_line_user,approval.line.user,mfg_custom.approval.line,mfg_custom_base.group_user,crud,
+access_mfg_approval_line_manager,approval.line.manager,mfg_custom.approval.line,mfg_custom_base.group_manager,crud,

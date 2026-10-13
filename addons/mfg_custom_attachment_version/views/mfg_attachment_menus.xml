@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Attachment Tag: List View -->
+    <record id="mfg_attachment_tag_view_tree" model="ir.ui.view">
+        <field name="name">mfg_custom.attachment.tag.view.tree</field>
+        <field name="model">mfg_custom.attachment.tag</field>
+        <field name="arch" type="xml">
+            <list string="MFG 附件標籤">
+                <field name="name"/>
+                <field name="color" widget="color"/>
+                <field name="description"/>
+                <field name="active" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Attachment Tag: Form View -->
+    <record id="mfg_attachment_tag_view_form" model="ir.ui.view">
+        <field name="name">mfg_custom.attachment.tag.view.form</field>
+        <field name="model">mfg_custom.attachment.tag</field>
+        <field name="arch" type="xml">
+            <form string="MFG 附件標籤">
+                <sheet>
+                    <div class="oe_button_box" name="button_box"/>
+                    <widget name="web_ribbon" title="已停用" bg_color="text-bg-danger" invisible="active"/>
+                    <group>
+                        <field name="name"/>
+                        <field name="color" widget="color"/>
+                        <field name="description"/>
+                        <field name="active" invisible="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Attachment Tag: Search View -->
+    <record id="mfg_attachment_tag_view_search" model="ir.ui.view">
+        <field name="name">mfg_custom.attachment.tag.view.search</field>
+        <field name="model">mfg_custom.attachment.tag</field>
+        <field name="arch" type="xml">
+            <search string="搜尋 MFG 附件標籤">
+                <field name="name"/>
+                <field name="description"/>
+                <filter name="inactive" string="已停用" domain="[('active', '=', False)]"/>
+            </search>
+        </field>
+    </record>
+
+    <!-- Attachment Tag: Action -->
+    <record id="mfg_attachment_tag_action" model="ir.actions.act_window">
+        <field name="name">MFG 附件標籤</field>
+        <field name="res_model">mfg_custom.attachment.tag</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="mfg_attachment_tag_view_search"/>
+        <field name="help">用於 ir.attachment 的自由標籤字典。</field>
+    </record>
+
+    <!-- 選單掛入既有 mfg_custom_base「MFG Custom > 設定」之下 -->
+    <menuitem id="menu_mfg_attachment_tag"
+              name="附件標籤"
+              parent="mfg_custom_base.menu_mfg_custom_settings"
+              sequence="20"
+              action="mfg_attachment_tag_action"
+              groups="mfg_custom_base.group_manager"/>
+
+</odoo>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data noupdate="1">
+
+    <!-- 附件受控狀態變更追蹤 subtype -->
+    <record id="mt_mfg_attachment_state_changed" model="mail.message.subtype">
+        <field name="name">狀態變更</field>
+        <field name="res_model">ir.attachment</field>
+        <field name="default" eval="True"/>
+        <field name="description">當附件的文件狀態（草稿 / 審核中 / 已發行 / 已停用）改變時通知追蹤者。</field>
+    </record>
+
+    <!-- 附件版本遞增追蹤 subtype -->
+    <record id="mt_mfg_attachment_version_changed" model="mail.message.subtype">
+        <field name="name">版本變更</field>
+        <field name="res_model">ir.attachment</field>
+        <field name="default" eval="False"/>
+        <field name="description">當附件版本號遞增或被新版本取代時通知追蹤者。</field>
+    </record>
+
+</data></odoo>

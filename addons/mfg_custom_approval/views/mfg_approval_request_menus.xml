@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- 簽核規則 menu（掛在 mfg_custom_base 既有「設定」子選單下） -->
+    <menuitem id="menu_mfg_approval_rule"
+              name="簽核規則"
+              parent="mfg_custom_base.menu_mfg_custom_settings"
+              sequence="20"
+              action="mfg_approval_rule_action"
+              groups="mfg_custom_base.group_manager"/>
+
+    <!-- 簽核申請 menu（掛在 MFG Custom 根選單下，所有 user 可見） -->
+    <menuitem id="menu_mfg_approval_request"
+              name="簽核申請"
+              parent="mfg_custom_base.menu_mfg_custom_root"
+              sequence="30"
+              action="mfg_approval_request_action"
+              groups="mfg_custom_base.group_user"/>
+
+    <!-- 待我簽核 menu（掛在根選單下） -->
+    <menuitem id="menu_mfg_approval_my_decision"
+              name="待我簽核"
+              parent="mfg_custom_base.menu_mfg_custom_root"
+              sequence="31"
+              action="mfg_approval_request_action_my_decision"
+              groups="mfg_custom_base.group_user"/>
+
+</odoo>

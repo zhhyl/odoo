@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- 本模組未新增群組，全部沿用 mfg_custom_base 的：
+         * mfg_custom_base.group_user
+         * mfg_custom_base.group_manager
+         * mfg_custom_base.group_engineering
+         * mfg_custom_base.group_quality
+
+         細部 ACL 請見 security/ir.access.csv。
+    -->
+
+</odoo>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- 繼承 base.view_attachment_form：在 form 上新增 MFG 文件控管分組 -->
+    <record id="view_attachment_form" model="ir.ui.view">
+        <field name="name">ir.attachment.view.form.inherit.mfg_attachment_version</field>
+        <field name="model">ir.attachment</field>
+        <field name="inherit_id" ref="base.view_attachment_form"/>
+        <field name="arch" type="xml">
+            <!-- 標題下方塞一行 doc_type / doc_state -->
+            <xpath expr="//field[@name='name']" position="after">
+                <div class="d-flex gap-2 small text-muted">
+                    <field name="mfg_custom_doc_type" placeholder="文件類型"/>
+                    <field name="mfg_custom_doc_state" widget="statusbar"
+                           statusbar_visible="draft,in_review,released,obsolete"/>
+                    <field name="mfg_custom_version" class="oe_inline ms-auto"/>
+                </div>
+            </xpath>
+
+            <!-- 既有 group 之後，新增一個 MFG 控管分組 -->
+            <xpath expr="//field[@name='mimetype']" position="after">
+                <field name="mfg_custom_tag_ids"
+                       widget="many2many_tags"
+                       options="{'color_field': 'color', 'no_create_edit': True}"
+                       placeholder="新增標籤…"/>
+                <field name="mfg_custom_superseded_by_id"
+                       invisible="not mfg_custom_superseded_by_id"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- 繼承 base.view_attachment_tree：加入文件控管欄位 -->
+    <record id="view_attachment_tree" model="ir.ui.view">
+        <field name="name">ir.attachment.view.list.inherit.mfg_attachment_version</field>
+        <field name="model">ir.attachment</field>
+        <field name="inherit_id" ref="base.view_attachment_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='type']" position="after">
+                <field name="mfg_custom_doc_type" optional="show"/>
+                <field name="mfg_custom_doc_state"
+                       widget="badge"
+                       decoration-info="mfg_custom_doc_state == 'in_review'"
+                       decoration-success="mfg_custom_doc_state == 'released'"
+                       decoration-danger="mfg_custom_doc_state == 'obsolete'"
+                       optional="show"/>
+                <field name="mfg_custom_version" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- 繼承 base.view_attachment_search：加入篩選器與分組 -->
+    <record id="view_attachment_search" model="ir.ui.view">
+        <field name="name">ir.attachment.view.search.inherit.mfg_attachment_version</field>
+        <field name="model">ir.attachment</field>
+        <field name="inherit_id" ref="base.view_attachment_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='create_uid']" position="after">
+                <field name="mfg_custom_doc_type"/>
+                <field name="mfg_custom_doc_state"/>
+                <field name="mfg_custom_tag_ids"/>
+            </xpath>
+
+            <xpath expr="//group" position="inside">
+                <filter name="doc_type"
+                        string="文件類型"
+                        context="{'group_by': 'mfg_custom_doc_type'}"/>
+                <filter name="doc_state"
+                        string="文件狀態"
+                        context="{'group_by': 'mfg_custom_doc_state'}"/>
+            </xpath>
+
+            <xpath expr="//filter[@name='url_filter']" position="after">
+                <separator/>
+                <filter name="filter_released"
+                        string="已發行"
+                        domain="[('mfg_custom_doc_state', '=', 'released')]"/>
+                <filter name="filter_obsolete"
+                        string="已停用"
+                        domain="[('mfg_custom_doc_state', '=', 'obsolete')]"/>
+                <filter name="filter_in_review"
+                        string="審核中"
+                        domain="[('mfg_custom_doc_state', '=', 'in_review')]"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

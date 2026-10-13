@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Mixin form view: 任何繼承此 mixin 的 model 都能以 inherit_id 引用本 view，
+         在自己的 form header 加上「送出簽核 / 簽核 / 駁回 / 取消」按鈕，
+         並在 sheet 顯示 approval_state。 -->
+    <record id="mfg_approval_mixin_view_form" model="ir.ui.view">
+        <field name="name">mfg_custom.approval.mixin.view.form</field>
+        <field name="model">mfg_custom.approval.mixin</field>
+        <field name="arch" type="xml">
+            <form string="MFG Custom 簽核">
+                <header>
+                    <button name="action_submit_for_approval" string="送出簽核" type="object"
+                            class="btn-primary"
+                            invisible="approval_state != 'not_required' or approval_request_id != False"/>
+                    <button name="action_approve_current_step" string="核准目前關卡" type="object"
+                            class="btn-primary"
+                            invisible="approval_state != 'pending'"/>
+                    <button name="action_reject_current_step" string="駁回" type="object"
+                            class="btn-danger"
+                            invisible="approval_state != 'pending'"
+                            confirm="確定要駁回此簽核流程？"/>
+                    <button name="action_cancel_approval" string="取消簽核" type="object"
+                            invisible="approval_state not in ('pending',)"/>
+                    <field name="approval_state" widget="statusbar"
+                           statusbar_visible="not_required,pending,approved,rejected"
+                           readonly="1"
+                           invisible="approval_state == 'not_required'"/>
+                </header>
+                <sheet>
+                    <group>
+                        <field name="approval_request_id" readonly="1"
+                               invisible="approval_request_id == False"/>
+                        <field name="approval_state" readonly="1" widget="badge"
+                               decoration-info="approval_state == 'pending'"
+                               decoration-success="approval_state == 'approved'"
+                               decoration-danger="approval_state == 'rejected'"
+                               decoration-muted="approval_state == 'not_required'"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Mixin search view: 讓繼承此 mixin 的 model 能直接套用搜尋器。 -->
+    <record id="mfg_approval_mixin_view_search" model="ir.ui.view">
+        <field name="name">mfg_custom.approval.mixin.view.search</field>
+        <field name="model">mfg_custom.approval.mixin</field>
+        <field name="arch" type="xml">
+            <search string="搜尋簽核狀態">
+                <field name="approval_state"/>
+                <field name="approval_request_id"/>
+                <filter name="pending" string="待簽核" domain="[('approval_state', '=', 'pending')]"/>
+                <filter name="approved" string="已核准" domain="[('approval_state', '=', 'approved')]"/>
+                <filter name="rejected" string="被駁回" domain="[('approval_state', '=', 'rejected')]"/>
+            </search>
+        </field>
+    </record>
+
+</odoo>

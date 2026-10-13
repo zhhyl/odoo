@@ -1,0 +1,2 @@
+id,name,model_id,group_id/id,operation,domain
+access_mfg_attachment_tag_user,mfg_custom.attachment.tag,mfg_custom.attachment.tag,mfg_custom_base.group_user,crud,

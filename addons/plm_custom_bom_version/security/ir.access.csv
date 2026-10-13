@@ -1,0 +1,9 @@
+id,name,model_id,group_id/id,operation,domain
+access_mrp_bom_version_user,mrp.bom.version user,mrp.bom.version,mfg_custom_base.group_user,r,
+access_mrp_bom_version_manager,mrp.bom.version manager,mrp.bom.version,mfg_custom_base.group_manager,cud,
+access_mrp_bom_version_line_user,mrp.bom.version.line user,mrp.bom.version.line,mfg_custom_base.group_user,r,
+access_mrp_bom_version_line_manager,mrp.bom.version.line manager,mrp.bom.version.line,mfg_custom_base.group_manager,cud,
+access_mrp_bom_version_operation_user,mrp.bom.version.operation user,mrp.bom.version.operation,mfg_custom_base.group_user,r,
+access_mrp_bom_version_operation_manager,mrp.bom.version.operation manager,mrp.bom.version.operation,mfg_custom_base.group_manager,cud,
+access_mrp_bom_version_byproduct_user,mrp.bom.version.byproduct user,mrp.bom.version.byproduct,mfg_custom_base.group_user,r,
+access_mrp_bom_version_byproduct_manager,mrp.bom.version.byproduct manager,mrp.bom.version.byproduct,mfg_custom_base.group_manager,cud,

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!-- BOM 快照序號 -->
+    <record id="seq_mrp_bom_version" model="ir.sequence">
+        <field name="name">BOM 版本快照</field>
+        <field name="code">plm_custom_bom_version.sequence</field>
+        <field name="prefix">BOMV/%(year)s/</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+        <field name="use_date_range" eval="True"/>
+    </record>
+
+</odoo>

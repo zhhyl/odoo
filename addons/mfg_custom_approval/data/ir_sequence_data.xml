@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!-- 簽核申請序號 -->
+    <record id="seq_mfg_approval_request" model="ir.sequence">
+        <field name="name">MFG Custom / Approval Request</field>
+        <field name="code">mfg_custom.approval.request</field>
+        <field name="prefix">APR/%(year)s/</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+        <field name="use_date_range" eval="True"/>
+    </record>
+
+</odoo>

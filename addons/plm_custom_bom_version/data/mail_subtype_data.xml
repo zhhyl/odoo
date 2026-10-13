@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!-- BOM 快照追蹤 subtype -->
+    <record id="mt_mrp_bom_version_state" model="mail.message.subtype">
+        <field name="name">BOM 快照建立</field>
+        <field name="res_model">mrp.bom.version</field>
+        <field name="default" eval="True"/>
+        <field name="description">當 BOM 快照被建立時通知追蹤者。</field>
+    </record>
+
+</odoo>

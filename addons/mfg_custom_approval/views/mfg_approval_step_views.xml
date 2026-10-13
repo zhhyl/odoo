@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Step: standalone list view (read-only, used by embedded tree above) -->
+    <record id="mfg_approval_step_view_tree" model="ir.ui.view">
+        <field name="name">mfg_custom.approval.step.view.tree</field>
+        <field name="model">mfg_custom.approval.step</field>
+        <field name="arch" type="xml">
+            <list string="簽核關卡" editable="bottom">
+                <field name="rule_id" column_invisible="True"/>
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="approver_mode" widget="selection"/>
+                <field name="user_ids" widget="many2many_tags" optional="show"
+                       invisible="approver_mode != 'user'"/>
+                <field name="group_id" optional="show"
+                       invisible="approver_mode not in ('group', 'group_all')"/>
+                <field name="approver_field" optional="show"
+                       invisible="approver_mode != 'field'"/>
+                <field name="min_amount" optional="hide"/>
+                <field name="max_amount" optional="hide"/>
+                <field name="amount_field" optional="hide"/>
+                <field name="amount_currency_id" optional="hide"/>
+                <field name="required"/>
+                <field name="note" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Step: standalone form view -->
+    <record id="mfg_approval_step_view_form" model="ir.ui.view">
+        <field name="name">mfg_custom.approval.step.view.form</field>
+        <field name="model">mfg_custom.approval.step</field>
+        <field name="arch" type="xml">
+            <form string="MFG Custom 簽核關卡">
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="rule_id"/>
+                            <field name="sequence"/>
+                            <field name="name"/>
+                            <field name="approver_mode" widget="selection"/>
+                            <field name="required"/>
+                        </group>
+                        <group string="簽核者設定">
+                            <field name="user_ids" widget="many2many_tags"
+                                   invisible="approver_mode != 'user'"/>
+                            <field name="group_id"
+                                   invisible="approver_mode not in ('group', 'group_all')"/>
+                            <field name="approver_field"
+                                   invisible="approver_mode != 'field'"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="金額門檻">
+                            <field name="min_amount"/>
+                            <field name="max_amount"/>
+                            <field name="amount_field" placeholder="amount_total"/>
+                            <field name="amount_currency_id"/>
+                        </group>
+                    </group>
+                    <group>
+                        <field name="note" placeholder="備註"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Step: Search View -->
+    <record id="mfg_approval_step_view_search" model="ir.ui.view">
+        <field name="name">mfg_custom.approval.step.view.search</field>
+        <field name="model">mfg_custom.approval.step</field>
+        <field name="arch" type="xml">
+            <search string="搜尋簽核關卡">
+                <field name="name"/>
+                <field name="rule_id"/>
+                <field name="approver_mode"/>
+            </search>
+        </field>
+    </record>
+
+</odoo>

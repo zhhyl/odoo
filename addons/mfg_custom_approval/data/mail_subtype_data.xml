@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!-- 簽核狀態變更 subtype：所有繼承 mfg_custom.approval.mixin 的 model 皆可使用 -->
+    <record id="mt_mfg_approval_state_changed" model="mail.message.subtype">
+        <field name="name">簽核狀態變更</field>
+        <field name="res_model">mfg_custom.approval.mixin</field>
+        <field name="default" eval="True"/>
+        <field name="description">當單據的簽核狀態改變時通知追蹤者。</field>
+    </record>
+
+    <!-- 簽核單本身的追蹤 subtype -->
+    <record id="mt_mfg_approval_request_state" model="mail.message.subtype">
+        <field name="name">簽核申請狀態</field>
+        <field name="res_model">mfg_custom.approval.request</field>
+        <field name="default" eval="True"/>
+        <field name="description">當簽核申請的狀態或當前關卡變動時通知追蹤者。</field>
+    </record>
+
+</odoo>

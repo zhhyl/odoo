@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- 繼承 mrp.bom form：加入 PLM Custom 版本欄位 + smart button「歷史版本」 -->
+    <record id="mrp_bom_form_view_inherit_plm" model="ir.ui.view">
+        <field name="name">mrp.bom.form.inherit.plm</field>
+        <field name="model">mrp.bom</field>
+        <field name="inherit_id" ref="mrp.mrp_bom_form_view"/>
+        <field name="arch" type="xml">
+            <!-- smart button：歷史版本 -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_versions" type="object"
+                        class="oe_stat_button" icon="fa-history">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_value">
+                            <field name="plm_custom_version_count"/>
+                        </span>
+                        <span class="o_stat_text">歷史版本</span>
+                    </div>
+                </button>
+                <button name="action_snapshot" type="object"
+                        class="oe_stat_button" icon="fa-camera"
+                        groups="mfg_custom_base.group_user">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_text">凍結快照</span>
+                    </div>
+                </button>
+            </xpath>
+            <!-- 版本欄位：放在 code 後面 -->
+            <xpath expr="//field[@name='code']" position="after">
+                <field name="plm_custom_version"/>
+                <field name="plm_custom_is_current"/>
+            </xpath>
+            <!-- 現行快照：放在 product_qty/uom 後（同一 group） -->
+            <xpath expr="//label[@for='product_qty']" position="before">
+                <field name="plm_custom_current_version_id"
+                       invisible="not plm_custom_current_version_id"
+                       readonly="1"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- 繼承 mrp.bom list：加上版本欄位 -->
+    <record id="mrp_bom_tree_view_inherit_plm" model="ir.ui.view">
+        <field name="name">mrp.bom.list.inherit.plm</field>
+        <field name="model">mrp.bom</field>
+        <field name="inherit_id" ref="mrp.mrp_bom_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='code']" position="after">
+                <field name="plm_custom_version" optional="hide"/>
+                <field name="plm_custom_is_current" optional="hide"/>
+                <field name="plm_custom_version_count" string="版本數" optional="hide"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

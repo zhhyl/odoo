@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Rule: Search View -->
+    <record id="mfg_approval_rule_view_search" model="ir.ui.view">
+        <field name="name">mfg_custom.approval.rule.view.search</field>
+        <field name="model">mfg_custom.approval.rule</field>
+        <field name="arch" type="xml">
+            <search string="搜尋簽核規則">
+                <field name="name"/>
+                <field name="res_model"/>
+                <field name="company_id"/>
+                <separator/>
+                <filter name="active" string="啟用中" domain="[('active', '=', True)]"/>
+                <filter name="inactive" string="已停用" domain="[('active', '=', False)]"/>
+                <group>
+                    <filter name="group_res_model" string="依業務模型" context="{'group_by': 'res_model'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Rule: List View -->
+    <record id="mfg_approval_rule_view_tree" model="ir.ui.view">
+        <field name="name">mfg_custom.approval.rule.view.tree</field>
+        <field name="model">mfg_custom.approval.rule</field>
+        <field name="arch" type="xml">
+            <list string="MFG Custom 簽核規則">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="res_model"/>
+                <field name="domain" optional="hide"/>
+                <field name="step_ids" widget="many2many_tags" optional="hide"/>
+                <field name="company_id" optional="hide" groups="base.group_multi_company"/>
+                <field name="active" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Rule: Form View -->
+    <record id="mfg_approval_rule_view_form" model="ir.ui.view">
+        <field name="name">mfg_custom.approval.rule.view.form</field>
+        <field name="model">mfg_custom.approval.rule</field>
+        <field name="arch" type="xml">
+            <form string="MFG Custom 簽核規則">
+                <sheet>
+                    <div class="oe_button_box" name="button_box"/>
+                    <widget name="web_ribbon" title="已停用" bg_color="text-bg-danger" invisible="active"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" placeholder="例：採購單金額 > 100 萬"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="res_model" placeholder="plm_custom.eco"/>
+                            <field name="sequence"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group>
+                            <field name="active"/>
+                            <field name="domain" placeholder="[('amount_total', '>', 1000000)]"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="簽核關卡" name="steps">
+                            <field name="step_ids" widget="one2many" mode="list,form">
+                                <list string="簽核關卡" editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="approver_mode" widget="selection"/>
+                                    <field name="user_ids" widget="many2many_tags" optional="show"
+                                           invisible="approver_mode != 'user'"/>
+                                    <field name="group_id" optional="show"
+                                           invisible="approver_mode not in ('group', 'group_all')"/>
+                                    <field name="approver_field" optional="show"
+                                           invisible="approver_mode != 'field'"/>
+                                    <field name="min_amount" optional="hide"/>
+                                    <field name="max_amount" optional="hide"/>
+                                    <field name="amount_field" optional="hide"/>
+                                    <field name="amount_currency_id" optional="hide"/>
+                                    <field name="required"/>
+                                </list>
+                                <form string="簽核關卡">
+                                    <sheet>
+                                        <group>
+                                            <group>
+                                                <field name="sequence"/>
+                                                <field name="name"/>
+                                                <field name="approver_mode" widget="selection"/>
+                                                <field name="required"/>
+                                            </group>
+                                        </group>
+                                        <group>
+                                            <group string="簽核者">
+                                                <field name="user_ids" widget="many2many_tags"
+                                                       invisible="approver_mode != 'user'"/>
+                                                <field name="group_id"
+                                                       invisible="approver_mode not in ('group', 'group_all')"/>
+                                                <field name="approver_field"
+                                                       invisible="approver_mode != 'field'"
+                                                       help="記錄在單據 model 上的 Many2one res.users 欄位名稱。"/>
+                                            </group>
+                                            <group string="金額門檻">
+                                                <field name="min_amount"/>
+                                                <field name="max_amount"/>
+                                                <field name="amount_field" placeholder="amount_total"/>
+                                                <field name="amount_currency_id"/>
+                                            </group>
+                                        </group>
+                                        <group>
+                                            <field name="note" placeholder="備註"/>
+                                        </group>
+                                    </sheet>
+                                </form>
+                            </field>
+                        </page>
+                        <page string="說明" name="note">
+                            <field name="note" placeholder="規則用途說明"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Rule: Action -->
+    <record id="mfg_approval_rule_action" model="ir.actions.act_window">
+        <field name="name">MFG Custom 簽核規則</field>
+        <field name="res_model">mfg_custom.approval.rule</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="mfg_approval_rule_view_search"/>
+        <field name="help">為不同業務模型（PLM ECO、銷售訂單、生產工單等）建立對應的多層簽核規則。</field>
+    </record>
+
+</odoo>
