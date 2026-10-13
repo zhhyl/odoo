@@ -26,6 +26,8 @@ MFG Custom - Production Stage & Yield Rate
         "views/mrp_production_views.xml",
         "views/mrp_bom_views.xml",
         "views/mfg_stage_menus.xml",
+        "views/mrp_production_pivot_graph_views.xml",
+        "report/mfg_mo_yield_report_templates.xml",
     ],
     "installable": True,
     "auto_install": False,

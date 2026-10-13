@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================== -->
+    <!-- 良率分析 pivot：跨 MO 的得料率走勢                              -->
+    <!-- row: mfg_custom_production_stage × date_finished:month × product_id -->
+    <!-- col: state                                                      -->
+    <!-- measure: mfg_custom_yield_rate (avg) / product_uom_qty (sum) /   -->
+    <!--          qty_producing (sum)                                    -->
+    <!-- ============================================================== -->
+    <record id="mrp_production_view_pivot_yield_analysis" model="ir.ui.view">
+        <field name="name">mrp.production.view.pivot.yield.analysis.mfg.custom</field>
+        <field name="model">mrp.production</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <pivot string="得料率分析（按生產階段 × 月份）" sample="1">
+                <field name="mfg_custom_production_stage" type="row"/>
+                <field name="date_finished" interval="month" type="row"/>
+                <field name="product_id" type="row"/>
+                <field name="state" type="col"/>
+                <field name="mfg_custom_yield_rate" type="measure"
+                       string="得料率" widget="percentage"/>
+                <field name="product_uom_qty" type="measure" string="計劃數量"/>
+                <field name="qty_producing" type="measure" string="實際產量"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- ============================================================== -->
+    <!-- 良率走勢 graph（line chart）                                    -->
+    <!-- row: date_finished:month                                        -->
+    <!-- measure: mfg_custom_yield_rate (avg)                            -->
+    <!-- ============================================================== -->
+    <record id="mrp_production_view_graph_yield_trend" model="ir.ui.view">
+        <field name="name">mrp.production.view.graph.yield.trend.mfg.custom</field>
+        <field name="model">mrp.production</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <graph string="得料率走勢圖" type="line" sample="1" stacked="0">
+                <field name="date_finished" interval="month"/>
+                <field name="mfg_custom_yield_rate" type="measure"
+                       string="得料率" widget="percentage"/>
+            </graph>
+        </field>
+    </record>
+
+</odoo>

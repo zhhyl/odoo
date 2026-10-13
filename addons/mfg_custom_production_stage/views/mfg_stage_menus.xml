@@ -5,9 +5,18 @@
     <record id="mrp_production_action_group_by_stage" model="ir.actions.act_window">
         <field name="name">生產階段分析</field>
         <field name="res_model">mrp.production</field>
-        <field name="view_mode">list,form,kanban,calendar,graph,pivot,activity</field>
+        <field name="view_mode">list,form,kanban,calendar,activity</field>
         <field name="context">{'group_by': ['mfg_custom_production_stage', 'state']}</field>
         <field name="help">依「生產階段」分組的製造工單分析。樣品單獨立評估，小批量觀察良率，量產追蹤穩定度。</field>
+    </record>
+
+    <!-- 良率分析 action：含 pivot 與 graph；預設篩選 state=done -->
+    <record id="mrp_production_action_yield_analysis" model="ir.actions.act_window">
+        <field name="name">良率分析</field>
+        <field name="res_model">mrp.production</field>
+        <field name="view_mode">list,form,graph,pivot</field>
+        <field name="context">{'search_default_filter_done': 1}</field>
+        <field name="help">跨 MO 的得料率走勢：依「生產階段 × 月份」分析良率（pivot）+ 月度良率走勢（graph）。</field>
     </record>
 
     <!-- 階段變更日誌的 action -->
@@ -29,6 +38,13 @@
               parent="menu_mfg_custom_stage_root"
               sequence="10"
               action="mrp_production_action_group_by_stage"
+              groups="mfg_custom_base.group_user"/>
+
+    <menuitem id="menu_mfg_custom_stage_yield_analysis"
+              name="良率分析"
+              parent="menu_mfg_custom_stage_root"
+              sequence="15"
+              action="mrp_production_action_yield_analysis"
               groups="mfg_custom_base.group_user"/>
 
     <menuitem id="menu_mfg_custom_stage_log"

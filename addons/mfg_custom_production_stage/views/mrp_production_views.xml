@@ -20,6 +20,16 @@
                        title="生產階段"/>
             </xpath>
 
+            <!-- 1.5) header 內追加「列印含良率」按鈕（與既有按鈕並列） -->
+            <xpath expr="//header//button[@name='action_reset_to_progress']" position="after">
+                <button name="action_mfg_custom_print_yield_report"
+                        string="列印含良率"
+                        type="action"
+                        icon="fa-print"
+                        class="btn-secondary"
+                        title="列印 MO 含得料率總覽（PDF）"/>
+            </xpath>
+
             <!-- 2) button_box 加 smart button（問題点／品檢／階段日誌） -->
             <xpath expr="//div[@name='button_box']" position="inside">
                 <button class="oe_stat_button" type="object" name="action_mfg_custom_view_stage_logs"

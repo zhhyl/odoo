@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================== -->
+    <!-- List view: 每筆 scrap × BOM 子件                                 -->
+    <!-- ============================================================== -->
+    <record id="mfg_component_scrap_stat_view_list" model="ir.ui.view">
+        <field name="name">mfg_custom.component.scrap.stat.view.list</field>
+        <field name="model">mfg_custom.component.scrap.stat</field>
+        <field name="arch" type="xml">
+            <list string="BOM 子件報廢" create="0" edit="0" delete="0" sample="1">
+                <field name="scrap_date"/>
+                <field name="production_id"/>
+                <field name="finished_product_id" optional="show"/>
+                <field name="bom_id" optional="show"/>
+                <field name="component_product_id"/>
+                <field name="scrapped_qty" sum="總報廢數"/>
+                <field name="standard_qty" sum="總標準用量" optional="show"/>
+                <field name="actual_consumed_qty" sum="總實際消耗" optional="show"/>
+                <field name="scrap_rate" widget="percentage"
+                       decoration-danger="scrap_rate &gt; 10"
+                       decoration-warning="scrap_rate &gt; 5 and scrap_rate &lt;= 10"/>
+                <field name="effective_yield" widget="percentage"
+                       decoration-danger="effective_yield &lt; 90"
+                       decoration-warning="effective_yield &gt;= 90 and effective_yield &lt; 95"
+                       decoration-success="effective_yield &gt;= 95"
+                       optional="show"/>
+                <field name="primary_reason_tag_id" optional="hide"/>
+                <field name="scrap_user_id" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ============================================================== -->
+    <!-- Form view: 純唯讀，提供 drill-down                                -->
+    <!-- ============================================================== -->
+    <record id="mfg_component_scrap_stat_view_form" model="ir.ui.view">
+        <field name="name">mfg_custom.component.scrap.stat.view.form</field>
+        <field name="model">mfg_custom.component.scrap.stat</field>
+        <field name="arch" type="xml">
+            <form string="BOM 子件報廢" create="0" edit="0" delete="0">
+                <sheet>
+                    <group>
+                        <group string="報廢單">
+                            <field name="scrap_move_id"/>
+                            <field name="scrap_date"/>
+                            <field name="scrap_user_id"/>
+                            <field name="primary_reason_tag_id"/>
+                            <field name="scrap_reason_tag_ids" widget="many2many_tags"/>
+                        </group>
+                        <group string="工單 / BOM">
+                            <field name="production_id"/>
+                            <field name="finished_product_id"/>
+                            <field name="bom_id"/>
+                            <field name="bom_line_id"/>
+                            <field name="component_product_id"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group string="數量分析">
+                            <field name="scrapped_qty"/>
+                            <field name="standard_qty"/>
+                            <field name="actual_consumed_qty"/>
+                        </group>
+                        <group string="比率分析">
+                            <field name="scrap_rate" widget="percentage"/>
+                            <field name="effective_yield" widget="percentage"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- ============================================================== -->
+    <!-- Pivot view: row = 零件 × BOM, measure = 報廢率 / 報廢數 / 得料率 -->
+    <!-- ============================================================== -->
+    <record id="mfg_component_scrap_stat_view_pivot" model="ir.ui.view">
+        <field name="name">mfg_custom.component.scrap.stat.view.pivot</field>
+        <field name="model">mfg_custom.component.scrap.stat</field>
+        <field name="arch" type="xml">
+            <pivot string="BOM 子件報廢分析" sample="1" disable_linking="1">
+                <field name="component_product_id" type="row"/>
+                <field name="bom_id" type="row"/>
+                <field name="finished_product_id" type="row"/>
+                <field name="scrap_date" interval="month" type="row"/>
+                <field name="primary_reason_tag_id" type="col"/>
+                <field name="scrapped_qty" type="measure" string="總報廢數"/>
+                <field name="standard_qty" type="measure" string="總標準用量"/>
+                <field name="actual_consumed_qty" type="measure" string="總實際消耗"/>
+                <field name="scrap_rate" type="measure" string="平均報廢率"
+                       widget="percentage"/>
+                <field name="effective_yield" type="measure" string="平均有效得料率"
+                       widget="percentage"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- ============================================================== -->
+    <!-- Graph view: row = 零件, measure = 報廢數, type = bar             -->
+    <!-- ============================================================== -->
+    <record id="mfg_component_scrap_stat_view_graph" model="ir.ui.view">
+        <field name="name">mfg_custom.component.scrap.stat.view.graph</field>
+        <field name="model">mfg_custom.component.scrap.stat</field>
+        <field name="arch" type="xml">
+            <graph string="BOM 子件報廢走勢" type="bar" sample="1" stacked="0"
+                   disable_linking="1">
+                <field name="component_product_id"/>
+                <field name="scrapped_qty" type="measure" string="報廢數"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- ============================================================== -->
+    <!-- Search view: 日期 / 零件 / BOM / MO / 報廢原因過濾               -->
+    <!-- ============================================================== -->
+    <record id="mfg_component_scrap_stat_view_search" model="ir.ui.view">
+        <field name="name">mfg_custom.component.scrap.stat.view.search</field>
+        <field name="model">mfg_custom.component.scrap.stat</field>
+        <field name="arch" type="xml">
+            <search string="搜尋 BOM 子件報廢">
+                <field name="production_id"/>
+                <field name="component_product_id"/>
+                <field name="finished_product_id"/>
+                <field name="bom_id"/>
+                <field name="scrap_user_id"/>
+                <field name="primary_reason_tag_id"/>
+                <separator/>
+                <filter string="近 30 天" name="filter_last_30_days"
+                        domain="[('scrap_date', '&gt;=', (datetime.datetime.now() - datetime.timedelta(days=30)).strftime('%Y-%m-%d %H:%M:%S'))]"/>
+                <filter string="近 90 天" name="filter_last_90_days"
+                        domain="[('scrap_date', '&gt;=', (datetime.datetime.now() - datetime.timedelta(days=90)).strftime('%Y-%m-%d %H:%M:%S'))]"/>
+                <filter string="今年" name="filter_this_year"
+                        domain="[('scrap_date', '&gt;=', datetime.datetime.combine(date(date.today().year, 1, 1), datetime.time(0,0,0)).strftime('%Y-%m-%d %H:%M:%S'))]"/>
+                <separator/>
+                <filter string="報廢率 &gt; 10%" name="filter_high_scrap"
+                        domain="[('scrap_rate', '&gt;', 10)]"/>
+                <filter string="報廢率 &gt; 5%" name="filter_medium_scrap"
+                        domain="[('scrap_rate', '&gt;', 5)]"/>
+                <separator/>
+                <group expand="0" string="群組依據">
+                    <filter string="零件" name="groupby_component"
+                            context="{'group_by': 'component_product_id'}"/>
+                    <filter string="BOM" name="groupby_bom"
+                            context="{'group_by': 'bom_id'}"/>
+                    <filter string="成品" name="groupby_finished"
+                            context="{'group_by': 'finished_product_id'}"/>
+                    <filter string="製造工單" name="groupby_production"
+                            context="{'group_by': 'production_id'}"/>
+                    <filter string="主要原因" name="groupby_reason"
+                            context="{'group_by': 'primary_reason_tag_id'}"/>
+                    <filter string="報廢者" name="groupby_user"
+                            context="{'group_by': 'scrap_user_id'}"/>
+                    <filter string="報廢月份" name="groupby_date"
+                            context="{'group_by': 'scrap_date:month'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ============================================================== -->
+    <!-- Action + Menu                                                     -->
+    <!-- ============================================================== -->
+    <record id="mfg_component_scrap_stat_action" model="ir.actions.act_window">
+        <field name="name">BOM 子件報廢統計</field>
+        <field name="res_model">mfg_custom.component.scrap.stat</field>
+        <field name="view_mode">list,form,pivot,graph</field>
+        <field name="search_view_id" ref="mfg_component_scrap_stat_view_search"/>
+        <field name="context">{
+            'search_default_filter_last_30_days': 1,
+            'search_default_groupby_component': 1,
+        }</field>
+        <field name="help">從 stock.move(is_scrap=True) 聚合每張 MO × 每個 BOM 子件的標準用量、實際消耗、報廢率、有效得料率。用於找出最容易壞的零件、影響良率最大的工單。</field>
+    </record>
+
+    <menuitem id="menu_mfg_custom_scrap_stat_root"
+              name="報表"
+              parent="mfg_custom_base.menu_mfg_custom_root"
+              sequence="60"
+              groups="mfg_custom_base.group_user"/>
+
+    <menuitem id="menu_mfg_custom_scrap_stat"
+              name="BOM 子件損耗"
+              parent="menu_mfg_custom_scrap_stat_root"
+              sequence="10"
+              action="mfg_component_scrap_stat_action"
+              groups="mfg_custom_base.group_user"/>
+
+</odoo>

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- QWeb 樣板                                                    -->
+    <!-- ============================================================ -->
+
+    <template id="mfg_mo_yield_report_document">
+        <t t-set="data_report_landscape" t-value="True"/>
+        <t t-call="web.basic_layout">
+            <t t-foreach="docs" t-as="mo">
+                <div class="page o_mfg_custom_mo_yield_report">
+                    <h2 class="mb-3">
+                        MO 總覽（含良率） -
+                        <span t-field="mo.name">MO-0001</span>
+                    </h2>
+
+                    <!-- MO 基本資料 -->
+                    <table class="table table-sm table-borderless">
+                        <tbody>
+                            <tr>
+                                <th class="w-25">MO 編號</th>
+                                <td><span t-field="mo.name"/></td>
+                                <th class="w-25">狀態</th>
+                                <td><span t-field="mo.state"/></td>
+                            </tr>
+                            <tr>
+                                <th>產品</th>
+                                <td><span t-field="mo.product_id.display_name"/></td>
+                                <th>單位</th>
+                                <td><span t-field="mo.uom_id.name"/></td>
+                            </tr>
+                            <tr>
+                                <th>數量</th>
+                                <td><t t-esc="format_qty(mo.product_qty, mo.uom_id)"/></td>
+                                <th>Deadline</th>
+                                <td><span t-field="mo.date_deadline"/></td>
+                            </tr>
+                            <tr>
+                                <th>計劃開始</th>
+                                <td><span t-field="mo.date_start"/></td>
+                                <th>實際結束</th>
+                                <td><span t-field="mo.date_finished"/></td>
+                            </tr>
+                            <tr>
+                                <th>生產階段</th>
+                                <td>
+                                    <span t-field="mo.mfg_custom_production_stage"
+                                          widget="badge"
+                                          decoration-info="mo.mfg_custom_production_stage == 'sample'"
+                                          decoration-warning="mo.mfg_custom_production_stage == 'pilot'"
+                                          decoration-success="mo.mfg_custom_production_stage == 'mass'"/>
+                                </td>
+                                <th>負責人</th>
+                                <td><span t-field="mo.user_id"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- 良率分析 -->
+                    <h3 class="mt-4">良率分析</h3>
+                    <table class="table table-sm">
+                        <tbody>
+                            <tr>
+                                <th class="w-25">期望得料率</th>
+                                <td><t t-esc="mo.mfg_custom_expected_yield_rate"/>%</td>
+                            </tr>
+                            <tr>
+                                <th>實際得料率</th>
+                                <td t-attf-class="{{ 'text-danger fw-bold' if mo.mfg_custom_yield_rate &lt; mo.mfg_custom_expected_yield_rate and mo.state == 'done' else ('text-success fw-bold' if mo.state == 'done' else 'text-muted') }}">
+                                    <t t-esc="mo.mfg_custom_yield_rate"/>%
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>結論</th>
+                                <td t-att-class="render_pass(mo)['klass']">
+                                    <t t-esc="render_pass(mo)['label']"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- 報廢子件清單 -->
+                    <h3 class="mt-4">報廢子件</h3>
+                    <t t-set="scrap_moves" t-value="scrap_data.get(mo.id, mo.env['stock.move'])"/>
+                    <table class="table table-sm" t-if="scrap_moves">
+                        <thead>
+                            <tr>
+                                <th>零件</th>
+                                <th class="text-end">數量</th>
+                                <th>單位</th>
+                                <th>原因</th>
+                                <th>日期</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="scrap_moves" t-as="move">
+                                <td><span t-field="move.product_id.display_name"/></td>
+                                <td class="text-end">
+                                    <t t-esc="format_qty(move.product_qty, move.uom_id)"/>
+                                </td>
+                                <td><span t-field="move.uom_id.name"/></td>
+                                <td>
+                                    <span t-foreach="move.scrap_reason_tag_ids" t-as="tag">
+                                        <span t-field="tag.name"/>
+                                        <t t-if="not tag_last">, </t>
+                                    </span>
+                                </td>
+                                <td><span t-field="move.date"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p t-else="" class="text-muted">此 MO 無報廢子件記錄。</p>
+
+                    <div class="oe_structure"/>
+                </div>
+                <p t-if="not mo_last" style="page-break-before:always;"> </p>
+            </t>
+        </t>
+    </template>
+
+    <!-- ============================================================ -->
+    <!-- Report Action（不在 mrp core 重複綁定）                       -->
+    <!-- ============================================================ -->
+
+    <record id="action_mfg_mo_yield_report" model="ir.actions.report">
+        <field name="name">MO 含良率總覽（含得料率 / 報廢）</field>
+        <field name="model">mrp.production</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">mfg_custom_production_stage.mfg_mo_yield_report_document</field>
+        <field name="report_file">mfg_custom_production_stage.mfg_mo_yield_report_document</field>
+        <field name="print_report_name">'MO 含良率 - %s' % object.name</field>
+        <field name="binding_model_id" ref="mrp.model_mrp_production"/>
+        <field name="binding_type">report</field>
+    </record>
+
+</odoo>

@@ -267,6 +267,13 @@ class MrpProduction(models.Model):
             },
         }
 
+    def action_mfg_custom_print_yield_report(self):
+        """回傳「列印含良率」PDF report action。"""
+        self.ensure_one()
+        return self.env.ref(
+            "mfg_custom_production_stage.action_mfg_mo_yield_report"
+        ).report_action(self)
+
     def action_mfg_custom_view_quality_checks(self):
         """品檢：待 mfg_custom_quality 模組補上 mfg_custom.quality.check.production_id 後即可正常運作。"""
         self.ensure_one()
