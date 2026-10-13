@@ -35,7 +35,6 @@ MFG Custom - Production Issue
         "views/mfg_issue_stage_views.xml",
         "views/mfg_issue_views.xml",
         "views/mrp_production_views.xml",
-        "views/project_task_views.xml",
         "views/mfg_issue_menus.xml",
     ],
     "installable": True,
