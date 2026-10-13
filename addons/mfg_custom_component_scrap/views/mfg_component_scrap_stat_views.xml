@@ -126,13 +126,6 @@
                 <field name="scrap_user_id"/>
                 <field name="primary_reason_tag_id"/>
                 <separator/>
-                <filter string="近 30 天" name="filter_last_30_days"
-                        domain="[('scrap_date', '&gt;=', (datetime.datetime.now() - datetime.timedelta(days=30)).strftime('%Y-%m-%d %H:%M:%S'))]"/>
-                <filter string="近 90 天" name="filter_last_90_days"
-                        domain="[('scrap_date', '&gt;=', (datetime.datetime.now() - datetime.timedelta(days=90)).strftime('%Y-%m-%d %H:%M:%S'))]"/>
-                <filter string="今年" name="filter_this_year"
-                        domain="[('scrap_date', '&gt;=', '2026-01-01 00:00:00')]"/>
-                <separator/>
                 <filter string="報廢率 &gt; 10%" name="filter_high_scrap"
                         domain="[('scrap_rate', '&gt;', 10)]"/>
                 <filter string="報廢率 &gt; 5%" name="filter_medium_scrap"
