@@ -4,7 +4,7 @@ from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 
 
-@tagged("post_install", "-at_install")
+@tagged("post_install", "-at_install", "mfg_custom", "plm_custom")
 class TestMfgCustomIssue(TransactionCase):
     @classmethod
     def setUpClass(cls):

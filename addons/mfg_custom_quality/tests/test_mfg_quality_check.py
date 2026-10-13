@@ -5,7 +5,7 @@ from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 
 
-@tagged("post_install", "-at_install")
+@tagged("post_install", "-at_install", "mfg_custom", "plm_custom")
 class TestMfgQualityCheck(TransactionCase):
     """測試 :class:`MfgQualityCheck` 之生命週期與檢項帶入邏輯。"""
 

@@ -5,7 +5,7 @@ from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 
 
-@tagged("post_install", "-at_install")
+@tagged("post_install", "-at_install", "mfg_custom", "plm_custom")
 class TestMrpBomVersion(TransactionCase):
     """測試 mrp.bom.version 快照主檔與子記錄的 immutable 行為。"""
 

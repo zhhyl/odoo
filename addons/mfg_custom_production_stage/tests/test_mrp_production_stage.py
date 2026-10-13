@@ -5,7 +5,7 @@ from odoo.tests import Form, tagged
 from odoo.addons.mrp.tests.common import TestMrpCommon
 
 
-@tagged("post_install", "-at_install")
+@tagged("post_install", "-at_install", "mfg_custom", "plm_custom")
 class TestMrpProductionStage(TestMrpCommon):
     """測試 mfg_custom_production_stage 模組的階段變更與預設邏輯。"""
 

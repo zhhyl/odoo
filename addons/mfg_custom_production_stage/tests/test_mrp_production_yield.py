@@ -6,7 +6,7 @@ from odoo.tests import Form, tagged
 from odoo.addons.mrp.tests.common import TestMrpCommon
 
 
-@tagged("post_install", "-at_install")
+@tagged("post_install", "-at_install", "mfg_custom", "plm_custom")
 class TestMrpProductionYield(TestMrpCommon):
     """測試得料率計算與 cron 行為。"""
 

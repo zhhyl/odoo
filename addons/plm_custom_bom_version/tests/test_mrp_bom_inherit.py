@@ -4,7 +4,7 @@ from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 
 
-@tagged("post_install", "-at_install")
+@tagged("post_install", "-at_install", "mfg_custom", "plm_custom")
 class TestMrpBomInherit(TransactionCase):
     """測試 mrp.bom 的 PLM Custom 擴充欄位與快照動作。"""
 

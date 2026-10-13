@@ -5,7 +5,7 @@ from odoo.tests import tagged
 from odoo.tests.common import TransactionCase
 
 
-@tagged("post_install", "-at_install")
+@tagged("post_install", "-at_install", "mfg_custom", "plm_custom")
 class TestMfgQualityPoint(TransactionCase):
     """測試 :class:`MfgQualityPoint` 與 :class:`MfgQualityPointLine`。"""
 

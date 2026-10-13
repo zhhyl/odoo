@@ -6,7 +6,7 @@ from odoo.tests import tagged
 from odoo.tests.common import TransactionCase, new_test_user
 
 
-@tagged("post_install", "-at_install")
+@tagged("post_install", "-at_install", "mfg_custom", "plm_custom")
 class TestMfgApprovalRequest(TransactionCase):
     """測試簽核申請的 state machine：循序核准、駁回短路、群組模式。"""
 

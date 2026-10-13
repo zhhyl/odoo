@@ -5,7 +5,7 @@ from odoo.tests import tagged
 from odoo.tests.common import TransactionCase, new_test_user
 
 
-@tagged("post_install", "-at_install")
+@tagged("post_install", "-at_install", "mfg_custom", "plm_custom")
 class TestPlmFeasibilityScore(TransactionCase):
     """測試可行性評估評分明細：唯一性、範圍、同步主檔分數。"""
 
