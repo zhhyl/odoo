@@ -160,8 +160,7 @@
         <field name="name">ECO（全部）</field>
         <field name="res_model">plm_custom.eco</field>
         <field name="view_mode">list,form</field>
-        <field name="search_view_id" ref="plm_eco_view_search"/>
-    </record>
+                </record>
 
     <record id="plm_eco_action_pending" model="ir.actions.act_window">
         <field name="name">待處理 ECO</field>

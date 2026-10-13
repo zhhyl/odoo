@@ -173,8 +173,7 @@
         <field name="name">問題点（看板）</field>
         <field name="res_model">mfg_custom.issue</field>
         <field name="view_mode">kanban,list,form</field>
-        <field name="search_view_id" ref="mfg_issue_view_search"/>
-    </record>
+                </record>
 
     <record id="mfg_issue_action_tree" model="ir.actions.act_window">
         <field name="name">問題点（清單）</field>

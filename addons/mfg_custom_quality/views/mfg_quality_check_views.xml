@@ -232,8 +232,7 @@
         <field name="name">品檢單</field>
         <field name="res_model">mfg_custom.quality.check</field>
         <field name="view_mode">list,form</field>
-        <field name="search_view_id" ref="mfg_quality_check_view_search"/>
-        <field name="context">{'search_default_state_draft': 1}</field>
+                <field name="context">{'search_default_state_draft': 1}</field>
         <field name="help">從品檢點帶入檢項規格，記錄量測值並判定合格／不合格／特採。</field>
     </record>
 
@@ -241,8 +240,7 @@
         <field name="name">待執行品檢</field>
         <field name="res_model">mfg_custom.quality.check</field>
         <field name="view_mode">list,form</field>
-        <field name="search_view_id" ref="mfg_quality_check_view_search"/>
-        <field name="domain">[('state', 'in', ['draft', 'in_progress'])]</field>
+                <field name="domain">[('state', 'in', ['draft', 'in_progress'])]</field>
         <field name="context">{'search_default_state_draft': 1}</field>
         <field name="help">目前待執行（draft）或檢驗中（in_progress）的品檢單。</field>
     </record>
@@ -251,8 +249,7 @@
         <field name="name">品檢歷史</field>
         <field name="res_model">mfg_custom.quality.check</field>
         <field name="view_mode">list,form</field>
-        <field name="search_view_id" ref="mfg_quality_check_view_search"/>
-        <field name="domain">[('state', 'in', ['passed', 'failed', 'conditional', 'cancelled'])]</field>
+                <field name="domain">[('state', 'in', ['passed', 'failed', 'conditional', 'cancelled'])]</field>
         <field name="help">已結案的品檢單。</field>
     </record>
 
