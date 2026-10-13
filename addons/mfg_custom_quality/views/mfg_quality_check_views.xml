@@ -179,51 +179,7 @@
         </field>
     </record>
 
-    <!-- =============================================================== -->
-    <!--  品檢單  Search                                                -->
-    <!-- =============================================================== -->
-    <record id="mfg_quality_check_view_search" model="ir.ui.view">
-        <field name="name">mfg_custom.quality.check.view.search</field>
-        <field name="model">mfg_custom.quality.check</field>
-        <field name="arch" type="xml">
-            <search string="搜尋品檢單">
-                <field name="name"/>
-                <field name="point_id"/>
-                <field name="product_id"/>
-                <field name="lot_id"/>
-                <field name="production_id"/>
-                <field name="workorder_id"/>
-                <field name="picking_id"/>
-                <field name="inspector_id"/>
-                <separator/>
-                <filter name="state_draft" string="待執行"
-                        domain="[('state', '=', 'draft')]"/>
-                <filter name="state_in_progress" string="檢驗中"
-                        domain="[('state', '=', 'in_progress')]"/>
-                <filter name="state_passed" string="合格"
-                        domain="[('state', '=', 'passed')]"/>
-                <filter name="state_failed" string="不合格"
-                        domain="[('state', '=', 'failed')]"/>
-                <filter name="state_conditional" string="特採"
-                        domain="[('state', '=', 'conditional')]"/>
-                <separator/>
-                <filter name="date_today" string="今日"
-                        domain="[('inspection_date', '>=', datetime.datetime.combine(datetime.date.today(), datetime.time(0, 0, 0)))]"/>
-                <filter name="date_last7" string="最近 7 天"
-                        domain="[('inspection_date', '>=', (datetime.date.today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d 00:00:00'))]"/>
-                <group string="分組">
-                    <filter name="group_by_state" string="狀態"
-                            context="{'group_by': 'state'}"/>
-                    <filter name="group_by_point" string="品檢點"
-                            context="{'group_by': 'point_id'}"/>
-                    <filter name="group_by_product" string="產品"
-                            context="{'group_by': 'product_id'}"/>
-                    <filter name="group_by_inspector" string="檢驗員"
-                            context="{'group_by': 'inspector_id'}"/>
-                </group>
-            </search>
-        </field>
-    </record>
+    
 
     <!-- =============================================================== -->
     <!--  品檢單  Action                                                -->
