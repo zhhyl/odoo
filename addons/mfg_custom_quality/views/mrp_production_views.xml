@@ -5,7 +5,7 @@
     <record id="mrp_production_view_form_inherit_mfg_quality" model="ir.ui.view">
         <field name="name">mrp.production.view.form.inherit.mfg.custom.quality</field>
         <field name="model">mrp.production</field>
-        <field name="inherit_id" ref="mrp.mrp_production_view_form"/>
+        <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
         <field name="arch" type="xml">
             <xpath expr="//div[@name='button_box']" position="inside">
                 <button name="action_view_mfg_quality_checks"
