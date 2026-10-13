@@ -39,12 +39,7 @@
                             invisible="state != 'closed'"/>
                 </header>
                 <sheet>
-                    <div class="oe_button_box" name="button_box">
-                        <button name="action_view_mfg_custom_issues" type="object"
-                                class="oe_stat_button" icon="fa-list"
-                                invisible="not production_id"
-                                string="問題点"/>
-                    </div>
+                    <div class="oe_button_box" name="button_box"/>
                     <widget name="web_ribbon" title="已結案" bg_color="text-bg-success"
                             invisible="state != 'closed'"/>
                     <div class="oe_title">
