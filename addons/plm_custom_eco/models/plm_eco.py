@@ -250,6 +250,17 @@ class PlmCustomEco(models.Model):
             eco.state = "cancelled"
             eco.message_post(body=self.env._("ECO 已取消"))
 
+    def action_view_lines(self):
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_window",
+            "name": "影響清單",
+            "res_model": "plm_custom.eco.line",
+            "view_mode": "list,form",
+            "domain": [("eco_id", "=", self.id)],
+            "context": {"default_eco_id": self.id},
+        }
+
     def action_reset_to_draft(self):
         for eco in self:
             if eco.state == "applied":
