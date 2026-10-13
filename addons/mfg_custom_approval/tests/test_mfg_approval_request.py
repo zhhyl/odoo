@@ -3,11 +3,11 @@
 from odoo import Command
 from odoo.exceptions import UserError
 from odoo.tests import tagged
-from odoo.tests.common import BaseCommon, new_test_user
+from odoo.tests.common import TransactionCase, new_test_user
 
 
 @tagged("post_install", "-at_install")
-class TestMfgApprovalRequest(BaseCommon):
+class TestMfgApprovalRequest(TransactionCase):
     """測試簽核申請的 state machine：循序核准、駁回短路、群組模式。"""
 
     _test_user_groups = (

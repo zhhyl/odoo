@@ -2,11 +2,11 @@
 
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests import tagged
-from odoo.tests.common import BaseCommon, new_test_user
+from odoo.tests.common import TransactionCase, new_test_user
 
 
 @tagged("post_install", "-at_install")
-class TestPlmFeasibility(BaseCommon):
+class TestPlmFeasibility(TransactionCase):
     """測試可行性評估主檔：總分計算、決策門檻、state machine。"""
 
     _test_user_groups = (

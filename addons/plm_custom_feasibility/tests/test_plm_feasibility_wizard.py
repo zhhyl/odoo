@@ -1,11 +1,11 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo.tests import tagged
-from odoo.tests.common import BaseCommon
+from odoo.tests.common import TransactionCase
 
 
 @tagged("post_install", "-at_install")
-class TestPlmFeasibilityWizard(BaseCommon):
+class TestPlmFeasibilityWizard(TransactionCase):
     """測試從銷售訂單建立可行性評估的 wizard。"""
 
     _test_user_groups = (

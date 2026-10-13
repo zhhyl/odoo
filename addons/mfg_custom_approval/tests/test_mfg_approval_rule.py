@@ -3,11 +3,11 @@
 from odoo import Command
 from odoo.exceptions import ValidationError
 from odoo.tests import tagged
-from odoo.tests.common import BaseCommon
+from odoo.tests.common import TransactionCase
 
 
 @tagged("post_install", "-at_install")
-class TestMfgApprovalRule(BaseCommon):
+class TestMfgApprovalRule(TransactionCase):
     """測試簽核規則的 domain 匹配與基本 CRUD。"""
 
     @classmethod
