@@ -43,7 +43,9 @@ class MfgApprovalStep(models.Model):
     )
     user_ids = fields.Many2many(
         "res.users",
-        "指定人員",
+        "mfg_approval_step_user_rel",
+        column1="step_id",
+        column2="user_id",
         help="approver_mode 為 user 時使用；任一人核准即可通過本關卡。",
     )
     group_id = fields.Many2one(
