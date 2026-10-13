@@ -23,7 +23,6 @@ MFG Custom - Production Issue
         "mfg_custom_base",
         "mfg_custom_production_stage",
         "mfg_custom_quality",
-        "plm_custom_eco",
         "mrp",
         "project",
     ],
