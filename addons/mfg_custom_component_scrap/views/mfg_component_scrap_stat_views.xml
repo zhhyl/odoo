@@ -114,43 +114,6 @@
     <!-- ============================================================== -->
     <!-- Search view: 日期 / 零件 / BOM / MO / 報廢原因過濾               -->
     <!-- ============================================================== -->
-    <record id="mfg_component_scrap_stat_view_search" model="ir.ui.view">
-        <field name="name">mfg_custom.component.scrap.stat.view.search</field>
-        <field name="model">mfg_custom.component.scrap.stat</field>
-        <field name="arch" type="xml">
-            <search string="搜尋 BOM 子件報廢">
-                <field name="production_id"/>
-                <field name="component_product_id"/>
-                <field name="finished_product_id"/>
-                <field name="bom_id"/>
-                <field name="scrap_user_id"/>
-                <field name="primary_reason_tag_id"/>
-                <separator/>
-                <filter string="報廢率 &gt; 10%" name="filter_high_scrap"
-                        domain="[('scrap_rate', '&gt;', 10)]"/>
-                <filter string="報廢率 &gt; 5%" name="filter_medium_scrap"
-                        domain="[('scrap_rate', '&gt;', 5)]"/>
-                <separator/>
-                <group expand="0" string="群組依據">
-                    <filter string="零件" name="groupby_component"
-                            context="{'group_by': 'component_product_id'}"/>
-                    <filter string="BOM" name="groupby_bom"
-                            context="{'group_by': 'bom_id'}"/>
-                    <filter string="成品" name="groupby_finished"
-                            context="{'group_by': 'finished_product_id'}"/>
-                    <filter string="製造工單" name="groupby_production"
-                            context="{'group_by': 'production_id'}"/>
-                    <filter string="主要原因" name="groupby_reason"
-                            context="{'group_by': 'primary_reason_tag_id'}"/>
-                    <filter string="報廢者" name="groupby_user"
-                            context="{'group_by': 'scrap_user_id'}"/>
-                    <filter string="報廢月份" name="groupby_date"
-                            context="{'group_by': 'scrap_date:month'}"/>
-                </group>
-            </search>
-        </field>
-    </record>
-
     <!-- ============================================================== -->
     <!-- Action + Menu                                                     -->
     <!-- ============================================================== -->
