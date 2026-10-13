@@ -25,15 +25,7 @@
         <field name="arch" type="xml">
             <form string="BOM 版本快照" create="0" edit="0" delete="0">
                 <sheet>
-                    <div class="oe_button_box" name="button_box">
-                        <button name="action_view_bom" type="object"
-                                class="oe_stat_button" icon="fa-arrow-right">
-                            <div class="o_field_widget o_stat_info">
-                                <span class="o_stat_text">對應 BOM</span>
-                                <field name="bom_id" class="ms-1" readonly="1"/>
-                            </div>
-                        </button>
-                    </div>
+                    <div class="oe_button_box" name="button_box"/>
                     <widget name="web_ribbon" title="已鎖定" bg_color="text-bg-success"/>
                     <group>
                         <group>
