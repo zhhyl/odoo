@@ -22,7 +22,6 @@ MFG Custom - Production Stage & Yield Rate
     "depends": ["mfg_custom_base", "mrp", "stock"],
     "data": [
         "security/ir.access.csv",
-        "data/ir_cron_data.xml",
         "data/mail_subtype_data.xml",
         "views/mrp_production_views.xml",
         "views/mrp_bom_views.xml",
