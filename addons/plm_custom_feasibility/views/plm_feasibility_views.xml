@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- ============================================================ -->
+    <!-- Feasibility: Search View                                      -->
+    <!-- ============================================================ -->
+    <record id="plm_feasibility_view_search" model="ir.ui.view">
+        <field name="name">plm_custom.feasibility.view.search</field>
+        <field name="model">plm_custom.feasibility</field>
+        <field name="arch" type="xml">
+            <search string="搜尋可行性評估">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="product_id"/>
+                <field name="user_id"/>
+                <field name="source_model"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <separator/>
+                <filter name="draft" string="草稿" domain="[('state', '=', 'draft')]"/>
+                <filter name="in_review" string="評估中" domain="[('state', '=', 'in_review')]"/>
+                <filter name="approved" string="通過" domain="[('state', '=', 'approved')]"/>
+                <filter name="rejected" string="不通過" domain="[('state', '=', 'rejected')]"/>
+                <filter name="cancelled" string="取消" domain="[('state', '=', 'cancelled')]"/>
+                <separator/>
+                <filter name="feasible" string="可行" domain="[('decision', '=', 'feasible')]"/>
+                <filter name="feasible_with_risk" string="可行但有風險" domain="[('decision', '=', 'feasible_with_risk')]"/>
+                <filter name="infeasible" string="不可行" domain="[('decision', '=', 'infeasible')]"/>
+                <separator/>
+                <filter name="mine" string="我負責的" domain="[('user_id', '=', uid)]"/>
+                <group>
+                    <filter name="group_state" string="依狀態" context="{'group_by': 'state'}"/>
+                    <filter name="group_decision" string="依決策" context="{'group_by': 'decision'}"/>
+                    <filter name="group_partner" string="依客戶" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_product" string="依產品" context="{'group_by': 'product_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Feasibility: List View                                        -->
+    <!-- ============================================================ -->
+    <record id="plm_feasibility_view_tree" model="ir.ui.view">
+        <field name="name">plm_custom.feasibility.view.tree</field>
+        <field name="model">plm_custom.feasibility</field>
+        <field name="arch" type="xml">
+            <list string="PLM Custom 可行性評估"
+                  decoration-danger="state == 'rejected'"
+                  decoration-success="state == 'approved'"
+                  decoration-muted="state == 'cancelled'">
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="product_id"/>
+                <field name="product_qty"/>
+                <field name="uom_id" optional="hide"/>
+                <field name="requested_date" optional="show"/>
+                <field name="score_total"/>
+                <field name="decision" widget="badge"
+                       decoration-success="decision == 'feasible'"
+                       decoration-warning="decision == 'feasible_with_risk'"
+                       decoration-danger="decision == 'infeasible'"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state == 'in_review'"
+                       decoration-success="state == 'approved'"
+                       decoration-danger="state == 'rejected'"
+                       decoration-muted="state == 'cancelled'"/>
+                <field name="user_id" optional="hide"/>
+                <field name="company_id" optional="hide" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Feasibility: Form View                                        -->
+    <!-- ============================================================ -->
+    <record id="plm_feasibility_view_form" model="ir.ui.view">
+        <field name="name">plm_custom.feasibility.view.form</field>
+        <field name="model">plm_custom.feasibility</field>
+        <field name="arch" type="xml">
+            <form string="PLM Custom 可行性評估">
+                <header>
+                    <button name="action_submit" string="送出評估" type="object"
+                            class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_approve" string="核准通過" type="object"
+                            class="btn-primary"
+                            invisible="state != 'in_review'"/>
+                    <button name="action_reject" string="駁回" type="object"
+                            class="btn-danger"
+                            invisible="state != 'in_review'"
+                            confirm="確定要駁回此可行性評估？"/>
+                    <button name="action_cancel" string="取消" type="object"
+                            invisible="state not in ('draft', 'in_review')"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,in_review,approved,rejected"
+                           readonly="1"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box"/>
+                    <widget name="web_ribbon" title="已取消" bg_color="text-bg-danger"
+                            invisible="state != 'cancelled'"/>
+                    <widget name="web_ribbon" title="不通過" bg_color="text-bg-danger"
+                            invisible="state != 'rejected'"/>
+                    <widget name="web_ribbon" title="通過" bg_color="text-bg-success"
+                            invisible="state != 'approved'"/>
+                    <div class="oe_title">
+                        <label for="name"/>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group name="basic_left" string="基本資料">
+                            <field name="partner_id" readonly="state != 'draft'"/>
+                            <field name="product_id" readonly="state != 'draft'"/>
+                            <field name="product_qty" readonly="state != 'draft'"/>
+                            <field name="uom_id"/>
+                            <field name="bom_id" readonly="state != 'draft'"/>
+                        </group>
+                        <group name="basic_right" string="來源 / 交期 / 成本">
+                            <field name="source_model" readonly="state != 'draft'"/>
+                            <field name="source_id" readonly="state != 'draft'"/>
+                            <field name="requested_date" readonly="state != 'draft'"/>
+                            <field name="target_price" readonly="state != 'draft'"/>
+                            <field name="currency_id"/>
+                            <field name="user_id" readonly="state in ('approved', 'cancelled')"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="評分" name="scores">
+                            <field name="score_ids"
+                                   context="{'default_feasibility_id': active_id}"
+                                   readonly="state in ('approved', 'rejected', 'cancelled')">
+                                <list string="評分明細" editable="bottom">
+                                    <field name="feasibility_id" column_invisible="True"/>
+                                    <field name="department"
+                                           decoration-success="department == 'sales'"
+                                           decoration-info="department == 'engineering'"
+                                           decoration-warning="department == 'production'"
+                                           decoration-danger="department == 'qa'"
+                                           decoration-muted="department == 'procurement'"/>
+                                    <field name="reviewer_id"/>
+                                    <field name="score" widget="integer"/>
+                                    <field name="comment" optional="hide"/>
+                                    <field name="attachment_ids" optional="hide" widget="many2many_binary"/>
+                                </list>
+                            </field>
+                            <group name="score_summary" string="彙總分數">
+                                <group>
+                                    <field name="score_capacity" readonly="1"/>
+                                    <field name="score_technical" readonly="1"/>
+                                    <field name="score_material" readonly="1"/>
+                                </group>
+                                <group>
+                                    <field name="score_regulatory" readonly="1"/>
+                                    <field name="score_risk" readonly="1"/>
+                                    <field name="score_total" readonly="1"
+                                           decoration-success="score_total >= 80"
+                                           decoration-warning="score_total >= 60 and score_total &lt; 80"
+                                           decoration-danger="score_total &lt; 60"/>
+                                </group>
+                            </group>
+                        </page>
+                        <page string="決策" name="decision">
+                            <group>
+                                <field name="decision" widget="badge"
+                                       decoration-success="decision == 'feasible'"
+                                       decoration-warning="decision == 'feasible_with_risk'"
+                                       decoration-danger="decision == 'infeasible'"/>
+                            </group>
+                            <group>
+                                <field name="notes" readonly="state in ('approved', 'cancelled')"
+                                       placeholder="可記錄客戶特殊要求、技術瓶頸、備援方案等..."/>
+                            </group>
+                        </page>
+                        <page string="簽核紀錄" name="signoff">
+                            <group>
+                                <field name="create_uid" readonly="1" string="建立者"/>
+                                <field name="create_date" readonly="1" string="建立時間"/>
+                                <field name="write_uid" readonly="1" string="最後修改者"/>
+                                <field name="write_date" readonly="1" string="最後修改時間"/>
+                            </group>
+                            <p class="text-muted" colspan="2">
+                                本評估單的所有狀態變更皆會自動記錄於右側 chatter。
+                            </p>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- ============================================================ -->
+    <!-- Feasibility: Action                                           -->
+    <!-- ============================================================ -->
+    <record id="plm_feasibility_action" model="ir.actions.act_window">
+        <field name="name">可行性評估</field>
+        <field name="res_model">plm_custom.feasibility</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="plm_feasibility_view_search"/>
+        <field name="context">{'search_default_in_review': 1}</field>
+        <field name="help">跨部門可行性評估主檔（產能 / 技術 / 料況 / 法規 / 風險）。</field>
+    </record>
+
+    <record id="plm_feasibility_action_my" model="ir.actions.act_window">
+        <field name="name">我負責的評估</field>
+        <field name="res_model">plm_custom.feasibility</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="plm_feasibility_view_search"/>
+        <field name="context">{'search_default_mine': 1}</field>
+        <field name="domain">[('user_id', '=', uid)]</field>
+        <field name="help">由當前使用者擔任負責業務的所有可行性評估。</field>
+    </record>
+
+</odoo>

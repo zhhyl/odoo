@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- MFG Custom 子選單：報表 > 生產階段分析 -->
+    <menuitem id="menu_mfg_custom_stage_root"
+              name="生產階段"
+              parent="mfg_custom_base.menu_mfg_custom_root"
+              sequence="20"
+              groups="mfg_custom_base.group_user"/>
+
+    <menuitem id="menu_mfg_custom_stage_analysis"
+              name="生產階段分析"
+              parent="menu_mfg_custom_stage_root"
+              sequence="10"
+              action="mrp_production_action_group_by_stage"
+              groups="mfg_custom_base.group_user"/>
+
+    <menuitem id="menu_mfg_custom_stage_log"
+              name="階段變更日誌"
+              parent="menu_mfg_custom_stage_root"
+              sequence="20"
+              action="mrp_production_stage_log_action"
+              groups="mfg_custom_base.group_user"/>
+
+    <!-- MO 群組 by production_stage 的 action（複用 mrp.mrp_production_action 但預設 group_by） -->
+    <record id="mrp_production_action_group_by_stage" model="ir.actions.act_window">
+        <field name="name">生產階段分析</field>
+        <field name="res_model">mrp.production</field>
+        <field name="view_mode">list,form,kanban,calendar,graph,pivot,activity</field>
+        <field name="context">{'group_by': ['mfg_custom_production_stage', 'state']}</field>
+        <field name="help">依「生產階段」分組的製造工單分析。樣品單獨立評估，小批量觀察良率，量產追蹤穩定度。</field>
+    </record>
+
+</odoo>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data noupdate="1">
+
+    <!-- MO 生產階段變更 subtype：追蹤 mfg_custom_production_stage 切換 -->
+    <record id="mt_mfg_custom_production_stage_changed" model="mail.message.subtype">
+        <field name="name">生產階段變更</field>
+        <field name="res_model">mrp.production</field>
+        <field name="default" eval="False"/>
+        <field name="description">當製造工單的生產階段（樣品/小批量/量產）改變時通知追蹤者。</field>
+    </record>
+
+</data></odoo>

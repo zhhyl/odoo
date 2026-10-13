@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- 繼承 MO form：加 stage 狀態、smart button、得料率欄位 -->
+    <record id="mrp_production_form_view_inherit_mfg_custom_stage" model="ir.ui.view">
+        <field name="name">mrp.production.form.inherit.mfg.custom.stage</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+        <field name="arch" type="xml">
+            <!-- 1) header 內追加 stage 顯示（在最後一個 button 之後） -->
+            <xpath expr="//header//button[@name='action_reset_to_progress']" position="after">
+                <field name="mfg_custom_production_stage"
+                       widget="badge"
+                       decoration-info="mfg_custom_production_stage == 'sample'"
+                       decoration-warning="mfg_custom_production_stage == 'pilot'"
+                       decoration-success="mfg_custom_production_stage == 'mass'"
+                       class="ms-2"
+                       style="font-size: 0.9em;"
+                       readonly="1"
+                       title="生產階段"/>
+            </xpath>
+
+            <!-- 2) button_box 加 smart button（問題点／品檢／階段日誌） -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button class="oe_stat_button" type="object" name="action_mfg_custom_view_stage_logs"
+                        icon="history"
+                        invisible="mfg_custom_stage_log_count == 0">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_value"><field name="mfg_custom_stage_log_count"/></span>
+                        <span class="o_stat_text">階段日誌</span>
+                    </div>
+                </button>
+                <button class="oe_stat_button" type="object" name="action_mfg_custom_view_issues"
+                        icon="warning"
+                        invisible="mfg_custom_issue_count == 0"
+                        help="待 mfg_custom_issue 模組安裝後啟用">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_value"><field name="mfg_custom_issue_count"/></span>
+                        <span class="o_stat_text">問題点</span>
+                    </div>
+                </button>
+                <button class="oe_stat_button" type="object" name="action_mfg_custom_view_quality_checks"
+                        icon="check_circle"
+                        invisible="mfg_custom_quality_check_count == 0"
+                        help="待 mfg_custom_quality 模組安裝後啟用">
+                    <div class="o_field_widget o_stat_info">
+                        <span class="o_stat_value"><field name="mfg_custom_quality_check_count"/></span>
+                        <span class="o_stat_text">品檢</span>
+                    </div>
+                </button>
+            </xpath>
+
+            <!-- 3) 在 priority 標題區下方插入階段選擇 -->
+            <xpath expr="//field[@name='priority']" position="after">
+                <field name="mfg_custom_production_stage" widget="radio"
+                       options="{'horizontal': true}"
+                       modifiers="{'readonly': [['state', 'in', ['done', 'cancel']]]}"/>
+                <field name="mfg_custom_sample_request_id"
+                       placeholder="樣品階段可關聯可行性評估"
+                       invisible="mfg_custom_production_stage != 'sample'"
+                       options="{'no_create': True}"/>
+                <field name="mfg_custom_parent_production_id"
+                       placeholder="若是量產由小批升版而來"
+                       options="{'no_create': True}"/>
+            </xpath>
+
+            <!-- 4) 在 qty_producing 附近（product_qty 旁）插入得料率 -->
+            <xpath expr="//field[@name='product_qty']" position="before">
+                <field name="mfg_custom_expected_yield_rate" string="期望得料率 %"
+                       decoration-danger="state == 'done' and mfg_custom_yield_rate &lt; mfg_custom_expected_yield_rate"/>
+            </xpath>
+            <xpath expr="//field[@name='product_qty']" position="after">
+                <field name="mfg_custom_yield_rate" string="實際得料率 %"
+                       invisible="state != 'done'"
+                       decoration-danger="state == 'done' and mfg_custom_yield_rate &lt; mfg_custom_expected_yield_rate"
+                       decoration-success="state == 'done' and mfg_custom_yield_rate &gt;= mfg_custom_expected_yield_rate"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- 繼承 MO tree：在 list 上加 stage 與 yield 欄位 -->
+    <record id="mrp_production_tree_view_inherit_mfg_custom_stage" model="ir.ui.view">
+        <field name="name">mrp.production.tree.inherit.mfg.custom.stage</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='state']" position="before">
+                <field name="mfg_custom_production_stage"
+                       optional="show"
+                       widget="badge"
+                       decoration-info="mfg_custom_production_stage == 'sample'"
+                       decoration-warning="mfg_custom_production_stage == 'pilot'"
+                       decoration-success="mfg_custom_production_stage == 'mass'"/>
+                <field name="mfg_custom_yield_rate" string="得料率%" optional="hide"
+                       decoration-danger="state == 'done' and mfg_custom_yield_rate &lt; mfg_custom_expected_yield_rate"
+                       decoration-success="state == 'done' and mfg_custom_yield_rate &gt;= mfg_custom_expected_yield_rate"
+                       invisible="state != 'done'"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- 繼承 MO search：加 stage 群組過濾 -->
+    <record id="mrp_production_search_view_inherit_mfg_custom_stage" model="ir.ui.view">
+        <field name="name">mrp.production.search.inherit.mfg.custom.stage</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.view_mrp_production_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='state']" position="after">
+                <separator/>
+                <filter string="樣品" name="mfg_custom_stage_sample" domain="[('mfg_custom_production_stage', '=', 'sample')]"/>
+                <filter string="小批量" name="mfg_custom_stage_pilot" domain="[('mfg_custom_production_stage', '=', 'pilot')]"/>
+                <filter string="量產" name="mfg_custom_stage_mass" domain="[('mfg_custom_production_stage', '=', 'mass')]"/>
+                <filter string="得料率偏低" name="mfg_custom_yield_low"
+                        domain="[('state', '=', 'done'), ('mfg_custom_yield_rate', '&lt;', 'mfg_custom_expected_yield_rate')]"/>
+            </xpath>
+            <xpath expr="//group" position="inside">
+                <filter string="生產階段" name="groupby_mfg_custom_production_stage" context="{'group_by': 'mfg_custom_production_stage'}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- 階段日誌 form / list view（給 smart button 用） -->
+    <record id="mrp_production_stage_log_view_form" model="ir.ui.view">
+        <field name="name">mrp.production.stage.log.view.form</field>
+        <field name="model">mrp.production.stage.log</field>
+        <field name="arch" type="xml">
+            <form string="生產階段變更" create="0" edit="0" delete="0">
+                <sheet>
+                    <group>
+                        <field name="production_id"/>
+                        <field name="from_stage" widget="badge"
+                               decoration-info="from_stage == 'sample'"
+                               decoration-warning="from_stage == 'pilot'"
+                               decoration-success="from_stage == 'mass'"/>
+                        <field name="to_stage" widget="badge"
+                               decoration-info="to_stage == 'sample'"
+                               decoration-warning="to_stage == 'pilot'"
+                               decoration-success="to_stage == 'mass'"/>
+                        <field name="user_id"/>
+                        <field name="timestamp"/>
+                        <field name="reason"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="mrp_production_stage_log_view_tree" model="ir.ui.view">
+        <field name="name">mrp.production.stage.log.view.tree</field>
+        <field name="model">mrp.production.stage.log</field>
+        <field name="arch" type="xml">
+            <list string="生產階段變更日誌" create="0" edit="0" delete="0">
+                <field name="timestamp"/>
+                <field name="production_id"/>
+                <field name="from_stage"/>
+                <field name="to_stage" widget="badge"
+                       decoration-info="to_stage == 'sample'"
+                       decoration-warning="to_stage == 'pilot'"
+                       decoration-success="to_stage == 'mass'"/>
+                <field name="user_id"/>
+                <field name="reason"/>
+            </list>
+        </field>
+    </record>
+    <record id="mrp_production_stage_log_view_search" model="ir.ui.view">
+        <field name="name">mrp.production.stage.log.view.search</field>
+        <field name="model">mrp.production.stage.log</field>
+        <field name="arch" type="xml">
+            <search string="搜尋階段變更日誌">
+                <field name="production_id"/>
+                <field name="user_id"/>
+                <field name="reason"/>
+                <filter name="mfg_custom_stage_to_sample" string="→ 樣品" domain="[('to_stage', '=', 'sample')]"/>
+                <filter name="mfg_custom_stage_to_pilot" string="→ 小批量" domain="[('to_stage', '=', 'pilot')]"/>
+                <filter name="mfg_custom_stage_to_mass" string="→ 量產" domain="[('to_stage', '=', 'mass')]"/>
+                <group>
+                    <filter string="新階段" name="groupby_to_stage" context="{'group_by': 'to_stage'}"/>
+                    <filter string="變更人" name="groupby_user_id" context="{'group_by': 'user_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    <record id="mrp_production_stage_log_action" model="ir.actions.act_window">
+        <field name="name">MO 生產階段變更日誌</field>
+        <field name="res_model">mrp.production.stage.log</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="mrp_production_stage_log_view_search"/>
+    </record>
+
+</odoo>

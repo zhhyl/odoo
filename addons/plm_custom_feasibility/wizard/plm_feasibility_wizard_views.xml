@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Wizard: Form View -->
+    <record id="plm_feasibility_wizard_view_form" model="ir.ui.view">
+        <field name="name">plm_custom.feasibility.wizard.view.form</field>
+        <field name="model">plm_custom.feasibility.wizard</field>
+        <field name="arch" type="xml">
+            <form string="建立可行性評估">
+                <group>
+                    <field name="source_model" readonly="1"/>
+                    <field name="source_id" readonly="1"/>
+                    <field name="product_id"/>
+                    <field name="product_qty"/>
+                    <field name="bom_id"/>
+                </group>
+                <footer>
+                    <button name="action_create_feasibility" string="建立可行性評估"
+                            type="object" class="btn-primary"
+                            data-hotkey="q"/>
+                    <button string="取消" special="cancel"
+                            data-hotkey="x"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>

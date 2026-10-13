@@ -1,0 +1,10 @@
+id,name,model_id,group_id/id,operation,domain
+access_mfg_quality_point_user,mfg_custom.quality.point.user,mfg_custom.quality.point,mfg_custom_base.group_user,cr,False
+access_mfg_quality_point_manager,mfg_custom.quality.point.manager,mfg_custom.quality.point,mfg_custom_base.group_manager,crud,False
+access_mfg_quality_point_line_user,mfg_custom.quality.point.line.user,mfg_custom.quality.point.line,mfg_custom_base.group_user,cr,False
+access_mfg_quality_point_line_manager,mfg_custom.quality.point.line.manager,mfg_custom.quality.point.line,mfg_custom_base.group_manager,crud,False
+access_mfg_quality_check_user,mfg_custom.quality.check.user,mfg_custom.quality.check,mfg_custom_base.group_user,cr,False
+access_mfg_quality_check_quality,mfg_custom.quality.check.quality,mfg_custom.quality.check,mfg_custom_base.group_quality,cru,False
+access_mfg_quality_check_manager,mfg_custom.quality.check.manager,mfg_custom.quality.check,mfg_custom_base.group_manager,crud,False
+access_mfg_quality_check_line_user,mfg_custom.quality.check.line.user,mfg_custom.quality.check.line,mfg_custom_base.group_user,cr,False
+access_mfg_quality_check_line_manager,mfg_custom.quality.check.line.manager,mfg_custom.quality.check.line,mfg_custom_base.group_manager,crud,False

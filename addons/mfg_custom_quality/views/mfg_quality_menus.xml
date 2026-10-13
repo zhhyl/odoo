@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- 品檢根選單（與 mfg_custom_base 共用根目錄） -->
+    <menuitem id="menu_mfg_quality_root"
+              name="品檢"
+              parent="mfg_custom_base.menu_mfg_custom_root"
+              sequence="40"
+              groups="mfg_custom_base.group_user"/>
+
+    <!-- 品檢 > 品檢點（規格書字典） -->
+    <menuitem id="menu_mfg_quality_point"
+              name="品檢點"
+              parent="menu_mfg_quality_root"
+              sequence="10"
+              action="mfg_quality_point_action"
+              groups="mfg_custom_base.group_user"/>
+
+    <!-- 品檢 > 待執行品檢 -->
+    <menuitem id="menu_mfg_quality_check_pending"
+              name="待執行品檢"
+              parent="menu_mfg_quality_root"
+              sequence="20"
+              action="mfg_quality_check_action_pending"
+              groups="mfg_custom_base.group_user"/>
+
+    <!-- 品檢 > 品檢歷史 -->
+    <menuitem id="menu_mfg_quality_check_history"
+              name="品檢歷史"
+              parent="menu_mfg_quality_root"
+              sequence="30"
+              action="mfg_quality_check_action_history"
+              groups="mfg_custom_base.group_user"/>
+
+</odoo>

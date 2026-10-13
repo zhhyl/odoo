@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- =============================================================== -->
+    <!--  品檢單  List                                                  -->
+    <!-- =============================================================== -->
+    <record id="mfg_quality_check_view_tree" model="ir.ui.view">
+        <field name="name">mfg_custom.quality.check.view.tree</field>
+        <field name="model">mfg_custom.quality.check</field>
+        <field name="arch" type="xml">
+            <list string="品檢單"
+                  decoration-info="state == 'draft'"
+                  decoration-warning="state == 'in_progress'"
+                  decoration-success="state == 'passed'"
+                  decoration-danger="state == 'failed'">
+                <field name="name" decoration-bf="1"/>
+                <field name="state" widget="badge"
+                       decoration-info="state == 'draft'"
+                       decoration-warning="state == 'in_progress'"
+                       decoration-success="state == 'passed'"
+                       decoration-danger="state == 'failed'"
+                       decoration-muted="state == 'cancelled'"
+                       decoration-primary="state == 'conditional'"/>
+                <field name="point_id"/>
+                <field name="product_id"/>
+                <field name="qty_to_check"/>
+                <field name="production_id" optional="hide"/>
+                <field name="workorder_id" optional="hide"/>
+                <field name="picking_id" optional="hide"/>
+                <field name="lot_id" optional="hide"/>
+                <field name="inspector_id" widget="many2one_avatar_user"/>
+                <field name="inspection_date" widget="relative_date"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- =============================================================== -->
+    <!--  品檢單  Form                                                  -->
+    <!-- =============================================================== -->
+    <record id="mfg_quality_check_view_form" model="ir.ui.view">
+        <field name="name">mfg_custom.quality.check.view.form</field>
+        <field name="model">mfg_custom.quality.check</field>
+        <field name="arch" type="xml">
+            <form string="品檢單">
+                <header>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,in_progress,passed,failed"/>
+                    <button name="action_start"
+                            type="object"
+                            string="開始檢驗"
+                            class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <button name="action_pass"
+                            type="object"
+                            string="判定合格"
+                            class="btn-success"
+                            invisible="state not in ('draft', 'in_progress')"/>
+                    <button name="action_fail"
+                            type="object"
+                            string="判定不合格"
+                            class="btn-danger"
+                            invisible="state not in ('draft', 'in_progress')"/>
+                    <button name="action_conditional"
+                            type="object"
+                            string="特採"
+                            class="btn-warning"
+                            invisible="state not in ('draft', 'in_progress')"/>
+                    <button name="action_reset_to_draft"
+                            type="object"
+                            string="重置回待執行"
+                            invisible="state != 'in_progress'"/>
+                    <button name="action_cancel"
+                            type="object"
+                            string="取消"
+                            invisible="state in ('passed', 'failed', 'conditional', 'cancelled')"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_point"
+                                type="object"
+                                string="跳到品檢點"
+                                class="oe_stat_button"
+                                icon="fa-cog"/>
+                    </div>
+                    <widget name="web_ribbon" title="已取消"
+                            bg_color="text-bg-danger"
+                            invisible="state != 'cancelled'"/>
+                    <widget name="web_ribbon" title="不合格"
+                            bg_color="text-bg-danger"
+                            invisible="state != 'failed'"/>
+                    <widget name="web_ribbon" title="特採"
+                            bg_color="text-bg-warning"
+                            invisible="state != 'conditional'"/>
+                    <div class="oe_title">
+                        <label for="name" class="oe_edit_only"/>
+                        <h1>
+                            <field name="name" readonly="1"/>
+                        </h1>
+                    </div>
+                    <group col="2">
+                        <group name="grp_main" string="基本資料">
+                            <field name="point_id"/>
+                            <field name="product_id"/>
+                            <field name="qty_to_check"/>
+                            <field name="lot_id"
+                                   context="{'default_product_id': product_id}"/>
+                            <field name="inspector_id"/>
+                            <field name="inspection_date"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group name="grp_source" string="來源單據">
+                            <field name="production_id"
+                                   context="{'default_product_id': product_id}"/>
+                            <field name="workorder_id"
+                                   context="{'default_production_id': production_id}"/>
+                            <field name="picking_id"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page name="page_lines" string="檢驗結果">
+                            <field name="check_line_ids"
+                                   widget="one2many"
+                                   mode="list"
+                                   editable="bottom"
+                                   nolabel="1">
+                                <list string="檢驗結果" editable="bottom"
+                                      decoration-danger="result == 'fail'"
+                                      decoration-success="result == 'ok'"
+                                      decoration-muted="result == 'na'">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name" readonly="1"/>
+                                    <field name="spec_value" readonly="1"/>
+                                    <field name="min_value" readonly="1"/>
+                                    <field name="max_value" readonly="1"/>
+                                    <field name="uom_id" readonly="1"/>
+                                    <field name="is_critical" readonly="1" widget="boolean_toggle"/>
+                                    <field name="measured_value"/>
+                                    <field name="result" widget="badge"
+                                           decoration-info="result == 'pending'"
+                                           decoration-success="result == 'ok'"
+                                           decoration-danger="result == 'fail'"
+                                           decoration-muted="result == 'na'"/>
+                                    <field name="note"/>
+                                </list>
+                            </field>
+                            <div class="text-muted mt-2"
+                                 invisible="state != 'in_progress'">
+                                按下「判定合格」／「判定不合格」／「特採」之前，
+                                請確認所有檢項都已填完判定。
+                            </div>
+                        </page>
+                        <page name="page_disposition" string="處置">
+                            <group col="2">
+                                <group name="grp_failure" string="不合格處置">
+                                    <field name="failure_reason"
+                                           placeholder="請填寫不合格原因（HTML 支援）"
+                                           nolabel="1"
+                                           colspan="2"/>
+                                    <field name="corrective_action_id"
+                                           colspan="2"/>
+                                </group>
+                                <group name="grp_notes" string="備註">
+                                    <field name="notes"
+                                           nolabel="1"
+                                           placeholder="其他需要留下來的說明..."/>
+                                </group>
+                            </group>
+                        </page>
+                        <page name="page_history" string="chatter"
+                              invisible="1"/>
+                    </notebook>
+                </sheet>
+                <div class="o_attachment_preview"
+                     odoo-model="mfg_custom.quality.check"
+                     odoo-main="2"/>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- =============================================================== -->
+    <!--  品檢單  Search                                                -->
+    <!-- =============================================================== -->
+    <record id="mfg_quality_check_view_search" model="ir.ui.view">
+        <field name="name">mfg_custom.quality.check.view.search</field>
+        <field name="model">mfg_custom.quality.check</field>
+        <field name="arch" type="xml">
+            <search string="搜尋品檢單">
+                <field name="name"/>
+                <field name="point_id"/>
+                <field name="product_id"/>
+                <field name="lot_id"/>
+                <field name="production_id"/>
+                <field name="workorder_id"/>
+                <field name="picking_id"/>
+                <field name="inspector_id"/>
+                <separator/>
+                <filter name="state_draft" string="待執行"
+                        domain="[('state', '=', 'draft')]"/>
+                <filter name="state_in_progress" string="檢驗中"
+                        domain="[('state', '=', 'in_progress')]"/>
+                <filter name="state_passed" string="合格"
+                        domain="[('state', '=', 'passed')]"/>
+                <filter name="state_failed" string="不合格"
+                        domain="[('state', '=', 'failed')]"/>
+                <filter name="state_conditional" string="特採"
+                        domain="[('state', '=', 'conditional')]"/>
+                <separator/>
+                <filter name="date_today" string="今日"
+                        domain="[('inspection_date', '>=', datetime.datetime.combine(datetime.date.today(), datetime.time(0, 0, 0)))]"/>
+                <filter name="date_last7" string="最近 7 天"
+                        domain="[('inspection_date', '>=', (datetime.date.today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d 00:00:00'))]"/>
+                <group string="分組">
+                    <filter name="group_by_state" string="狀態"
+                            context="{'group_by': 'state'}"/>
+                    <filter name="group_by_point" string="品檢點"
+                            context="{'group_by': 'point_id'}"/>
+                    <filter name="group_by_product" string="產品"
+                            context="{'group_by': 'product_id'}"/>
+                    <filter name="group_by_inspector" string="檢驗員"
+                            context="{'group_by': 'inspector_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- =============================================================== -->
+    <!--  品檢單  Action                                                -->
+    <!-- =============================================================== -->
+    <record id="mfg_quality_check_action" model="ir.actions.act_window">
+        <field name="name">品檢單</field>
+        <field name="res_model">mfg_custom.quality.check</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="mfg_quality_check_view_search"/>
+        <field name="context">{'search_default_state_draft': 1}</field>
+        <field name="help">從品檢點帶入檢項規格，記錄量測值並判定合格／不合格／特採。</field>
+    </record>
+
+    <record id="mfg_quality_check_action_pending" model="ir.actions.act_window">
+        <field name="name">待執行品檢</field>
+        <field name="res_model">mfg_custom.quality.check</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="mfg_quality_check_view_search"/>
+        <field name="domain">[('state', 'in', ['draft', 'in_progress'])]</field>
+        <field name="context">{'search_default_state_draft': 1}</field>
+        <field name="help">目前待執行（draft）或檢驗中（in_progress）的品檢單。</field>
+    </record>
+
+    <record id="mfg_quality_check_action_history" model="ir.actions.act_window">
+        <field name="name">品檢歷史</field>
+        <field name="res_model">mfg_custom.quality.check</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="mfg_quality_check_view_search"/>
+        <field name="domain">[('state', 'in', ['passed', 'failed', 'conditional', 'cancelled'])]</field>
+        <field name="help">已結案的品檢單。</field>
+    </record>
+
+</odoo>

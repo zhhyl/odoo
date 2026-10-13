@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Score: Search View -->
+    <record id="plm_feasibility_score_view_search" model="ir.ui.view">
+        <field name="name">plm_custom.feasibility.score.view.search</field>
+        <field name="model">plm_custom.feasibility.score</field>
+        <field name="arch" type="xml">
+            <search string="搜尋評分明細">
+                <field name="feasibility_id"/>
+                <field name="department"/>
+                <field name="reviewer_id"/>
+                <group>
+                    <filter name="group_dept" string="依部門" context="{'group_by': 'department'}"/>
+                    <filter name="group_reviewer" string="依評分者" context="{'group_by': 'reviewer_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Score: List View -->
+    <record id="plm_feasibility_score_view_tree" model="ir.ui.view">
+        <field name="name">plm_custom.feasibility.score.view.tree</field>
+        <field name="model">plm_custom.feasibility.score</field>
+        <field name="arch" type="xml">
+            <list string="PLM Custom 評分明細">
+                <field name="feasibility_id"/>
+                <field name="department"/>
+                <field name="reviewer_id"/>
+                <field name="score"/>
+                <field name="company_id" optional="hide" groups="base.group_multi_company"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Score: Form View -->
+    <record id="plm_feasibility_score_view_form" model="ir.ui.view">
+        <field name="name">plm_custom.feasibility.score.view.form</field>
+        <field name="model">plm_custom.feasibility.score</field>
+        <field name="arch" type="xml">
+            <form string="PLM Custom 評分明細">
+                <sheet>
+                    <group>
+                        <field name="feasibility_id"/>
+                        <field name="department"/>
+                        <field name="reviewer_id"/>
+                        <field name="score"/>
+                        <field name="company_id" groups="base.group_multi_company"/>
+                    </group>
+                    <notebook>
+                        <page string="意見" name="comment">
+                            <field name="comment"/>
+                        </page>
+                        <page string="佐證附件" name="attachments">
+                            <field name="attachment_ids" widget="many2many_binary"/>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- mrp.production form：新增「品檢單」smart button -->
+    <record id="mrp_production_view_form_inherit_mfg_quality" model="ir.ui.view">
+        <field name="name">mrp.production.view.form.inherit.mfg.custom.quality</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_mfg_quality_checks"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-check-square"
+                        invisible="mfg_quality_check_count == 0">
+                    <field name="mfg_quality_check_count"
+                           widget="statinfo"
+                           string="品檢單"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

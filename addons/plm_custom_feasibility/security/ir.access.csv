@@ -1,0 +1,6 @@
+id,name,model_id,group_id/id,operation,domain
+access_plm_feasibility_user,plm.feasibility.user,plm_custom.feasibility,mfg_custom_base.group_user,crud,
+access_plm_feasibility_manager,plm.feasibility.manager,plm_custom.feasibility,mfg_custom_base.group_manager,crud,
+access_plm_feasibility_score_user,plm.feasibility.score.user,plm_custom.feasibility.score,mfg_custom_base.group_user,crud,
+access_plm_feasibility_score_manager,plm.feasibility.score.manager,plm_custom.feasibility.score,mfg_custom_base.group_manager,crud,
+access_plm_feasibility_wizard_user,plm.feasibility.wizard.user,plm_custom.feasibility.wizard,mfg_custom_base.group_user,crud,

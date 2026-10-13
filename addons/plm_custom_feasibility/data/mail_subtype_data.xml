@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!-- 評估狀態變更 subtype：所有 feasibility 單據皆會啟用追蹤 -->
+    <record id="mt_plm_feasibility_state_changed" model="mail.message.subtype">
+        <field name="name">評估狀態變更</field>
+        <field name="res_model">plm_custom.feasibility</field>
+        <field name="default" eval="True"/>
+        <field name="description">當可行性評估的狀態改變時通知追蹤者。</field>
+    </record>
+
+</odoo>

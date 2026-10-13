@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- 繼承 BOM form：在右側 group 內加入 BOM 預設生產階段 -->
+    <record id="mrp_bom_form_view_inherit_mfg_custom_stage" model="ir.ui.view">
+        <field name="name">mrp.bom.form.inherit.mfg.custom.stage</field>
+        <field name="model">mrp.bom</field>
+        <field name="inherit_id" ref="mrp.mrp_bom_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='code']" position="after">
+                <field name="mfg_custom_default_production_stage" widget="radio"
+                       options="{'horizontal': true}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- 繼承 BOM list：在清單上加預設階段欄位 -->
+    <record id="mrp_bom_tree_view_inherit_mfg_custom_stage" model="ir.ui.view">
+        <field name="name">mrp.bom.tree.inherit.mfg.custom.stage</field>
+        <field name="model">mrp.bom</field>
+        <field name="inherit_id" ref="mrp.mrp_bom_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='code']" position="after">
+                <field name="mfg_custom_default_production_stage" optional="show"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

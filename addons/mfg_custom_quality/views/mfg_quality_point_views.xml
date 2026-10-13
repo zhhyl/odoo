@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- =============================================================== -->
+    <!--  品檢點  List                                                   -->
+    <!-- =============================================================== -->
+    <record id="mfg_quality_point_view_tree" model="ir.ui.view">
+        <field name="name">mfg_custom.quality.point.view.tree</field>
+        <field name="model">mfg_custom.quality.point</field>
+        <field name="arch" type="xml">
+            <list string="品檢點" decoration-muted="not active">
+                <field name="code"/>
+                <field name="name"/>
+                <field name="product_id" optional="show"/>
+                <field name="product_category_id" optional="hide"/>
+                <field name="workcenter_id" optional="hide"/>
+                <field name="operation" optional="hide"/>
+                <field name="sample_qty"/>
+                <field name="method"/>
+                <field name="trigger_on"/>
+                <field name="active" column_invisible="True"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- =============================================================== -->
+    <!--  品檢點  Form                                                   -->
+    <!-- =============================================================== -->
+    <record id="mfg_quality_point_view_form" model="ir.ui.view">
+        <field name="name">mfg_custom.quality.point.view.form</field>
+        <field name="model">mfg_custom.quality.point</field>
+        <field name="arch" type="xml">
+            <form string="品檢點">
+                <header>
+                    <button name="action_view_checks"
+                            type="object"
+                            string="檢視相關品檢單"
+                            class="btn-secondary"
+                            icon="fa-list"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box"/>
+                    <widget name="web_ribbon" title="已停用"
+                            bg_color="text-bg-danger"
+                            invisible="active"/>
+                    <group col="2">
+                        <group name="grp_main" string="基本資料">
+                            <field name="active" invisible="1"/>
+                            <field name="code" readonly="1"/>
+                            <field name="name"/>
+                            <field name="sample_qty"/>
+                            <field name="method"/>
+                            <field name="trigger_on"/>
+                        </group>
+                        <group name="grp_scope" string="適用範圍">
+                            <field name="product_id"/>
+                            <field name="product_category_id"/>
+                            <field name="workcenter_id"/>
+                            <field name="operation"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="page_spec" string="規格說明">
+                            <field name="spec"
+                                   placeholder="HTML / Markdown 規格說明、製程規範、抽樣計畫..."/>
+                        </page>
+                        <page name="page_lines" string="檢查項目">
+                            <field name="check_line_ids"
+                                   widget="one2many"
+                                   mode="list"
+                                   editable="bottom"
+                                   nolabel="1">
+                                <list string="檢查項目" editable="bottom">
+                                    <field name="sequence" widget="handle"/>
+                                    <field name="name"/>
+                                    <field name="spec_value"/>
+                                    <field name="uom_id"/>
+                                    <field name="min_value"/>
+                                    <field name="max_value"/>
+                                    <field name="is_critical" widget="boolean_toggle"/>
+                                    <field name="notes" optional="hide"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page name="page_notes" string="備註">
+                            <field name="notes" nolabel="1"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="o_attachment_preview"
+                     odoo-model="mfg_custom.quality.point"
+                     odoo-main="2"/>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <!-- =============================================================== -->
+    <!--  品檢點  Search                                                 -->
+    <!-- =============================================================== -->
+    <record id="mfg_quality_point_view_search" model="ir.ui.view">
+        <field name="name">mfg_custom.quality.point.view.search</field>
+        <field name="model">mfg_custom.quality.point</field>
+        <field name="arch" type="xml">
+            <search string="搜尋品檢點">
+                <field name="name"/>
+                <field name="code"/>
+                <field name="product_id"/>
+                <field name="product_category_id"/>
+                <field name="workcenter_id"/>
+                <separator/>
+                <filter name="trigger_manual" string="手動"
+                        domain="[('trigger_on', '=', 'manual')]"/>
+                <filter name="trigger_production" string="MO / 工序"
+                        domain="[('trigger_on', 'in', ['production_start', 'production_finish', 'workorder_finish'])]"/>
+                <filter name="trigger_incoming" string="入庫前"
+                        domain="[('trigger_on', '=', 'incoming')]"/>
+                <separator/>
+                <filter name="inactive" string="已停用"
+                        domain="[('active', '=', False)]"/>
+                <group string="分組">
+                    <filter name="group_by_method"
+                            string="方式"
+                            context="{'group_by': 'method'}"/>
+                    <filter name="group_by_trigger"
+                            string="觸發"
+                            context="{'group_by': 'trigger_on'}"/>
+                    <filter name="group_by_product"
+                            string="產品"
+                            context="{'group_by': 'product_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- =============================================================== -->
+    <!--  品檢點  Action                                                 -->
+    <!-- =============================================================== -->
+    <record id="mfg_quality_point_action" model="ir.actions.act_window">
+        <field name="name">品檢點</field>
+        <field name="res_model">mfg_custom.quality.point</field>
+        <field name="view_mode">list,form</field>
+        <field name="search_view_id" ref="mfg_quality_point_view_search"/>
+        <field name="help">建立與管理「品檢點（規格書）」：適用產品／工序／抽樣數／檢驗項目。</field>
+    </record>
+
+</odoo>

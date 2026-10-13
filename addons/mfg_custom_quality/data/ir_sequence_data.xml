@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data noupdate="1">
+
+    <!-- 品檢點編號 -->
+    <record id="seq_mfg_quality_point" model="ir.sequence">
+        <field name="name">MFG Custom / Quality Point</field>
+        <field name="code">mfg_custom.quality.point</field>
+        <field name="prefix">QP/%(year)s/</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+        <field name="use_date_range" eval="True"/>
+    </record>
+
+    <!-- 品檢單編號 -->
+    <record id="seq_mfg_quality_check" model="ir.sequence">
+        <field name="name">MFG Custom / Quality Check</field>
+        <field name="code">mfg_custom.quality.check</field>
+        <field name="prefix">QC/%(year)s/</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+        <field name="use_date_range" eval="True"/>
+    </record>
+
+</data></odoo>

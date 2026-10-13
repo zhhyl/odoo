@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data noupdate="1">
+
+    <!-- Email template: 不合格通知 -->
+    <record id="mail_template_mfg_quality_check_failed" model="mail.template">
+        <field name="name">MFG Custom - Quality Check: Failed Notification</field>
+        <field name="model_id" ref="model_mfg_custom_quality_check"/>
+        <field name="subject">{{ object.company_id.name }} 品檢單不合格：{{ object.name }}</field>
+        <field name="description">品檢單狀態被改為「不合格」時自動寄發的範本。</field>
+        <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px;">
+    <p>品檢員 <t t-out="object.inspector_id.name or ''"></t> 已將品檢單判定為<strong>不合格</strong>。</p>
+    <ul>
+        <li>單號：<t t-out="object.name"/></li>
+        <li>產品：<t t-out="object.product_id.display_name"/></li>
+        <li>檢驗數量：<t t-out="object.qty_to_check"/></li>
+        <li>時間：<t t-out="object.inspection_date"/></li>
+        <li t-if="object.production_id">相關 MO：<t t-out="object.production_id.display_name"/></li>
+        <li t-if="object.picking_id">入庫單：<t t-out="object.picking_id.display_name"/></li>
+    </ul>
+    <p>請儘速建立／關聯改善單，並回覆不合格原因：</p>
+    <p><t t-out="object.failure_reason or ''"/></p>
+</div>
+        </field>
+        <field name="lang">{{ object.inspector_id.lang or object.company_id.partner_id.lang }}</field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+
+</data></odoo>

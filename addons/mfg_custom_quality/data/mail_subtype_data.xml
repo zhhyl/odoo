@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo><data noupdate="1">
+
+    <!-- 品檢狀態變更追蹤 -->
+    <record id="mt_mfg_quality_check_state_changed" model="mail.message.subtype">
+        <field name="name">狀態變更</field>
+        <field name="res_model">mfg_custom.quality.check</field>
+        <field name="default" eval="True"/>
+        <field name="description">當品檢單狀態改變時通知追蹤者。</field>
+    </record>
+
+</data></odoo>

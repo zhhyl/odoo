@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!-- 通知：請相關部門評分（送出 in_review 時） -->
+    <record id="mail_template_plm_feasibility_submit" model="mail.template">
+        <field name="name">PLM Feasibility: Submit for Review</field>
+        <field name="model_id" ref="model_plm_custom_feasibility"/>
+        <field name="subject">{{ object.name }}：請各部門完成可行性評分</field>
+        <field name="email_from">{{ (object.user_id.email_formatted or user.email_formatted) }}</field>
+        <field name="use_default_to" eval="True"/>
+        <field name="description">送出評估時通知相關部門與負責業務</field>
+        <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px;">
+    <p style="margin: 0 0 12px 0; font-size: 13px;">
+        你好，
+        <br/><br/>
+        業務 <t t-out="object.user_id.display_name or ''">負責業務</t> 已送出可行性評估
+        <strong t-out="object.name or ''">FEA/2026/00001</strong>。
+        <br/>
+        客戶：<t t-out="object.partner_id.display_name or ''">客戶</t>
+        <br/>
+        產品：<t t-out="object.product_id.display_name or ''">產品</t>
+        <br/>
+        數量：<t t-out="object.product_qty or 0">數量</t>
+        <br/>
+        客戶要求交期：<t t-out="object.requested_date or ''">交期</t>
+        <br/><br/>
+        請至系統填寫您所屬部門的評分與意見。
+    </p>
+</div>
+        </field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+
+    <!-- 通知：評估完成（approve / reject 時） -->
+    <record id="mail_template_plm_feasibility_decided" model="mail.template">
+        <field name="name">PLM Feasibility: Decision</field>
+        <field name="model_id" ref="model_plm_custom_feasibility"/>
+        <field name="subject">{{ object.name }}：可行性評估結論 - {{ object.decision }}</field>
+        <field name="email_from">{{ (user.email_formatted) }}</field>
+        <field name="use_default_to" eval="True"/>
+        <field name="description">可行性評估做出決策時通知客戶業務與相關部門</field>
+        <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px;">
+    <p style="margin: 0 0 12px 0; font-size: 13px;">
+        你好，
+        <br/><br/>
+        可行性評估 <strong t-out="object.name or ''">FEA/2026/00001</strong> 已做出結論：
+        <strong t-out="dict(object._fields['state'].selection).get(object.state) or ''">state</strong>
+        （決策：
+        <strong t-out="dict(object._fields['decision'].selection).get(object.decision) or ''">decision</strong>）。
+        <br/><br/>
+        客戶：<t t-out="object.partner_id.display_name or ''">客戶</t>
+        <br/>
+        產品：<t t-out="object.product_id.display_name or ''">產品</t>
+        <br/>
+        總分：<t t-out="object.score_total or 0">總分</t>
+    </p>
+</div>
+        </field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+
+</odoo>
