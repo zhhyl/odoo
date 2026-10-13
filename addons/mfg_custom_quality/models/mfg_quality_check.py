@@ -108,10 +108,11 @@ class MfgQualityCheck(models.Model):
         index=True,
     )
     failure_reason = fields.Html("不合格原因")
-    corrective_action_id = fields.Many2one(
-        "mfg_custom.issue",
-        "對應改善單",
-        help="待 mfg_custom_issue 模組建好後生效；目前僅作為 Many2one reference。",
+    corrective_action_id = fields.Reference(
+        # 使用 Reference 而非 Many2one：避免與 mfg_custom_issue 模組互依賴
+        selection=[("mfg_custom.issue", "問題点")],
+        string="對應改善單",
+        help="待 mfg_custom_issue 模組安裝後即可使用。",
     )
     notes = fields.Text("備註")
     company_id = fields.Many2one(

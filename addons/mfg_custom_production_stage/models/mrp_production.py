@@ -24,12 +24,10 @@ class MrpProduction(models.Model):
         tracking=True,
         help="樣品 = 工程打樣；小批量 = 試量產/PP；量產 = 正式生產。",
     )
-    mfg_custom_sample_request_id = fields.Many2one(
-        # Many2one 但不寫 depends：plm_custom_feasibility 模組建好後即生效
-        "plm_custom.feasibility",
-        "樣品評估單",
-        ondelete="set null",
-        index=True,
+    mfg_custom_sample_request_id = fields.Reference(
+        # 使用 Reference 而非 Many2one：避免 plm_custom_feasibility 模組互依賴
+        selection=[("plm_custom.feasibility", "可行性評估單")],
+        string="樣品評估單",
         help="若是樣品階段，可關聯一份可行性評估單（待 plm_custom_feasibility 模組安裝後即可使用）。",
     )
     mfg_custom_parent_production_id = fields.Many2one(

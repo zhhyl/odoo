@@ -108,11 +108,12 @@ class MfgCustomIssue(models.Model):
         "issue_id",
         "改善行動",
     )
-    eco_id = fields.Many2one(
-        "plm_custom.eco",
-        "升級 ECO",
-        ondelete="set null",
+    eco_id = fields.Reference(
+        # 使用 Reference 而非 Many2one：避免與 plm_custom_eco 模組互依賴
+        selection=[("plm_custom.eco", "ECO")],
+        string="升級 ECO",
         readonly=True,
+        help="本問題被升級為 ECO 時記錄（待 plm_custom_eco 模組安裝後即可使用）。",
     )
     user_id = fields.Many2one(
         "res.users",
@@ -203,7 +204,7 @@ class MfgCustomIssue(models.Model):
             "user_id": self.env.user.id,
             "subject": self.env._("由問題点 %s 升級", self.name),
         })
-        self.eco_id = eco
+        self.eco_id = f"plm_custom.eco,{eco.id}"
         self.message_post(
             body=self.env._("已升級為 ECO %s", eco.display_name)
         )
