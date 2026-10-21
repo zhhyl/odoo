@@ -28,7 +28,7 @@ class MfgApprovalRule(models.Model):
         "ir.model",
         "適用單據類型",
         required=True,
-        ondelete="restrict",
+        ondelete="cascade",
         index=True,
         help="要套用此簽核流程的單據類型。只能選擇已掛載簽核功能的單據。",
     )
