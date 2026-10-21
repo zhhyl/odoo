@@ -29,7 +29,7 @@ class PlmFeasibility(models.Model):
 
     _name = "plm_custom.feasibility"
     _description = "PLM Custom 可行性評估"
-    _inherit = ["mail.thread", "mfg_custom.approval.mixin"]
+    _inherit = ["mfg_custom.approval.mixin"]
     _order = "id desc"
     _rec_name = "name"
 

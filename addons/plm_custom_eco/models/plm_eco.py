@@ -9,7 +9,7 @@ class PlmCustomEco(models.Model):
 
     _name = "plm_custom.eco"
     _description = "PLM Custom 工程變更單"
-    _inherit = ["mail.thread", "mail.activity.mixin", "mfg_custom.approval.mixin"]
+    _inherit = ["mail.activity.mixin", "mfg_custom.approval.mixin"]
     _order = "create_date desc"
 
     name = fields.Char(default="ECO/New", readonly=True, copy=False)
