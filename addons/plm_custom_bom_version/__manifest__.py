@@ -16,7 +16,7 @@ PLM Custom - BOM Version Snapshot
 * 快照為 immutable（防止事後竄改）
 * 提供「現行快照」smart button 與「歷史版本」清單
 * 快照含明細、工序、副產品三類子記錄
-* 支援 ``plm_custom.eco``（plm_custom_eco 模組）的反向追溯
+* 支援 ``plm_custom.eco`` （plm_custom_eco 模組）的反向追溯
 
 依賴
 ----

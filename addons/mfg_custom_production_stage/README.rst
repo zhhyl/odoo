@@ -23,9 +23,9 @@ MFG Custom - Production Stage & Yield Rate
 關聯模組
 --------
 
-* ``mfg_custom_issue``（未建立）：問題点計數
-* ``mfg_custom_quality``（未建立）：品檢計數
-* ``plm_custom_feasibility``（未建立）：樣品單關聯欄位
+* ``mfg_custom_issue`` （未建立）：問題点計數
+* ``mfg_custom_quality`` （未建立）：品檢計數
+* ``plm_custom_feasibility`` （未建立）：樣品單關聯欄位
 
 三者皆以「延遲參考」方式保留欄位／介面，安裝後即可使用。
 

@@ -15,11 +15,11 @@ MFG Custom - Multi-level Approval
 
 提供：
 
-* 抽象 mixin ``mfg_custom.approval.mixin``（可由其他模型繼承）
-* 簽核規則 ``mfg_custom.approval.rule``（含適用 model 與 domain）
-* 簽核關卡 ``mfg_custom.approval.step``（支援 user / group / group_all / field 四種 approver_mode）
-* 簽核申請 ``mfg_custom.approval.request``（state machine：draft/pending/approved/rejected/cancelled）
-* 簽核紀錄 ``mfg_custom.approval.line``（每關卡的決策與意見）
+* 抽象 mixin ``mfg_custom.approval.mixin`` （可由其他模型繼承）
+* 簽核規則 ``mfg_custom.approval.rule`` （含適用 model 與 domain）
+* 簽核關卡 ``mfg_custom.approval.step`` （支援 user / group / group_all / field 四種 approver_mode）
+* 簽核申請 ``mfg_custom.approval.request`` （state machine：draft/pending/approved/rejected/cancelled）
+* 簽核紀錄 ``mfg_custom.approval.line`` （每關卡的決策與意見）
 
 安裝後即可在「MFG Custom > 設定 > 簽核規則」建立流程，
 並讓 ``plm_custom.eco``、``sale.order`` 等模型透過繼承 mixin 取得簽核按鈕。

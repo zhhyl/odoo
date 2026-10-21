@@ -12,7 +12,7 @@ MFG Custom - Base
 
 為整個 mfg_custom_* 與 plm_custom_* 模組群提供：
 
-* 抽象 mixin ``mfg_custom.model.mixin``（含 mail.thread、company、code、active、tags）
+* 抽象 mixin ``mfg_custom.model.mixin`` （含 mail.thread、company、code、active、tags）
 * 共用安全群組（User / Manager / Engineering / Quality）
 * 共用序號（``mfg_custom.sequence.mixin``）
 * 共用 mail.message.subtype（狀態變更預設追蹤）
