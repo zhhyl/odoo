@@ -105,6 +105,25 @@ class PlmFeasibilityScore(models.Model):
                     )
                 )
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        """建立前先擋住重複的部門評分（DB constraint 只會丟 IntegrityError）。"""
+        for vals in vals_list:
+            if not vals.get("feasibility_id") or not vals.get("department"):
+                continue
+            duplicate = self.search_count([
+                ("feasibility_id", "=", vals["feasibility_id"]),
+                ("department", "=", vals["department"]),
+            ])
+            if duplicate:
+                raise ValidationError(
+                    self.env._(
+                        "同一張評估單的「%s」部門只能有一筆評分。",
+                        vals["department"],
+                    )
+                )
+        return super().create(vals_list)
+
     @api.constrains("feasibility_id", "department")
     def _check_unique_department(self):
         """同一張評估單的同一部門只能有一筆評分（給出友善錯誤訊息）。"""
