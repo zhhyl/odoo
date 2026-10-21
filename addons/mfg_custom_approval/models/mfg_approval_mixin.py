@@ -139,7 +139,7 @@ class MfgApprovalMixin(models.AbstractModel):
                 # 重用既有簽核單：重啟流程（駁回後重送 / 核准後再走第二輪）
                 request._restart(rule=rule)
                 rec.approval_request_id = request
-                rec.message_post(
+                rec.sudo().message_post(
                     body=self.env._(
                         "已重新送出簽核申請：%s（%d 個關卡）",
                         request.display_name,
@@ -154,7 +154,7 @@ class MfgApprovalMixin(models.AbstractModel):
                 "res_id": rec.id,
             })
             rec.approval_request_id = request
-            rec.message_post(
+            rec.sudo().message_post(
                 body=self.env._(
                     "已送出簽核申請：%s（%d 個關卡）",
                     request.display_name,

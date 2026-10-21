@@ -181,7 +181,7 @@ class PlmCustomEco(models.Model):
             if eco.state == "approved":
                 continue
             eco.write({"state": "approved"})
-            eco.message_post(body=self.env._("ECO 已核准"))
+            eco.sudo().message_post(body=self.env._("ECO 已核准"))
 
     def _approval_on_rejected(self):
         """簽核被駁回時，把 ECO 改為已駁回。"""
@@ -189,7 +189,7 @@ class PlmCustomEco(models.Model):
             if eco.state == "rejected":
                 continue
             eco.write({"state": "rejected"})
-            eco.message_post(body=self.env._("ECO 已駁回"))
+            eco.sudo().message_post(body=self.env._("ECO 已駁回"))
 
     def _approval_on_cancelled(self):
         """簽核被取消時，把 ECO 退回影響分析階段。"""
@@ -197,7 +197,7 @@ class PlmCustomEco(models.Model):
             if eco.state != "pending_approval":
                 continue
             eco.write({"state": "impact_analysis"})
-            eco.message_post(body=self.env._("ECO 簽核已取消，退回影響分析"))
+            eco.sudo().message_post(body=self.env._("ECO 簽核已取消，退回影響分析"))
 
     def action_apply(self):
         for eco in self:

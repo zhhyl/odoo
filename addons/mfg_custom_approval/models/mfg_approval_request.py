@@ -434,7 +434,7 @@ class MfgApprovalRequest(models.Model):
             )
             if note:
                 body += self.env._("\n意見：%s", note)
-            record.message_post(
+            record.sudo().message_post(
                 body=body,
                 subtype_xmlid="mfg_custom_approval.mt_mfg_approval_state_changed",
             )
@@ -443,7 +443,7 @@ class MfgApprovalRequest(models.Model):
         self.ensure_one()
         record = self._get_res_record()
         if record and hasattr(record, "message_post"):
-            record.message_post(
+            record.sudo().message_post(
                 body=self.env._("所有簽核關卡皆已通過，狀態：已核准"),
                 subtype_xmlid="mfg_custom_approval.mt_mfg_approval_state_changed",
             )
