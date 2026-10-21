@@ -9,7 +9,7 @@
         <field name="sequence">10</field>
         <field name="note">問題點送出的簽核申請，由管理部核准。</field>
         <field name="step_ids">
-            <record model="mfg_custom.approval.step">
+            <record id="mfg_issue_approval_rule_default_step1" model="mfg_custom.approval.step">
                 <field name="sequence">10</field>
                 <field name="name">管理部核准</field>
                 <field name="approver_mode">group</field>

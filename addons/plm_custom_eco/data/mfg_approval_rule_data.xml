@@ -13,13 +13,13 @@
         <field name="sequence">10</field>
         <field name="note">高風險／關鍵等級的工程變更，需工程部與品保部兩段核准。</field>
         <field name="step_ids">
-            <record model="mfg_custom.approval.step">
+            <record id="plm_eco_approval_rule_high_risk_step1" model="mfg_custom.approval.step">
                 <field name="sequence">10</field>
                 <field name="name">工程部核准</field>
                 <field name="approver_mode">group</field>
                 <field name="group_id" ref="mfg_custom_base.group_engineering"/>
             </record>
-            <record model="mfg_custom.approval.step">
+            <record id="plm_eco_approval_rule_high_risk_step2" model="mfg_custom.approval.step">
                 <field name="sequence">20</field>
                 <field name="name">品保部核准</field>
                 <field name="approver_mode">group</field>
@@ -34,7 +34,7 @@
         <field name="sequence">20</field>
         <field name="note">一般工程變更，由管理部一關核准即可。</field>
         <field name="step_ids">
-            <record model="mfg_custom.approval.step">
+            <record id="plm_eco_approval_rule_normal_step1" model="mfg_custom.approval.step">
                 <field name="sequence">10</field>
                 <field name="name">管理部核准</field>
                 <field name="approver_mode">group</field>
