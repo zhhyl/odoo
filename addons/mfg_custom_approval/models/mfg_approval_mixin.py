@@ -20,6 +20,9 @@ class MfgApprovalMixin(models.AbstractModel):
 
     _name = "mfg_custom.approval.mixin"
     _description = "MFG Custom 簽核 mixin"
+    # 繼承 mail.thread：簽核流程需要發送 chatter 訊息與通知信，
+    # 且與其它 mixin（mail.activity.mixin / rating.mixin）的 MRO 相容。
+    _inherit = ["mail.thread"]
 
     approval_request_id = fields.Many2one(
         "mfg_custom.approval.request",
