@@ -7,13 +7,14 @@
         <field name="model_id" ref="model_mfg_custom_issue"/>
         <field name="domain"></field>
         <field name="sequence">10</field>
-        <field name="note">問題點送出的簽核申請，由管理部核准後方可進行結案等後續動作。</field>
+        <field name="note">問題點送出的簽核申請，由管理部核准。</field>
         <field name="step_ids">
-            <field name="sequence">10</field>
-            <field name="name">管理部核准</field>
-            <field name="approver_mode">group</field>
-            <field name="group_id" ref="mfg_custom_base.group_manager"/>
-            <field name="required" eval="True"/>
+            <record model="mfg_custom.approval.step">
+                <field name="sequence">10</field>
+                <field name="name">管理部核准</field>
+                <field name="approver_mode">group</field>
+                <field name="group_id" ref="mfg_custom_base.group_manager"/>
+            </record>
         </field>
     </record>
 
