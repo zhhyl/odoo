@@ -123,8 +123,8 @@ class TestPlmCustomEco(TransactionCase):
 
     def test_10_multi_step_keeps_state_until_all_approved(self):
         """多關卡只核准第一關時，ECO 與簽核單都不得變成已核准。"""
-        user_a = new_test_user(self.env, login="eco_approver_a", groups="base.group_user")
-        user_b = new_test_user(self.env, login="eco_approver_b", groups="base.group_user")
+        user_a = new_test_user(self.env, login="eco_approver_a", groups="base.group_user,mfg_custom_base.group_user")
+        user_b = new_test_user(self.env, login="eco_approver_b", groups="base.group_user,mfg_custom_base.group_user")
         self._make_rule(steps=[
             {
                 "name": "第一關",
@@ -164,8 +164,8 @@ class TestPlmCustomEco(TransactionCase):
 
     def test_11_cannot_apply_before_full_approval(self):
         """簽核尚未全部通過時，ECO 不得套用。"""
-        user_a = new_test_user(self.env, login="eco_approver_c", groups="base.group_user")
-        user_b = new_test_user(self.env, login="eco_approver_d", groups="base.group_user")
+        user_a = new_test_user(self.env, login="eco_approver_c", groups="base.group_user,mfg_custom_base.group_user")
+        user_b = new_test_user(self.env, login="eco_approver_d", groups="base.group_user,mfg_custom_base.group_user")
         self._make_rule(steps=[
             {
                 "name": "第一關",

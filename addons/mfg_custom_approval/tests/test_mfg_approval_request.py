@@ -23,10 +23,10 @@ class TestMfgApprovalRequest(TransactionCase):
         cls.Line = cls.env["mfg_custom.approval.line"]
         cls.TestModel = cls.env["mfg_custom.approval.test.model"]
         # 建立 4 個 plain user，作為步驟簽核者
-        cls.user_a = new_test_user(cls.env, login="approval_a", groups="base.group_user")
-        cls.user_b = new_test_user(cls.env, login="approval_b", groups="base.group_user")
-        cls.user_c = new_test_user(cls.env, login="approval_c", groups="base.group_user")
-        cls.user_d = new_test_user(cls.env, login="approval_d", groups="base.group_user")
+        cls.user_a = new_test_user(cls.env, login="approval_a", groups="base.group_user,mfg_custom_base.group_user")
+        cls.user_b = new_test_user(cls.env, login="approval_b", groups="base.group_user,mfg_custom_base.group_user")
+        cls.user_c = new_test_user(cls.env, login="approval_c", groups="base.group_user,mfg_custom_base.group_user")
+        cls.user_d = new_test_user(cls.env, login="approval_d", groups="base.group_user,mfg_custom_base.group_user")
 
     def _make_rule(self, steps):
         return self.Rule.create({

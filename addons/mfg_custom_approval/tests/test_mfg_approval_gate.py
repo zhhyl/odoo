@@ -24,8 +24,8 @@ class TestMfgApprovalGate(TransactionCase):
         cls.Request = cls.env["mfg_custom.approval.request"]
         cls.Line = cls.env["mfg_custom.approval.line"]
         cls.TestModel = cls.env["mfg_custom.approval.test.model"]
-        cls.user_a = new_test_user(cls.env, login="gate_a", groups="base.group_user")
-        cls.user_b = new_test_user(cls.env, login="gate_b", groups="base.group_user")
+        cls.user_a = new_test_user(cls.env, login="gate_a", groups="base.group_user,mfg_custom_base.group_user")
+        cls.user_b = new_test_user(cls.env, login="gate_b", groups="base.group_user,mfg_custom_base.group_user")
         cls.model_id = cls.env["ir.model"]._get(
             "mfg_custom.approval.test.model"
         ).id

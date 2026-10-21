@@ -19,7 +19,7 @@ class TestMfgApprovalMixin(TransactionCase):
         super().setUpClass()
         cls.Rule = cls.env["mfg_custom.approval.rule"]
         cls.TestModel = cls.env["mfg_custom.approval.test.model"]
-        cls.user_a = new_test_user(cls.env, login="mixin_a", groups="base.group_user")
+        cls.user_a = new_test_user(cls.env, login="mixin_a", groups="base.group_user,mfg_custom_base.group_user")
 
     def _make_single_user_rule(self):
         return self.Rule.create({
