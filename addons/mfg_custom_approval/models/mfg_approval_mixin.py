@@ -40,6 +40,12 @@ class MfgApprovalMixin(models.AbstractModel):
         store=True,
         index=True,
     )
+    approval_rule_id = fields.Many2one(
+        "mfg_custom.approval.rule",
+        "簽核規則",
+        compute="_compute_approval_rule",
+        help="依目前單據內容符合的簽核規則（尚未送出簽核時也能預覽）。",
+    )
 
     @api.depends("approval_request_id", "approval_request_id.state")
     def _compute_approval_state(self):
@@ -59,6 +65,13 @@ class MfgApprovalMixin(models.AbstractModel):
                     rec.approval_request_id.state, "not_required"
                 )
 
+    @api.depends_context("company")
+    def _compute_approval_rule(self):
+        """預覽此單據符合的簽核規則（僅顯示用，不會建立任何紀錄）。"""
+        Rule = self.env["mfg_custom.approval.rule"]
+        for rec in self:
+            rec.approval_rule_id = Rule._match_rule(rec._name, rec)
+
     def _get_approval_rule_domain(self):
         """子模型可覆寫：回傳用以匹配 ``approval.rule`` 的額外 domain。
 
@@ -66,16 +79,45 @@ class MfgApprovalMixin(models.AbstractModel):
         """
         return []
 
+    def _approval_before_submit(self):
+        """送出簽核前的業務檢查 hook（預設無動作）。
+
+        子模型可覆寫此方法做送簽前的資料檢查，檢查不通過時應 raise UserError。
+        """
+        return True
+
+    def _approval_on_approved(self):
+        """簽核全部通過時的業務回寫 hook（預設無動作）。
+
+        子模型可覆寫此方法，把業務單據的狀態更新為「已核准」等。
+        引擎只會在 request 真的進入 approved 狀態後呼叫本方法。
+        """
+        return True
+
+    def _approval_on_rejected(self):
+        """簽核被駁回時的業務回寫 hook（預設無動作）。"""
+        return True
+
+    def _approval_on_cancelled(self):
+        """簽核被取消時的業務回寫 hook（預設無動作）。"""
+        return True
+
     def action_submit_for_approval(self, rule=None):
         """送出簽核：建立 ``mfg_custom.approval.request`` 並掛回 mixin。
+
+        若本單已有簽核單且不在「待簽核」狀態（已駁回 / 已取消 / 已核准），
+        會直接重用該簽核單並重啟流程，讓使用者不需要重建單據。
 
         :param rule: 可指定 ``mfg_custom.approval.rule`` 紀錄；
                      若未提供則依 ``_match_rule`` 自動尋找。
         """
         for rec in self:
-            if rec.approval_request_id and rec.approval_request_id.state == "pending":
+            request = rec.approval_request_id
+            if request and request.state == "pending":
                 raise UserError(
-                    self.env._("此單已有進行中的簽核申請：%s", rec.approval_request_id.display_name)
+                    self.env._(
+                        "此單已有進行中的簽核申請：%s", request.display_name
+                    )
                 )
             if not rule:
                 rule = self.env["mfg_custom.approval.rule"]._match_rule(
@@ -83,8 +125,26 @@ class MfgApprovalMixin(models.AbstractModel):
                 )
             if not rule:
                 raise UserError(
-                    self.env._("找不到適用於 %s 的簽核規則", rec._name)
+                    self.env._(
+                        "此單據（%s）尚未設定簽核規則，無法送出簽核。\n"
+                        "請聯絡管理員於【MFG Custom > 設定 > 簽核規則】建立規則。",
+                        rec._name,
+                    )
                 )
+            rec._approval_before_submit()
+            if request and request.exists():
+                # 重用既有簽核單：重啟流程（駁回後重送 / 核准後再走第二輪）
+                request._restart(rule=rule)
+                rec.approval_request_id = request
+                rec.message_post(
+                    body=self.env._(
+                        "已重新送出簽核申請：%s（%d 個關卡）",
+                        request.display_name,
+                        len(rule.step_ids),
+                    ),
+                    subtype_xmlid="mfg_custom_approval.mt_mfg_approval_state_changed",
+                )
+                continue
             request = self.env["mfg_custom.approval.request"].create({
                 "rule_id": rule.id,
                 "res_model": rec._name,
@@ -121,7 +181,9 @@ class MfgApprovalMixin(models.AbstractModel):
                 return
             if rec.approval_request_id.state in ("approved", "cancelled"):
                 raise UserError(
-                    self.env._("簽核單已是 %s 狀態，無法取消", rec.approval_request_id.state)
+                    self.env._(
+                        "簽核單已是 %s 狀態，無法取消", rec.approval_request_id.state
+                    )
                 )
             rec.approval_request_id.action_cancel()
 

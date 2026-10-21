@@ -2,7 +2,7 @@
 
 {
     "name": "MFG Custom - Quality Inspection",
-    "version": "20.0.1.0.0",
+    "version": "20.0.1.1.0",
     "category": "Manufacturing/MFG Custom",
     "sequence": 356,
     "summary": "品檢點 + 品檢單 + 結果（Community 無 quality 模組之替代）",
@@ -32,7 +32,7 @@ MFG Custom - Quality Inspection
 * **MO** 的 form view：新增「品檢單」智慧按鈕。
 * **入庫單** 的 form view：新增「品檢單」智慧按鈕。
 """,
-    "depends": ["mfg_custom_base", "mrp", "stock"],
+    "depends": ["mfg_custom_base", "mfg_custom_approval", "mrp", "stock"],
     "data": [
         "security/ir.access.csv",
         "data/ir_sequence_data.xml",
@@ -43,6 +43,7 @@ MFG Custom - Quality Inspection
         "views/mrp_production_views.xml",
         "views/stock_picking_views.xml",
         "views/mfg_quality_menus.xml",
+        "data/mfg_approval_rule_data.xml",
     ],
     "installable": True,
     "auto_install": False,

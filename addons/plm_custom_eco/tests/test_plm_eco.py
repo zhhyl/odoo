@@ -1,8 +1,9 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+from odoo import Command
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests import tagged
-from odoo.tests.common import TransactionCase
+from odoo.tests.common import TransactionCase, new_test_user
 
 
 @tagged("post_install", "-at_install", "mfg_custom", "plm_custom")
@@ -16,6 +17,34 @@ class TestPlmCustomEco(TransactionCase):
             [("product_tmpl_id", "=", cls.product.product_tmpl_id.id)], limit=1
         )
         cls.user = cls.env.ref("base.user_admin")
+
+    def _make_rule(self, steps=None):
+        """建立 ECO 的簽核規則（供測試送簽使用）。"""
+        if steps is None:
+            steps = [
+                {
+                    "name": "經理核准",
+                    "approver_mode": "group",
+                    "group_id": self.env.ref("mfg_custom_base.group_manager").id,
+                },
+            ]
+        return self.env["mfg_custom.approval.rule"].create({
+            "name": "ECO 測試規則",
+            "model_id": self.env["ir.model"]._get("plm_custom.eco").id,
+            "step_ids": [Command.create(s) for s in steps],
+        })
+
+    def _ensure_impact_lines(self, eco):
+        """確保 ECO 有影響清單（送簽的前置條件）。"""
+        if eco.line_ids:
+            return
+        self.env["plm_custom.eco.line"].create({
+            "eco_id": eco.id,
+            "impact_type": "other",
+            "res_model": "product.product",
+            "res_id": eco.product_id.id,
+            "description": "測試用影響項目",
+        })
 
     def _create_eco(self, **kwargs):
         vals = {
@@ -79,8 +108,81 @@ class TestPlmCustomEco(TransactionCase):
             eco.action_apply()
 
     def test_09_reject_sets_state(self):
+        """簽核被駁回時，ECO 狀態同步為已駁回。"""
+        self._make_rule()
         eco = self._create_eco()
         eco.action_start_analysis()
-        eco.write({"state": "pending_approval"})
-        eco.action_reject()
+        self._ensure_impact_lines(eco)
+        eco.action_submit_approval()
+        self.assertEqual(eco.state, "pending_approval")
+
+        eco.approval_request_id.with_user(self.user).action_reject(reason="資料不全")
+        eco.invalidate_recordset()
+        self.assertEqual(eco.approval_request_id.state, "rejected")
         self.assertEqual(eco.state, "rejected")
+
+    def test_10_multi_step_keeps_state_until_all_approved(self):
+        """多關卡只核准第一關時，ECO 與簽核單都不得變成已核准。"""
+        user_a = new_test_user(self.env, login="eco_approver_a", groups="base.group_user")
+        user_b = new_test_user(self.env, login="eco_approver_b", groups="base.group_user")
+        self._make_rule(steps=[
+            {
+                "name": "第一關",
+                "approver_mode": "user",
+                "user_ids": [Command.set([user_a.id])],
+            },
+            {
+                "name": "第二關",
+                "approver_mode": "user",
+                "user_ids": [Command.set([user_b.id])],
+            },
+        ])
+        eco = self._create_eco()
+        eco.action_start_analysis()
+        self._ensure_impact_lines(eco)
+        eco.action_submit_approval()
+        req = eco.approval_request_id
+        self.assertEqual(eco.state, "pending_approval")
+
+        # 只核准第一關
+        req.with_user(user_a).action_approve()
+        eco.invalidate_recordset()
+        req.invalidate_recordset()
+        self.assertEqual(req.state, "pending")
+        self.assertEqual(
+            eco.state,
+            "pending_approval",
+            "只核准第一關時，ECO 不得提前變成已核准",
+        )
+
+        # 全部核准後才同步
+        req.with_user(user_b).action_approve()
+        eco.invalidate_recordset()
+        req.invalidate_recordset()
+        self.assertEqual(req.state, "approved")
+        self.assertEqual(eco.state, "approved")
+
+    def test_11_cannot_apply_before_full_approval(self):
+        """簽核尚未全部通過時，ECO 不得套用。"""
+        user_a = new_test_user(self.env, login="eco_approver_c", groups="base.group_user")
+        user_b = new_test_user(self.env, login="eco_approver_d", groups="base.group_user")
+        self._make_rule(steps=[
+            {
+                "name": "第一關",
+                "approver_mode": "user",
+                "user_ids": [Command.set([user_a.id])],
+            },
+            {
+                "name": "第二關",
+                "approver_mode": "user",
+                "user_ids": [Command.set([user_b.id])],
+            },
+        ])
+        eco = self._create_eco()
+        eco.action_start_analysis()
+        self._ensure_impact_lines(eco)
+        eco.action_submit_approval()
+        eco.approval_request_id.with_user(user_a).action_approve()
+        eco.invalidate_recordset()
+        with self.assertRaises(UserError):
+            eco.action_apply()

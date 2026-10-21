@@ -86,6 +86,16 @@ class MfgApprovalRequest(models.Model):
         "送出時間",
         default=fields.Datetime.now,
     )
+    pending_approver_emails = fields.Char(
+        "待簽核者信箱",
+        compute="_compute_pending_approver_emails",
+        help="目前待簽關卡的簽核者信箱，供通知信使用。",
+    )
+    res_display_name = fields.Char(
+        "業務單據",
+        compute="_compute_res_display_name",
+        help="被簽核的業務單據名稱。",
+    )
 
     _req_idx = models.Index("(state, res_model, res_id)")
 
@@ -97,23 +107,54 @@ class MfgApprovalRequest(models.Model):
                     self.env._("業務模型 %s 不存在", rec.res_model)
                 )
 
+    @api.depends("line_ids.user_id", "line_ids.decision")
+    def _compute_pending_approver_emails(self):
+        for rec in self:
+            users = rec.line_ids.filtered(
+                lambda ln: ln.decision == "pending"
+            ).mapped("user_id")
+            rec.pending_approver_emails = ", ".join(
+                [email for email in users.mapped("email") if email]
+            )
+
+    @api.depends("res_model", "res_id")
+    def _compute_res_display_name(self):
+        for rec in self:
+            record = rec._get_res_record()
+            rec.res_display_name = (
+                record.display_name if record and record.exists() else False
+            )
+
+    def action_open_res_record(self):
+        """開啟被簽核的業務單據，方便簽核者檢視內容。"""
+        self.ensure_one()
+        record = self._get_res_record()
+        if not record or not record.exists():
+            raise UserError(self.env._("對應的業務單據已不存在"))
+        return self.env["ir.actions.act_window"].create({
+            "name": record.display_name or self.res_model,
+            "res_model": self.res_model,
+            "res_id": record.id,
+            "view_mode": "form",
+            "views": [(False, "form")],
+            "target": "current",
+        })
+
     @api.model_create_multi
     def _check_no_active_duplicate(self, vals_list):
-        """避免同一單據+規則同時存在多份 pending/approved 申請。"""
+        """避免同一單據同時存在多份進行中的申請。"""
         for vals in vals_list:
-            if vals.get("state", "pending") in ("pending", "approved", "draft"):
-                domain = [
-                    ("res_model", "=", vals.get("res_model")),
-                    ("res_id", "=", vals.get("res_id")),
-                    ("rule_id", "=", vals.get("rule_id")),
-                    ("state", "in", ("draft", "pending", "approved")),
-                ]
-                if self.search_count(domain):
-                    raise ValidationError(
-                        self.env._(
-                            "此單據已有進行中或已核准的簽核申請，請先取消或重置後再送出"
-                        )
-                    )
+            if vals.get("state", "pending") != "pending":
+                continue
+            domain = [
+                ("res_model", "=", vals.get("res_model")),
+                ("res_id", "=", vals.get("res_id")),
+                ("state", "=", "pending"),
+            ]
+            if self.search_count(domain):
+                raise ValidationError(
+                    self.env._("此單據已有進行中的簽核申請，請先取消或重置後再送出")
+                )
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -126,6 +167,7 @@ class MfgApprovalRequest(models.Model):
         records = super().create(vals_list)
         for rec in records:
             rec._build_lines()
+            rec._notify_approvers()
         return records
 
     # ------------------------------------------------------------------
@@ -163,11 +205,7 @@ class MfgApprovalRequest(models.Model):
             step = rec.current_step_id
             if not step:
                 raise UserError(self.env._("找不到當前關卡"))
-            line = rec.line_ids.filtered(
-                lambda ln: ln.step_id == step
-                and ln.user_id == self.env.user
-                and ln.decision == "pending"
-            )[:1]
+            line = rec._get_pending_line()
             if not line:
                 raise UserError(
                     self.env._("您不在本關卡的簽核者名單中，或已簽過")
@@ -186,15 +224,12 @@ class MfgApprovalRequest(models.Model):
             step = rec.current_step_id
             if not step:
                 raise UserError(self.env._("找不到當前關卡"))
-            line = rec.line_ids.filtered(
-                lambda ln: ln.step_id == step
-                and ln.user_id == self.env.user
-                and ln.decision == "pending"
-            )[:1]
+            line = rec._get_pending_line()
             if not line:
                 raise UserError(
                     self.env._("您不在本關卡的簽核者名單中，或已簽過")
                 )
+            reason = reason or rec.reason
             line.write({
                 "decision": "rejected",
                 "decision_date": fields.Datetime.now(),
@@ -204,6 +239,8 @@ class MfgApprovalRequest(models.Model):
                 rec.write({"reason": reason})
             rec._post_step_progress_message(step, note=reason)
             rec.write({"state": "rejected"})
+            rec._notify_business_record("_approval_on_rejected")
+            rec._notify_decision()
 
     def action_cancel(self):
         """申請人主動取消整份簽核單。"""
@@ -211,22 +248,48 @@ class MfgApprovalRequest(models.Model):
             if rec.state in ("approved", "rejected", "cancelled"):
                 continue
             rec.write({"state": "cancelled"})
+            rec._notify_business_record("_approval_on_cancelled")
+            rec._notify_decision()
 
     def action_reset_to_draft(self):
-        """將已取消的申請重新打回 draft 並重建 line（供管理員重置用）。"""
+        """將已取消或被駁回的申請重新打回 draft 並重建 line（供重送簽核用）。"""
         for rec in self:
-            if rec.state != "cancelled":
+            if rec.state not in ("cancelled", "rejected"):
                 raise UserError(
-                    self.env._("僅有 cancelled 狀態可重置為 draft")
+                    self.env._("僅有「已取消」或「被駁回」狀態可重置為草稿")
                 )
-            rec.line_ids.unlink()
-            rec.write({"state": "draft", "reason": False})
-            rec._build_lines()
-            rec.write({"state": "pending"})
+            rec._restart()
+
+    def _restart(self, rule=None):
+        """重啟簽核流程：清除既有紀錄並依規則重新建立簽核者。
+
+        用於「駁回後重送」與「核准後再走第二輪簽核」。
+        """
+        self.ensure_one()
+        # 簽核單本身擁有這些紀錄，重啟流程時由簽核單端刪除
+        self.line_ids.sudo().unlink()
+        vals = {"state": "draft", "reason": False}
+        if rule:
+            vals["rule_id"] = rule.id
+        self.write(vals)
+        self._build_lines()
+        self.write({"state": "pending"})
+        self._notify_approvers()
+        return True
 
     # ------------------------------------------------------------------
     # Internal helpers
     # ------------------------------------------------------------------
+
+    def _get_pending_line(self):
+        """取得當前使用者在本關卡尚未決策的簽核紀錄。"""
+        self.ensure_one()
+        step = self.current_step_id
+        return self.line_ids.filtered(
+            lambda ln: ln.step_id == step
+            and ln.user_id == self.env.user
+            and ln.decision == "pending"
+        )[:1]
 
     def _check_can_decide(self):
         for rec in self:
@@ -246,16 +309,26 @@ class MfgApprovalRequest(models.Model):
             return self.env[self.res_model].browse()
         return self.env[self.res_model].browse(self.res_id)
 
+    def _get_effective_steps(self):
+        """回傳本申請實際有簽核者的關卡。
+
+        關卡若因 ``field`` 模式取不到人（例如單據上的負責人未填），會被略過；
+        略過的關卡不應阻擋整體核准。
+        """
+        self.ensure_one()
+        return self.rule_id.step_ids.filtered(
+            lambda s: self.line_ids.filtered(lambda ln: ln.step_id == s)
+        )
+
     def _build_lines(self):
         """依 ``rule_id.step_ids`` 建立 ``line_ids``。"""
-        Step = self.env["mfg_custom.approval.step"]
         for rec in self:
             record = rec._get_res_record()
             LineVals = []
-            steps = rec.rule_id.step_ids.sorted("sequence")
-            for step in steps:
-                if not step._is_active_for_record(record):
-                    continue
+            active_steps = rec.rule_id.step_ids.sorted("sequence").filtered(
+                lambda s: s._is_active_for_record(record)
+            )
+            for step in active_steps:
                 users = step._resolve_approver_users(record)
                 if not users:
                     continue
@@ -266,20 +339,33 @@ class MfgApprovalRequest(models.Model):
                         "user_id": user.id,
                         "decision": "pending",
                     })
-            if LineVals:
-                self.env["mfg_custom.approval.line"].create(LineVals)
+            if not active_steps:
+                raise UserError(
+                    self.env._(
+                        "簽核規則「%s」沒有適用於此單據的簽核關卡，此單據不需簽核。",
+                        rec.rule_id.display_name,
+                    )
+                )
+            if not LineVals:
+                raise UserError(
+                    self.env._(
+                        "簽核規則「%s」的關卡都沒有設定簽核者，無法送出簽核。"
+                        "請於【MFG Custom > 設定 > 簽核規則】補齊關卡的簽核者。",
+                        rec.rule_id.display_name,
+                    )
+                )
+            self.env["mfg_custom.approval.line"].create(LineVals)
         return True
 
     def _check_all_approved(self):
-        """若所有啟用關卡皆已通過，將 request 設為 approved。"""
-        Step = self.env["mfg_custom.approval.step"]
+        """若所有有效關卡皆已通過，將 request 設為 approved。"""
         for rec in self:
-            record = rec._get_res_record()
-            active_steps = rec.rule_id.step_ids.filtered(
-                lambda s: s._is_active_for_record(record)
-            )
+            active_steps = rec._get_effective_steps()
             if not active_steps:
                 rec.write({"state": "approved"})
+                rec._post_final_approved_message()
+                rec._notify_business_record("_approval_on_approved")
+                rec._notify_decision()
                 continue
             all_done = True
             for step in active_steps:
@@ -289,6 +375,8 @@ class MfgApprovalRequest(models.Model):
             if all_done:
                 rec.write({"state": "approved"})
                 rec._post_final_approved_message()
+                rec._notify_business_record("_approval_on_approved")
+                rec._notify_decision()
 
     def _is_step_done(self, step):
         """判斷指定關卡是否已通過。"""
@@ -299,6 +387,40 @@ class MfgApprovalRequest(models.Model):
         if step.approver_mode == "group_all":
             return all(ln.decision == "approved" for ln in step_lines)
         return any(ln.decision == "approved" for ln in step_lines)
+
+    def _notify_business_record(self, hook_name):
+        """在業務單據上觸發 mixin 的狀態回寫 hook（若該單據有掛 mixin）。"""
+        for rec in self:
+            record = rec._get_res_record()
+            if not record or not record.exists():
+                continue
+            hook = getattr(record, hook_name, None)
+            if callable(hook):
+                hook()
+
+    def _notify_approvers(self):
+        """通知目前關卡的簽核者有待辦。"""
+        for rec in self:
+            if rec.state != "pending" or not rec.pending_approver_emails:
+                continue
+            template = self.env.ref(
+                "mfg_custom_approval.mail_template_mfg_approval_request",
+                raise_if_not_found=False,
+            )
+            if template:
+                template.send_mail(rec.id, force_send=False)
+
+    def _notify_decision(self):
+        """通知申請人簽核結果。"""
+        for rec in self:
+            if not rec.requester_id.email:
+                continue
+            template = self.env.ref(
+                "mfg_custom_approval.mail_template_mfg_approval_decided",
+                raise_if_not_found=False,
+            )
+            if template:
+                template.send_mail(rec.id, force_send=False)
 
     def _post_step_progress_message(self, step, note=""):
         """在 chatter 紀錄當前關卡進度。"""

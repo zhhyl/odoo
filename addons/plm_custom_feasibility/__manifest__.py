@@ -2,7 +2,7 @@
 
 {
     "name": "PLM Custom - Feasibility Assessment",
-    "version": "20.0.1.0.0",
+    "version": "20.0.1.1.0",
     "category": "Manufacturing/PLM Custom",
     "sequence": 354,
     "summary": "跨部門可行性評估（產能/技術/料況/法規/風險五面向評分）",
@@ -46,7 +46,7 @@ PLM Custom - Feasibility Assessment
 
 安裝後選單位於「PLM Custom > 可行性評估」。
 """,
-    "depends": ["mfg_custom_base", "sale", "mrp", "purchase"],
+    "depends": ["mfg_custom_base", "mfg_custom_approval", "sale", "mrp", "purchase"],
     "data": [
         "security/ir.access.csv",
         "data/ir_sequence_data.xml",
@@ -57,6 +57,7 @@ PLM Custom - Feasibility Assessment
         "wizard/plm_feasibility_wizard_views.xml",
         "views/plm_feasibility_menus.xml",
         "views/sale_order_views.xml",
+        "data/mfg_approval_rule_data.xml",
     ],
     "installable": True,
     "auto_install": False,

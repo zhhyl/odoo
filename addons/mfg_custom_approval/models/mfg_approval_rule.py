@@ -10,8 +10,12 @@ from odoo.fields import Domain
 class MfgApprovalRule(models.Model):
     """簽核規則.
 
-    每一條規則描述「哪些單據要走哪些關卡」。可依 ``res_model`` 與 ``domain``
-    動態匹配。匹配順序以 ``sequence`` 為主（小的優先），命中第一條即採用。
+    每一條規則描述「哪些單據要走哪些關卡」。可依 ``model_id``（適用單據類型）
+    與 ``domain``（適用條件）動態匹配。匹配順序以 ``sequence`` 為主（小的優先），
+    命中第一條即採用。
+
+    管理員透過前端介面設定本模型：``model_id`` 是下拉選單、``domain`` 使用
+    Odoo 原生條件建構器（domain widget），完全不需要撰寫程式碼。
     """
 
     _name = "mfg_custom.approval.rule"
@@ -20,17 +24,37 @@ class MfgApprovalRule(models.Model):
 
     name = fields.Char("規則名稱", required=True, translate=True)
     active = fields.Boolean(default=True, index=True)
-    res_model = fields.Char(
-        "適用 Model",
+    model_id = fields.Many2one(
+        "ir.model",
+        "適用單據類型",
         required=True,
+        ondelete="restrict",
         index=True,
-        help="技術模型名稱，如 plm_custom.eco, sale.order, mrp.production",
+        help="要套用此簽核流程的單據類型。只能選擇已掛載簽核功能的單據。",
+    )
+    res_model = fields.Char(
+        "技術模型名",
+        related="model_id.model",
+        store=True,
+        readonly=True,
+        index=True,
+        help="技術模型名稱，如 plm_custom.eco、mrp.production。（由「適用單據類型」自動帶出）",
+    )
+    model_name = fields.Char(
+        "模型技術名",
+        compute="_compute_model_name",
+        help="供前端條件建構器使用，指定要對哪個模型建立條件。",
+    )
+    model_display = fields.Char(
+        "適用單據",
+        compute="_compute_model_display",
+        help="顯示用的單據名稱。",
     )
     domain = fields.Char(
         "適用條件 (domain)",
         help=(
-            "符合條件的單據才走此規則；"
-            "例：[('amount_total', '>', 1000000)]"
+            "符合條件的單據才走此規則；留空代表所有此類單據都適用。"
+            "可使用右側的條件建構器設定，不需手寫。"
         ),
     )
     sequence = fields.Integer(default=10, index=True)
@@ -52,6 +76,52 @@ class MfgApprovalRule(models.Model):
         "同公司內同一 model 的規則名稱不可重複。",
     )
     _rule_seq_idx = models.Index("(sequence, res_model)")
+
+    @api.depends("model_id")
+    def _compute_model_name(self):
+        for rec in self:
+            rec.model_name = rec.model_id.model
+
+    @api.depends("model_id")
+    def _compute_model_display(self):
+        for rec in self:
+            if not rec.model_id:
+                rec.model_display = False
+            else:
+                rec.model_display = "%s（%s）" % (
+                    rec.model_id.name or rec.model_id.model,
+                    rec.model_id.model,
+                )
+
+    @api.model
+    def _get_approvable_models(self):
+        """回傳目前掛載簽核 mixin 的模型技術名清單（遞增排序）。
+
+        以 runtime 掃描 registry 得出，不需人工維護清單。
+        """
+        mixin_cls = type(self.env["mfg_custom.approval.mixin"])
+        return sorted(
+            name
+            for name, cls in self.env.registry.models.items()
+            if not cls._abstract and issubclass(cls, mixin_cls)
+        )
+
+    @api.constrains("model_id")
+    def _check_model_is_approvable(self):
+        """規則只能套用在已掛載簽核 mixin 的模型上。"""
+        approvable = self._get_approvable_models()
+        for rec in self:
+            if not rec.model_id:
+                continue
+            if rec.model_id.model not in approvable:
+                raise ValidationError(
+                    self.env._(
+                        "模型「%s」尚未掛載簽核功能，無法設定簽核規則。\n"
+                        "可套用的單據類型：%s",
+                        rec.model_id.model,
+                        ", ".join(approvable) or "（無）",
+                    )
+                )
 
     @api.constrains("domain")
     def _check_domain(self):
@@ -80,7 +150,11 @@ class MfgApprovalRule(models.Model):
         if not record or not record.ids:
             return self.browse()
         rules = self.search(
-            [("res_model", "=", res_model), ("active", "=", True)],
+            [
+                ("res_model", "=", res_model),
+                ("active", "=", True),
+                ("company_id", "in", (False, self.env.company.id)),
+            ],
             order="sequence asc, id asc",
         )
         for rule in rules:
@@ -92,7 +166,7 @@ class MfgApprovalRule(models.Model):
         return self.browse()
 
     def _parse_domain(self):
-        """將字串 domain 解析為 list/tuple；空字串回傳空 list。"""
+        """將字串 domain 解析為 ``Domain``；無法解析時回傳 None。"""
         self.ensure_one()
         if not self.domain:
             return Domain.TRUE

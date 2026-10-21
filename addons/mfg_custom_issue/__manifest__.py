@@ -2,7 +2,7 @@
 
 {
     "name": "MFG Custom - Production Issue",
-    "version": "20.0.1.0.0",
+    "version": "20.0.1.1.0",
     "category": "Manufacturing/MFG Custom",
     "sequence": 358,
     "summary": "產線問題点收集 + 改善追蹤 + 對應 ECO / 8D 報告（取代 Enterprise helpdesk）",
@@ -20,6 +20,7 @@ MFG Custom - Production Issue
 * 多部門協作：MO、工序、工作中心、產品、批號、品檢
 """,
     "depends": [
+        "mfg_custom_approval",
         "mfg_custom_base",
         "mfg_custom_production_stage",
         "mfg_custom_quality",
@@ -36,6 +37,7 @@ MFG Custom - Production Issue
         "views/mfg_issue_views.xml",
         "views/mrp_production_views.xml",
         "views/mfg_issue_menus.xml",
+        "data/mfg_approval_rule_data.xml",
     ],
     "installable": True,
     "auto_install": False,

@@ -5,9 +5,9 @@
     <record id="mail_template_mfg_approval_request" model="mail.template">
         <field name="name">MFG Custom Approval: Request Approval</field>
         <field name="model_id" ref="model_mfg_custom_approval_request"/>
-        <field name="subject">{{ object.name }}：{{ object.res_model }} #{{ object.res_id }} 待您簽核</field>
+        <field name="subject">{{ object.name }}：{{ object.res_display_name or object.res_model }} 待您簽核</field>
         <field name="email_from">{{ (object.requester_id.email_formatted or user.email_formatted) }}</field>
-        <field name="use_default_to" eval="True"/>
+        <field name="email_to">{{ object.pending_approver_emails }}</field>
         <field name="description">送出新簽核申請時通知相關簽核者</field>
         <field name="body_html" type="html">
 <div style="margin: 0px; padding: 0px;">
@@ -19,7 +19,7 @@
         <br/>
         規則：<t t-out="object.rule_id.display_name or ''">規則</t>
         <br/>
-        業務單據：<t t-out="object.res_model or ''">model</t> #<t t-out="object.res_id or ''">0</t>
+        業務單據：<t t-out="object.res_display_name or object.res_model">model</t>
         <br/>
         當前關卡：<t t-if="object.current_step_id">
             <t t-out="object.current_step_id.display_name or ''">關卡</t>
@@ -30,17 +30,17 @@
     </p>
 </div>
         </field>
-        <field name="auto_delete" eval="True"/>
+        <field name="auto_delete" eval="False"/>
     </record>
 
     <!-- 通知：審核結果 -->
     <record id="mail_template_mfg_approval_decided" model="mail.template">
         <field name="name">MFG Custom Approval: Decision</field>
         <field name="model_id" ref="model_mfg_custom_approval_request"/>
-        <field name="subject">{{ object.name }}：簽核結果 - {{ object.state }}</field>
+        <field name="subject">{{ object.name }}：簽核結果 - {{ dict(object._fields['state'].selection).get(object.state) or object.state }}</field>
         <field name="email_from">{{ (user.email_formatted) }}</field>
-        <field name="use_default_to" eval="True"/>
-        <field name="description">簽核結果出爐時通知申請人</field>
+        <field name="email_to">{{ object.requester_id.email }}</field>
+        <field name="description">審核結果出爐時通知申請人</field>
         <field name="body_html" type="html">
 <div style="margin: 0px; padding: 0px;">
     <p style="margin: 0 0 12px 0; font-size: 13px;">
@@ -56,7 +56,7 @@
     </p>
 </div>
         </field>
-        <field name="auto_delete" eval="True"/>
+        <field name="auto_delete" eval="False"/>
     </record>
 
 </odoo>

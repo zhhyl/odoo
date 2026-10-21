@@ -12,6 +12,10 @@
                 <field name="priority" widget="priority"/>
                 <field name="stage_id" optional="show"/>
                 <field name="state" optional="show"/>
+                <field name="approval_state" widget="badge" optional="show"
+                       decoration-info="approval_state == 'pending'"
+                       decoration-success="approval_state == 'approved'"
+                       decoration-danger="approval_state == 'rejected'"/>
                 <field name="production_id" optional="hide"/>
                 <field name="product_id" optional="show"/>
                 <field name="user_id" optional="show" widget="many2one_avatar_user"/>
@@ -27,6 +31,22 @@
             <form string="問題点">
                 <header>
                     <field name="state" widget="statusbar" statusbar_visible="open,analyzing,implementing,closed"/>
+                    <button name="action_submit_for_approval" string="送出簽核" type="object"
+                            class="btn-primary"
+                            invisible="approval_state == 'pending'"/>
+                    <button name="action_approve_current_step" string="核准目前關卡" type="object"
+                            class="btn-primary"
+                            invisible="approval_state != 'pending'"/>
+                    <button name="action_reject_current_step" string="駁回" type="object"
+                            class="btn-danger"
+                            invisible="approval_state != 'pending'"
+                            confirm="確定要駁回此簽核流程？"/>
+                    <button name="action_cancel_approval" string="取消簽核" type="object"
+                            invisible="approval_state != 'pending'"/>
+                    <field name="approval_state" widget="statusbar"
+                           statusbar_visible="pending,approved,rejected"
+                           readonly="1"
+                           invisible="approval_state == 'not_required'"/>
                     <button name="action_escalate_to_eco" string="升級為 ECO"
                             type="object" class="btn-secondary"
                             groups="mfg_custom_base.group_engineering"
@@ -153,6 +173,8 @@
                 <field name="product_id"/>
                 <field name="user_id"/>
                 <filter name="open" string="開立中" domain="[('state', 'in', ['open', 'analyzing', 'implementing'])]"/>
+                <filter name="approval_pending" string="待簽核" domain="[('approval_state', '=', 'pending')]"/>
+                <filter name="approval_approved" string="已核准" domain="[('approval_state', '=', 'approved')]"/>
                 <filter name="closed" string="已結案" domain="[('state', '=', 'closed')]"/>
                 <filter name="high_priority" string="高/緊急" domain="[('priority', 'in', ['2', '3'])]"/>
                 <group>

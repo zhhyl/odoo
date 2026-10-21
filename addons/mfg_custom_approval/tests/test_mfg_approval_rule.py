@@ -20,7 +20,9 @@ class TestMfgApprovalRule(TransactionCase):
         vals = {
             "name": name,
             "sequence": sequence,
-            "res_model": "mfg_custom.approval.test.model",
+            "model_id": self.env["ir.model"]._get(
+                "mfg_custom.approval.test.model"
+            ).id,
             "domain": domain,
         }
         if steps:

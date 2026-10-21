@@ -25,7 +25,7 @@ class MfgQualityCheck(models.Model):
 
     _name = "mfg_custom.quality.check"
     _description = "MFG 品檢單"
-    _inherit = ["mail.thread"]
+    _inherit = ["mail.thread", "mfg_custom.approval.mixin"]
     _order = "inspection_date desc, id desc"
     _rec_name = "name"
 

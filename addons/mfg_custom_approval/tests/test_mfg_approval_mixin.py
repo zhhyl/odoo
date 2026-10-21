@@ -24,7 +24,9 @@ class TestMfgApprovalMixin(TransactionCase):
     def _make_single_user_rule(self):
         return self.Rule.create({
             "name": "Single",
-            "res_model": "mfg_custom.approval.test.model",
+            "model_id": self.env["ir.model"]._get(
+                "mfg_custom.approval.test.model"
+            ).id,
             "step_ids": [
                 Command.create({
                     "name": "Only",

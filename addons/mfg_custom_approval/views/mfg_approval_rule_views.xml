@@ -8,13 +8,13 @@
         <field name="arch" type="xml">
             <search string="搜尋簽核規則">
                 <field name="name"/>
-                <field name="res_model"/>
+                <field name="model_id"/>
                 <field name="company_id"/>
                 <separator/>
                 <filter name="active" string="啟用中" domain="[('active', '=', True)]"/>
                 <filter name="inactive" string="已停用" domain="[('active', '=', False)]"/>
                 <group>
-                    <filter name="group_res_model" string="依業務模型" context="{'group_by': 'res_model'}"/>
+                    <filter name="group_res_model" string="依業務模型" context="{'group_by': 'model_id'}"/>
                 </group>
             </search>
         </field>
@@ -28,7 +28,8 @@
             <list string="MFG Custom 簽核規則">
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
-                <field name="res_model"/>
+                <field name="model_id"/>
+                <field name="model_display" optional="hide"/>
                 <field name="domain" optional="hide"/>
                 <field name="step_ids" widget="many2many_tags" optional="hide"/>
                 <field name="company_id" optional="hide" groups="base.group_multi_company"/>
@@ -54,13 +55,19 @@
                     </div>
                     <group>
                         <group>
-                            <field name="res_model" placeholder="plm_custom.eco"/>
+                            <field name="model_id" options="{'no_create': True}"
+                                   placeholder="選擇要簽核的單據類型"/>
+                            <field name="model_display" readonly="1"/>
+                            <field name="res_model" invisible="1"/>
+                            <field name="model_name" invisible="1"/>
                             <field name="sequence"/>
                             <field name="company_id" groups="base.group_multi_company"/>
                         </group>
                         <group>
                             <field name="active"/>
-                            <field name="domain" placeholder="[('amount_total', '>', 1000000)]"/>
+                            <field name="domain" widget="domain"
+                                   options="{'model': 'model_name', 'in_dialog': True}"
+                                   placeholder="留空 = 所有此類單據都適用"/>
                         </group>
                     </group>
                     <notebook>
@@ -74,11 +81,13 @@
                                            invisible="approver_mode != 'user'"/>
                                     <field name="group_id" optional="show"
                                            invisible="approver_mode not in ('group', 'group_all')"/>
-                                    <field name="approver_field" optional="show"
+                                    <field name="approver_field_id" optional="show"
+                                           domain="[('model', '=', parent.res_model), ('relation', '=', 'res.users')]"
                                            invisible="approver_mode != 'field'"/>
                                     <field name="min_amount" optional="hide"/>
                                     <field name="max_amount" optional="hide"/>
-                                    <field name="amount_field" optional="hide"/>
+                                    <field name="amount_field_id" optional="hide"
+                                           domain="[('model', '=', parent.res_model), ('ttype', 'in', ('float', 'monetary'))]"/>
                                     <field name="amount_currency_id" optional="hide"/>
                                     <field name="required"/>
                                 </list>
@@ -98,14 +107,16 @@
                                                        invisible="approver_mode != 'user'"/>
                                                 <field name="group_id"
                                                        invisible="approver_mode not in ('group', 'group_all')"/>
-                                                <field name="approver_field"
+                                                <field name="approver_field_id"
+                                                       domain="[('model', '=', parent.res_model), ('relation', '=', 'res.users')]"
                                                        invisible="approver_mode != 'field'"
-                                                       help="記錄在單據 model 上的 Many2one res.users 欄位名稱。"/>
+                                                       help="選擇單據上指向使用者（res.users）的欄位。"/>
                                             </group>
                                             <group string="金額門檻">
                                                 <field name="min_amount"/>
                                                 <field name="max_amount"/>
-                                                <field name="amount_field" placeholder="amount_total"/>
+                                                <field name="amount_field_id"
+                                                       domain="[('model', '=', parent.res_model), ('ttype', 'in', ('float', 'monetary'))]"/>
                                                 <field name="amount_currency_id"/>
                                             </group>
                                         </group>

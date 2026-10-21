@@ -31,7 +31,9 @@ class TestMfgApprovalRequest(TransactionCase):
     def _make_rule(self, steps):
         return self.Rule.create({
             "name": "Test Rule",
-            "res_model": "mfg_custom.approval.test.model",
+            "model_id": self.env["ir.model"]._get(
+                "mfg_custom.approval.test.model"
+            ).id,
             "step_ids": [Command.create(s) for s in steps],
         })
 
@@ -147,7 +149,13 @@ class TestMfgApprovalRequest(TransactionCase):
             {
                 "name": "Field",
                 "approver_mode": "field",
-                "approver_field": "approver_user_id",
+                "approver_field_id": self.env["ir.model.fields"].search(
+                    [
+                        ("model", "=", "mfg_custom.approval.test.model"),
+                        ("name", "=", "approver_user_id"),
+                    ],
+                    limit=1,
+                ).id,
             },
         ])
         rec = self.TestModel.create({"approver_user_id": self.user_d.id})

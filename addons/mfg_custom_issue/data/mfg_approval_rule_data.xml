@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!-- 問題點的示範簽核規則：任何問題點都可送簽，由管理部核准。 -->
+    <record id="mfg_issue_approval_rule_default" model="mfg_custom.approval.rule">
+        <field name="name">問題點結案審核</field>
+        <field name="model_id" ref="model_mfg_custom_issue"/>
+        <field name="domain"></field>
+        <field name="sequence">10</field>
+        <field name="note">問題點送出的簽核申請，由管理部核准後方可進行結案等後續動作。</field>
+        <field name="step_ids">
+            <field name="sequence">10</field>
+            <field name="name">管理部核准</field>
+            <field name="approver_mode">group</field>
+            <field name="group_id" ref="mfg_custom_base.group_manager"/>
+            <field name="required" eval="True"/>
+        </field>
+    </record>
+
+</odoo>

@@ -15,11 +15,11 @@
                        invisible="approver_mode != 'user'"/>
                 <field name="group_id" optional="show"
                        invisible="approver_mode not in ('group', 'group_all')"/>
-                <field name="approver_field" optional="show"
+                <field name="approver_field_id" optional="show"
                        invisible="approver_mode != 'field'"/>
                 <field name="min_amount" optional="hide"/>
                 <field name="max_amount" optional="hide"/>
-                <field name="amount_field" optional="hide"/>
+                <field name="amount_field_id" optional="hide"/>
                 <field name="amount_currency_id" optional="hide"/>
                 <field name="required"/>
                 <field name="note" optional="hide"/>
@@ -47,7 +47,7 @@
                                    invisible="approver_mode != 'user'"/>
                             <field name="group_id"
                                    invisible="approver_mode not in ('group', 'group_all')"/>
-                            <field name="approver_field"
+                            <field name="approver_field_id"
                                    invisible="approver_mode != 'field'"/>
                         </group>
                     </group>
@@ -55,7 +55,7 @@
                         <group string="金額門檻">
                             <field name="min_amount"/>
                             <field name="max_amount"/>
-                            <field name="amount_field" placeholder="amount_total"/>
+                            <field name="amount_field_id"/>
                             <field name="amount_currency_id"/>
                         </group>
                     </group>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!-- 可行性評估的示範簽核規則：工程部 → 管理部。 -->
+    <record id="plm_feasibility_approval_rule_default" model="mfg_custom.approval.rule">
+        <field name="name">可行性評估簽核</field>
+        <field name="model_id" ref="model_plm_custom_feasibility"/>
+        <field name="domain"></field>
+        <field name="sequence">10</field>
+        <field name="note">可行性評估除各部門評分外，另需多層簽核確認。</field>
+        <field name="step_ids">
+            <field name="sequence">10</field>
+            <field name="name">工程部核准</field>
+            <field name="approver_mode">group</field>
+            <field name="group_id" ref="mfg_custom_base.group_engineering"/>
+            <field name="required" eval="True"/>
+        </field>
+        <field name="step_ids">
+            <field name="sequence">20</field>
+            <field name="name">管理部核准</field>
+            <field name="approver_mode">group</field>
+            <field name="group_id" ref="mfg_custom_base.group_manager"/>
+            <field name="required" eval="True"/>
+        </field>
+    </record>
+
+</odoo>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!-- 品檢單的示範簽核規則：不合格品放行需品保部 → 管理部兩段核准。 -->
+    <record id="mfg_quality_check_approval_rule_default" model="mfg_custom.approval.rule">
+        <field name="name">品檢單放行審核</field>
+        <field name="model_id" ref="model_mfg_custom_quality_check"/>
+        <field name="domain"></field>
+        <field name="sequence">10</field>
+        <field name="note">品檢單送出簽核後，需品保部與管理部依序核准。</field>
+        <field name="step_ids">
+            <field name="sequence">10</field>
+            <field name="name">品保部核准</field>
+            <field name="approver_mode">group</field>
+            <field name="group_id" ref="mfg_custom_base.group_quality"/>
+            <field name="required" eval="True"/>
+        </field>
+        <field name="step_ids">
+            <field name="sequence">20</field>
+            <field name="name">管理部核准</field>
+            <field name="approver_mode">group</field>
+            <field name="group_id" ref="mfg_custom_base.group_manager"/>
+            <field name="required" eval="True"/>
+        </field>
+    </record>
+
+</odoo>

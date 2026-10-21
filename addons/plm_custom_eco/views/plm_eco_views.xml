@@ -18,6 +18,10 @@
                 <field name="from_version"/>
                 <field name="to_version"/>
                 <field name="state"/>
+                <field name="approval_state" widget="badge" optional="show"
+                       decoration-info="approval_state == 'pending'"
+                       decoration-success="approval_state == 'approved'"
+                       decoration-danger="approval_state == 'rejected'"/>
                 <field name="risk_level"/>
                 <field name="effective_date"/>
                 <field name="owner_id" widget="many2one_avatar_user"/>
@@ -39,14 +43,20 @@
                     <button name="action_submit_approval" string="送出簽核"
                             type="object" class="btn-primary"
                             invisible="state != 'impact_analysis'"/>
-                    <button name="action_approve" string="核准"
+                    <button name="action_approve_current_step" string="核准目前關卡"
                             type="object" class="btn-primary"
-                            groups="mfg_custom_base.group_manager"
-                            invisible="state not in ('pending_approval', 'impact_analysis')"/>
-                    <button name="action_reject" string="駁回"
+                            invisible="approval_state != 'pending'"/>
+                    <button name="action_reject_current_step" string="駁回"
+                            type="object" class="btn-danger"
+                            invisible="approval_state != 'pending'"
+                            confirm="確定要駁回此簽核流程？"/>
+                    <button name="action_cancel_approval" string="取消簽核"
                             type="object" class="btn-secondary"
-                            groups="mfg_custom_base.group_manager"
-                            invisible="state not in ('pending_approval', 'impact_analysis')"/>
+                            invisible="approval_state != 'pending'"/>
+                    <field name="approval_state" widget="statusbar"
+                           statusbar_visible="pending,approved,rejected"
+                           readonly="1"
+                           invisible="approval_state == 'not_required'"/>
                     <button name="action_apply" string="套用"
                             type="object" class="btn-primary"
                             groups="mfg_custom_base.group_manager"
@@ -111,6 +121,11 @@
                         <page string="簽核" name="approval">
                             <group>
                                 <field name="approval_request_id" readonly="1"/>
+                                <field name="approval_rule_id" readonly="1"/>
+                                <field name="approval_state" readonly="1" widget="badge"
+                                       decoration-info="approval_state == 'pending'"
+                                       decoration-success="approval_state == 'approved'"
+                                       decoration-danger="approval_state == 'rejected'"/>
                                 <field name="estimated_cost"/>
                             </group>
                         </page>
@@ -147,6 +162,9 @@
                 <filter name="pending" string="待簽核" domain="[('state', '=', 'pending_approval')]"/>
                 <filter name="approved" string="已核准" domain="[('state', '=', 'approved')]"/>
                 <filter name="applied" string="已套用" domain="[('state', '=', 'applied')]"/>
+                <separator/>
+                <filter name="approval_pending" string="簽核中" domain="[('approval_state', '=', 'pending')]"/>
+                <filter name="approval_approved" string="簽核已核准" domain="[('approval_state', '=', 'approved')]"/>
                 <group>
                     <filter name="group_by_state" string="依狀態" context="{'group_by': 'state'}"/>
                     <filter name="group_by_type" string="依類型" context="{'group_by': 'type'}"/>

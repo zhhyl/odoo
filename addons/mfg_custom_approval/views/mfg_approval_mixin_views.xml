@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Mixin form view: 任何繼承此 mixin 的 model 都能以 inherit_id 引用本 view，
-         在自己的 form header 加上「送出簽核 / 簽核 / 駁回 / 取消」按鈕，
-         並在 sheet 顯示 approval_state。 -->
+    <!-- Mixin form view: 沒有自訂 form view 的模型可直接以 inherit_id 引用本 view。
+
+         注意：若目標模型已有自己的 form view（含 <header> 與 <sheet>），
+         請改為在該模型自己的 view 內用 xpath 插入按鈕，
+         否則 mixin 的 header/sheet 會被整段插入造成版面錯亂。 -->
     <record id="mfg_approval_mixin_view_form" model="ir.ui.view">
         <field name="name">mfg_custom.approval.mixin.view.form</field>
         <field name="model">mfg_custom.approval.mixin</field>
@@ -12,7 +14,7 @@
                 <header>
                     <button name="action_submit_for_approval" string="送出簽核" type="object"
                             class="btn-primary"
-                            invisible="approval_state != 'not_required' or approval_request_id != False"/>
+                            invisible="approval_state == 'pending'"/>
                     <button name="action_approve_current_step" string="核准目前關卡" type="object"
                             class="btn-primary"
                             invisible="approval_state != 'pending'"/>
@@ -21,7 +23,7 @@
                             invisible="approval_state != 'pending'"
                             confirm="確定要駁回此簽核流程？"/>
                     <button name="action_cancel_approval" string="取消簽核" type="object"
-                            invisible="approval_state not in ('pending',)"/>
+                            invisible="approval_state != 'pending'"/>
                     <field name="approval_state" widget="statusbar"
                            statusbar_visible="not_required,pending,approved,rejected"
                            readonly="1"
@@ -31,6 +33,7 @@
                     <group>
                         <field name="approval_request_id" readonly="1"
                                invisible="approval_request_id == False"/>
+                        <field name="approval_rule_id" readonly="1"/>
                         <field name="approval_state" readonly="1" widget="badge"
                                decoration-info="approval_state == 'pending'"
                                decoration-success="approval_state == 'approved'"

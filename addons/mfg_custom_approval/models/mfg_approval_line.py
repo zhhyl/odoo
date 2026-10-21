@@ -1,7 +1,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import _, api, fields, models
-from odoo.exceptions import ValidationError
+from odoo.exceptions import AccessError, ValidationError
 
 
 class MfgApprovalLine(models.Model):
@@ -62,6 +62,41 @@ class MfgApprovalLine(models.Model):
                         line.user_id.display_name,
                     )
                 )
+
+    def write(self, vals):
+        """只有簽核者本人（或管理員）可以變更簽核決策。"""
+        decision_fields = {"decision", "decision_date", "comment"}
+        if decision_fields & set(vals):
+            for line in self:
+                if not line._can_manage():
+                    raise AccessError(
+                        self.env._(
+                            "您只能變更自己的簽核紀錄（關卡 %s）",
+                            line.step_id.display_name,
+                        )
+                    )
+        return super().write(vals)
+
+    def unlink(self):
+        """只有申請人（或管理員）可以刪除簽核紀錄。"""
+        for line in self:
+            is_requester = (
+                line.request_id.requester_id
+                and line.request_id.requester_id == self.env.user
+            )
+            if not is_requester and not line._can_manage():
+                raise AccessError(
+                    self.env._("您只能刪除自己提出的簽核申請之紀錄")
+                )
+        return super().unlink()
+
+    def _can_manage(self):
+        """目前使用者是否可管理（修改 / 刪除）這筆簽核紀錄。"""
+        self.ensure_one()
+        return (
+            self.env.user == self.user_id
+            or self.env.user.has_group("mfg_custom_base.group_manager")
+        )
 
     def name_get(self):
         result = []

@@ -2,7 +2,7 @@
 
 {
     "name": "PLM Custom - Engineering Change Order",
-    "version": "20.0.1.0.0",
+    "version": "20.0.1.1.0",
     "category": "Manufacturing/PLM Custom",
     "sequence": 357,
     "summary": "工程變更單 + BOM/路線/客戶規格影響分析 + 多層簽核 + 自動升版",
@@ -45,6 +45,7 @@ PLM Custom - Engineering Change Order
         "views/mrp_bom_views.xml",
         "views/sale_order_views.xml",
         "views/plm_eco_menus.xml",
+        "data/mfg_approval_rule_data.xml",
     ],
     "installable": True,
     "auto_install": False,

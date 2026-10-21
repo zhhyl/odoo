@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!--
+        ECO 的示範簽核規則。
+        依「風險等級」分流：高風險走兩關（工程部 → 品保部），一般變更走一關（管理部）。
+        管理員可在【MFG Custom > 設定 > 簽核規則】直接修改或停用。
+    -->
+
+    <record id="plm_eco_approval_rule_high_risk" model="mfg_custom.approval.rule">
+        <field name="name">ECO 高風險變更</field>
+        <field name="model_id" ref="model_plm_custom_eco"/>
+        <field name="domain">[('risk_level', 'in', ('high', 'critical'))]</field>
+        <field name="sequence">10</field>
+        <field name="note">高風險／關鍵等級的工程變更，需工程部與品保部兩段核准。</field>
+        <field name="step_ids">
+            <field name="sequence">10</field>
+            <field name="name">工程部核准</field>
+            <field name="approver_mode">group</field>
+            <field name="group_id" ref="mfg_custom_base.group_engineering"/>
+            <field name="required" eval="True"/>
+        </field>
+        <field name="step_ids">
+            <field name="sequence">20</field>
+            <field name="name">品保部核准</field>
+            <field name="approver_mode">group</field>
+            <field name="group_id" ref="mfg_custom_base.group_quality"/>
+            <field name="required" eval="True"/>
+        </field>
+    </record>
+
+    <record id="plm_eco_approval_rule_normal" model="mfg_custom.approval.rule">
+        <field name="name">ECO 一般變更</field>
+        <field name="model_id" ref="model_plm_custom_eco"/>
+        <field name="domain">[('risk_level', 'in', ('low', 'medium'))]</field>
+        <field name="sequence">20</field>
+        <field name="note">一般工程變更，由管理部一關核准即可。</field>
+        <field name="step_ids">
+            <field name="sequence">10</field>
+            <field name="name">管理部核准</field>
+            <field name="approver_mode">group</field>
+            <field name="group_id" ref="mfg_custom_base.group_manager"/>
+            <field name="required" eval="True"/>
+        </field>
+    </record>
+
+</odoo>

@@ -53,12 +53,22 @@ class MfgApprovalStep(models.Model):
         "指定群組",
         help="approver_mode 為 group / group_all 時使用。",
     )
+    approver_field_id = fields.Many2one(
+        "ir.model.fields",
+        "簽核者欄位",
+        ondelete="set null",
+        index=True,
+        help=(
+            "approver_mode 為「由單據欄位決定」時使用；"
+            "選擇單據上指向使用者（res.users）的欄位，例如「ECO 負責人」。"
+        ),
+    )
     approver_field = fields.Char(
         "欄位名稱",
-        help=(
-            "approver_mode 為 field 時使用；"
-            "記錄在單據 model 上的 Many2one res.users 欄位名稱。"
-        ),
+        related="approver_field_id.name",
+        store=True,
+        readonly=True,
+        help="由「簽核者欄位」自動帶出的技術欄位名。",
     )
     min_amount = fields.Monetary(
         "金額門檻（最小）",
@@ -70,10 +80,19 @@ class MfgApprovalStep(models.Model):
         currency_field="amount_currency_id",
         help="單據金額小於等於此值才需要走本關卡；留空表示不限制。",
     )
-    amount_field = fields.Char(
+    amount_field_id = fields.Many2one(
+        "ir.model.fields",
         "金額欄位",
-        default="amount_total",
-        help="記錄在單據 model 上的數值欄位名稱，用以判斷是否落在金額區間。",
+        ondelete="set null",
+        index=True,
+        help="單據上用來判斷金額門檻的數值欄位，例如「訂單金額」。",
+    )
+    amount_field = fields.Char(
+        "金額欄位名稱",
+        related="amount_field_id.name",
+        store=True,
+        readonly=True,
+        help="由「金額欄位」自動帶出的技術欄位名。",
     )
     amount_currency_id = fields.Many2one(
         "res.currency",
@@ -84,6 +103,22 @@ class MfgApprovalStep(models.Model):
     note = fields.Char("說明")
 
     _step_rule_idx = models.Index("(rule_id, sequence)")
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        """未指定金額欄位時，預設帶出單據上的 ``amount_total`` 欄位。"""
+        IrModelFields = self.env["ir.model.fields"]
+        for vals in vals_list:
+            if vals.get("amount_field_id") or not vals.get("rule_id"):
+                continue
+            rule = self.env["mfg_custom.approval.rule"].browse(vals["rule_id"])
+            field = IrModelFields.search(
+                [("model", "=", rule.res_model), ("name", "=", "amount_total")],
+                limit=1,
+            )
+            if field:
+                vals["amount_field_id"] = field.id
+        return super().create(vals_list)
 
     @api.constrains("min_amount", "max_amount")
     def _check_amount_range(self):
@@ -100,7 +135,7 @@ class MfgApprovalStep(models.Model):
                     )
                 )
 
-    @api.constrains("approver_mode", "user_ids", "group_id", "approver_field")
+    @api.constrains("approver_mode", "user_ids", "group_id", "approver_field_id")
     def _check_approver_config(self):
         for step in self:
             if step.approver_mode == "user" and not step.user_ids:
@@ -117,10 +152,10 @@ class MfgApprovalStep(models.Model):
                         step.display_name,
                     )
                 )
-            if step.approver_mode == "field" and not step.approver_field:
+            if step.approver_mode == "field" and not step.approver_field_id:
                 raise ValidationError(
                     self.env._(
-                        "關卡 %s 採用「由單據欄位決定」時必須填寫欄位名稱",
+                        "關卡 %s 採用「由單據欄位決定」時必須選擇簽核者欄位",
                         step.display_name,
                     )
                 )

@@ -21,6 +21,10 @@
                        decoration-danger="state == 'failed'"
                        decoration-muted="state == 'cancelled'"
                        decoration-primary="state == 'conditional'"/>
+                <field name="approval_state" widget="badge" optional="show"
+                       decoration-info="approval_state == 'pending'"
+                       decoration-success="approval_state == 'approved'"
+                       decoration-danger="approval_state == 'rejected'"/>
                 <field name="point_id"/>
                 <field name="product_id"/>
                 <field name="qty_to_check"/>
@@ -45,6 +49,22 @@
                 <header>
                     <field name="state" widget="statusbar"
                            statusbar_visible="draft,in_progress,passed,failed"/>
+                    <button name="action_submit_for_approval" string="送出簽核" type="object"
+                            class="btn-primary"
+                            invisible="approval_state == 'pending'"/>
+                    <button name="action_approve_current_step" string="核准目前關卡" type="object"
+                            class="btn-primary"
+                            invisible="approval_state != 'pending'"/>
+                    <button name="action_reject_current_step" string="駁回" type="object"
+                            class="btn-danger"
+                            invisible="approval_state != 'pending'"
+                            confirm="確定要駁回此簽核流程？"/>
+                    <button name="action_cancel_approval" string="取消簽核" type="object"
+                            invisible="approval_state != 'pending'"/>
+                    <field name="approval_state" widget="statusbar"
+                           statusbar_visible="pending,approved,rejected"
+                           readonly="1"
+                           invisible="approval_state == 'not_required'"/>
                     <button name="action_start"
                             type="object"
                             string="開始檢驗"

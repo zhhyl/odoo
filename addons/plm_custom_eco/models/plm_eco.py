@@ -9,7 +9,7 @@ class PlmCustomEco(models.Model):
 
     _name = "plm_custom.eco"
     _description = "PLM Custom 工程變更單"
-    _inherit = ["mail.thread", "mail.activity.mixin"]
+    _inherit = ["mail.thread", "mail.activity.mixin", "mfg_custom.approval.mixin"]
     _order = "create_date desc"
 
     name = fields.Char(default="ECO/New", readonly=True, copy=False)
@@ -110,12 +110,6 @@ class PlmCustomEco(models.Model):
     )
     effective_date = fields.Date("預定生效日")
     applied_date = fields.Datetime("實際套用日")
-    approval_request_id = fields.Many2one(
-        "mfg_custom.approval.request",
-        "簽核單",
-        copy=False,
-        readonly=True,
-    )
     owner_id = fields.Many2one(
         "res.users",
         "ECO 負責人",
@@ -161,51 +155,49 @@ class PlmCustomEco(models.Model):
                 raise UserError(
                     self.env._("影響清單為空，請先執行影響分析")
                 )
-            Approval = self.env["mfg_custom.approval.request"]
-            rule = self.env["mfg_custom.approval.rule"]._match_rule(
-                "plm_custom.eco", eco
-            )
-            if not rule:
-                # 找不到規則時仍建立直接核准的 request
-                eco.write({"state": "pending_approval"})
-                eco.message_post(
-                    body=self.env._("未設定簽核規則，ECO 進入待簽核（可手動核准）")
-                )
-                continue
-            req = Approval.create({
-                "rule_id": rule.id,
-                "res_model": "plm_custom.eco",
-                "res_id": eco.id,
-            })
-            eco.approval_request_id = req
-            eco.state = "pending_approval"
-            eco.message_post(
-                body=self.env._("ECO 已送出簽核：%s", req.display_name)
-            )
+            # 交給通用簽核引擎：自動比對規則、建立簽核單、掛回本單
+            eco.action_submit_for_approval()
+            eco.write({"state": "pending_approval"})
 
     def action_approve(self):
-        for eco in self:
-            if eco.state not in ("pending_approval", "impact_analysis"):
-                raise UserError(
-                    self.env._("當前狀態不可核准：%s", eco.state)
-                )
-            eco.state = "approved"
-            if eco.approval_request_id:
-                eco.approval_request_id.action_approve()
-            eco.message_post(body=self.env._("ECO 已核准"))
+        """委派給簽核引擎核准「目前關卡」。
+
+        ECO 的 ``state`` 只有在 **所有** 關卡都核准後，才會由
+        ``_approval_on_approved()`` 改為 ``approved``。
+        """
+        self.action_approve_current_step()
 
     def action_reject(self):
+        """委派給簽核引擎駁回「目前關卡」。"""
+        self.action_reject_current_step(reason=self.env._("由 ECO 駁回"))
+
+    # ------------------------------------------------------------------
+    # 簽核引擎回呼（mixin hooks）
+    # ------------------------------------------------------------------
+
+    def _approval_on_approved(self):
+        """所有簽核關卡皆通過時，把 ECO 改為已核准。"""
         for eco in self:
-            if eco.state not in ("pending_approval", "impact_analysis"):
-                raise UserError(
-                    self.env._("當前狀態不可駁回：%s", eco.state)
-                )
-            eco.state = "rejected"
-            if eco.approval_request_id:
-                eco.approval_request_id.action_reject(
-                    reason=self.env._("由 ECO 駁回")
-                )
+            if eco.state == "approved":
+                continue
+            eco.write({"state": "approved"})
+            eco.message_post(body=self.env._("ECO 已核准"))
+
+    def _approval_on_rejected(self):
+        """簽核被駁回時，把 ECO 改為已駁回。"""
+        for eco in self:
+            if eco.state == "rejected":
+                continue
+            eco.write({"state": "rejected"})
             eco.message_post(body=self.env._("ECO 已駁回"))
+
+    def _approval_on_cancelled(self):
+        """簽核被取消時，把 ECO 退回影響分析階段。"""
+        for eco in self:
+            if eco.state != "pending_approval":
+                continue
+            eco.write({"state": "impact_analysis"})
+            eco.message_post(body=self.env._("ECO 簽核已取消，退回影響分析"))
 
     def action_apply(self):
         for eco in self:

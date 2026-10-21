@@ -2,7 +2,7 @@
 
 {
     "name": "MFG Custom - Multi-level Approval",
-    "version": "20.0.1.0.0",
+    "version": "20.0.1.1.0",
     "category": "Manufacturing/MFG Custom",
     "sequence": 351,
     "summary": "通用多層簽核引擎（state machine + approver chain）",

@@ -11,6 +11,7 @@
                 <field name="rule_id"/>
                 <field name="res_model"/>
                 <field name="res_id"/>
+                <field name="res_display_name" string="業務單據"/>
                 <field name="requester_id"/>
                 <field name="company_id" groups="base.group_multi_company"/>
                 <separator/>
@@ -41,6 +42,7 @@
                 <field name="rule_id"/>
                 <field name="res_model"/>
                 <field name="res_id"/>
+                <field name="res_display_name" string="業務單據"/>
                 <field name="current_step_no"/>
                 <field name="current_step_id"/>
                 <field name="state" widget="badge"
@@ -74,7 +76,7 @@
                             invisible="state not in ('draft', 'pending')"/>
                     <button name="action_reset_to_draft" string="重置為草稿" type="object"
                             groups="mfg_custom_base.group_manager"
-                            invisible="state != 'cancelled'"/>
+                            invisible="state not in ('cancelled', 'rejected')"/>
                     <field name="state" widget="statusbar"
                            statusbar_visible="draft,pending,approved"
                            readonly="1"/>
@@ -102,8 +104,10 @@
                         </group>
                     </group>
                     <group>
-                        <field name="reason" placeholder="若被駁回，請填寫原因"
+                        <field name="reason" placeholder="若被駁回，請先在此填寫原因再按駁回"
                                readonly="state != 'pending'"/>
+                        <field name="pending_approver_emails" readonly="1"
+                               invisible="not pending_approver_emails"/>
                     </group>
                     <notebook>
                         <page string="簽核紀錄" name="lines">

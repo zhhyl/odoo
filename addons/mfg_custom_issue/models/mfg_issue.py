@@ -9,7 +9,7 @@ class MfgCustomIssue(models.Model):
 
     _name = "mfg_custom.issue"
     _description = "MFG Custom 產線問題点"
-    _inherit = ["mail.activity.mixin", "rating.mixin"]
+    _inherit = ["mail.thread", "mail.activity.mixin", "rating.mixin", "mfg_custom.approval.mixin"]
     _order = "priority desc, create_date desc"
     _mail_post_access = "read"
     _track_duration_field = "stage_id"
