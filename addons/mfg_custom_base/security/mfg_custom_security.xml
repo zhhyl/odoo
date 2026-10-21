@@ -31,6 +31,7 @@
         <field name="sequence">30</field>
         <field name="privilege_id" ref="res_groups_privilege_mfg_custom"/>
         <field name="implied_ids" eval="[(4, ref('mfg_custom_base.group_user'))]"/>
+        <field name="user_ids" eval="[(4, ref('base.user_admin'))]"/>
         <field name="comment">工程部：可編輯 BOM、ECO、可行性評估等 PLM 資料。</field>
     </record>
 
@@ -40,6 +41,7 @@
         <field name="sequence">40</field>
         <field name="privilege_id" ref="res_groups_privilege_mfg_custom"/>
         <field name="implied_ids" eval="[(4, ref('mfg_custom_base.group_user'))]"/>
+        <field name="user_ids" eval="[(4, ref('base.user_admin'))]"/>
         <field name="comment">品保部：可編輯品檢單、產線問題点等品質資料。</field>
     </record>
 
