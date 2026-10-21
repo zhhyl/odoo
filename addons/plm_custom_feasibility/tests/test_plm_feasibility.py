@@ -180,7 +180,7 @@ class TestPlmFeasibility(TransactionCase):
     def test_04_action_approve_requires_all_dept(self):
         """approve 時若缺一部門評分，應拋 UserError。"""
         rec = self._make_feasibility()
-        # 只給 4 個部門評分
+        # 只給 4 個部門評分（各 8 分）
         for dept, user in (
             ("sales", self.user_sales),
             ("engineering", self.user_engineering),
@@ -191,18 +191,18 @@ class TestPlmFeasibility(TransactionCase):
                 "feasibility_id": rec.id,
                 "department": dept,
                 "reviewer_id": user.id,
-                "score": 7,
+                "score": 8,
             })
         rec.action_submit()
         with self.assertRaises(UserError):
             rec.action_approve()
 
-        # 補上採購後可通過
+        # 補上採購後可通過（5 部門 × 8 分 = 40 → 總分 80 → feasible）
         self.Score.create({
             "feasibility_id": rec.id,
             "department": "procurement",
             "reviewer_id": self.user_procurement.id,
-            "score": 7,
+            "score": 8,
         })
         rec.action_approve()
         self.assertEqual(rec.state, "approved")
