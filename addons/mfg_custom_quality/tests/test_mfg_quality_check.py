@@ -18,7 +18,7 @@ class TestMfgQualityCheck(TransactionCase):
         cls.PointLine = cls.env["mfg_custom.quality.point.line"]
         cls.Product = cls.env["product.product"]
         cls.product = cls.Product.create(
-            {"name": "QC-Test Product", "type": "product"},
+            {"name": "QC-Test Product", "type": "consu"},
         )
         cls.point = cls.Point.create(
             {

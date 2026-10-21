@@ -9,6 +9,9 @@ class MfgApprovalTestModel(models.Model):
     Inherits both ``mfg_custom.model.mixin`` (mail.thread + base fields) and
     ``mfg_custom.approval.mixin`` so the test can exercise the full approval
     flow (submit / approve / reject) end-to-end.
+
+    NOTE：依 Odoo 慣例，測試用的模型必須放在模組的 ``models/`` 目錄，
+    否則在 post_install 階段才 import 會來不及註冊到 registry。
     """
 
     _name = "mfg_custom.approval.test.model"

@@ -105,6 +105,26 @@ class PlmFeasibilityScore(models.Model):
                     )
                 )
 
+    @api.constrains("feasibility_id", "department")
+    def _check_unique_department(self):
+        """同一張評估單的同一部門只能有一筆評分（給出友善錯誤訊息）。"""
+        for rec in self:
+            if not rec.feasibility_id or not rec.department:
+                continue
+            duplicate = self.search_count([
+                ("feasibility_id", "=", rec.feasibility_id.id),
+                ("department", "=", rec.department),
+                ("id", "!=", rec.id),
+            ])
+            if duplicate:
+                raise ValidationError(
+                    self.env._(
+                        "評估單 %s 的「%s」部門只能有一筆評分。",
+                        rec.feasibility_id.display_name,
+                        rec.department,
+                    )
+                )
+
     @api.constrains("reviewer_id")
     def _check_reviewer_active(self):
         for rec in self:

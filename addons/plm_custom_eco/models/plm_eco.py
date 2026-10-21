@@ -285,7 +285,7 @@ class PlmCustomEco(models.Model):
                         "銷售明細 %s 未交 %s %s",
                         line.order_id.name,
                         line.product_uom_qty,
-                        line.product_uom.name,
+                        line.product_uom_id.name,
                     ),
                 })
 

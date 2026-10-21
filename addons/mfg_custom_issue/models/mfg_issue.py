@@ -157,6 +157,19 @@ class MfgCustomIssue(models.Model):
             else:
                 issue.state = "open"
 
+    @api.model_create_multi
+    def create(self, vals_list):
+        """帶出單號（序號 mfg_custom.issue）。"""
+        for vals in vals_list:
+            if vals.get("name", "New") == "New":
+                number = self.env["ir.sequence"].next_by_code(
+                    "mfg_custom.issue"
+                ) or "New"
+                vals["name"] = number
+                if vals.get("code", "New") == "New":
+                    vals["code"] = number
+        return super().create(vals_list)
+
     def action_close(self):
         for issue in self:
             closed_stage = self.env["mfg_custom.issue.stage"].search(

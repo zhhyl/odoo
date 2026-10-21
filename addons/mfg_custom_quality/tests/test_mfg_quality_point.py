@@ -16,10 +16,10 @@ class TestMfgQualityPoint(TransactionCase):
         cls.PointLine = cls.env["mfg_custom.quality.point.line"]
         cls.Product = cls.env["product.product"]
         cls.product_a = cls.Product.create(
-            {"name": "QA-Test Product A", "type": "product"},
+            {"name": "QA-Test Product A", "type": "consu"},
         )
         cls.product_b = cls.Product.create(
-            {"name": "QA-Test Product B", "type": "product"},
+            {"name": "QA-Test Product B", "type": "consu"},
         )
 
     def _make_point(self, **extra):

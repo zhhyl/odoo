@@ -78,4 +78,5 @@ class TestPlmFeasibilityWizard(TransactionCase):
             "partner_id": self.partner.id,
             "product_id": self.product.id,
         })
+        so.invalidate_recordset()
         self.assertEqual(so.feasibility_count, 1)
