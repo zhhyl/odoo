@@ -108,6 +108,8 @@ class PlmFeasibilityScore(models.Model):
     @api.model_create_multi
     def create(self, vals_list):
         """建立前先擋住重複的部門評分（DB constraint 只會丟 IntegrityError）。"""
+        # 先讓前幾筆待寫入的紀錄落地，否則重複檢查會漏掉尚未 flush 的資料
+        self.flush_model()
         for vals in vals_list:
             if not vals.get("feasibility_id") or not vals.get("department"):
                 continue
