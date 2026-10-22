@@ -225,6 +225,21 @@ class TestMfgIssueApproval(TransactionCase):
         self.assertEqual(issue.state, "open")
         self.assertEqual(issue.approval_state, "rejected")
 
+    def test_05_regular_user_can_submit_for_approval(self):
+        """一般使用者（ACL 僅 cr，不能修改單據）仍可送出簽核。
+
+        關聯簽核單的欄位由引擎以 sudo 寫入，送簽不應被單據的寫入權限擋下。
+        """
+        user = new_test_user(
+            self.env,
+            login="issue_plain_user",
+            groups="base.group_user,mfg_custom_base.group_user",
+        )
+        issue = self._new_issue()
+        issue.with_user(user).action_submit_for_approval()
+        self.assertEqual(issue.approval_state, "pending")
+        self.assertTrue(issue.approval_request_id)
+
     def test_04_cancelled_moves_to_open_stage(self):
         """簽核取消 → 退回「開立」階段。"""
         issue = self._new_issue()

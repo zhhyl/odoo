@@ -394,9 +394,13 @@ class PlmFeasibility(models.Model):
     # ------------------------------------------------------------------
 
     def _approval_before_submit(self):
-        """送出簽核前的業務檢查：須已送出評估且至少有一筆評分。"""
+        """送出簽核前的業務檢查：須已送出評估且至少有一筆評分。
+
+        被駁回（state='rejected'）的評估單可在修正評分後重新送簽，
+        此時會先回到「評估中」再建立簽核申請。
+        """
         for rec in self:
-            if rec.state != "in_review":
+            if rec.state not in ("in_review", "rejected"):
                 raise UserError(
                     self.env._(
                         "僅有 in_review 狀態可送出簽核，目前狀態為 %s",
@@ -405,6 +409,9 @@ class PlmFeasibility(models.Model):
                 )
             if not rec.score_ids:
                 raise UserError(self.env._("送出前請至少建立 1 筆評分明細"))
+            if rec.state == "rejected":
+                # 重新送簽：回到評估中，讓畫面與狀態一致
+                rec.sudo().write({"state": "in_review"})
 
     def _approval_on_approved(self):
         """所有簽核關卡皆通過時，把評估單改為「通過」。

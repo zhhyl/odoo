@@ -402,6 +402,21 @@ class TestPlmFeasibilityApproval(TransactionCase):
         self.assertEqual(rec.state, "approved")
         self.assertEqual(rec.approval_state, "approved")
 
+    def test_05_rejected_can_resubmit(self):
+        """被駁回後修正評分可再送出簽核（回到評估中）。"""
+        rec = self._make_feasibility()
+        self._add_full_scores(rec)
+        rec.action_submit()
+        rec.action_submit_for_approval()
+        rec.with_user(self.approver).action_reject(reason="請補充採購評分")
+        rec.invalidate_recordset()
+        self.assertEqual(rec.state, "rejected")
+        # 重新送簽：應回到評估中並建立新的簽核申請
+        rec.action_submit_for_approval()
+        rec.invalidate_recordset()
+        self.assertEqual(rec.state, "in_review")
+        self.assertEqual(rec.approval_state, "pending")
+
     def test_04_cancelled_back_to_draft(self):
         """簽核取消後，評估單退回草稿。"""
         rec = self._make_feasibility()

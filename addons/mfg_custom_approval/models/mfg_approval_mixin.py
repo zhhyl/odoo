@@ -141,7 +141,9 @@ class MfgApprovalMixin(models.AbstractModel):
             if request and request.exists():
                 # 重用既有簽核單：重啟流程（駁回後重送 / 核准後再走第二輪）
                 request._restart(rule=rec_rule)
-                rec.approval_request_id = request
+                # approval_request_id 是引擎管理的欄位：一般使用者的 ACL 可能只給
+                # cr（可建立/讀取但不可修改），送簽本身不應被擋下，故以 sudo 寫入
+                rec.sudo().approval_request_id = request
                 rec.sudo().message_post(
                     body=self.env._(
                         "已重新送出簽核申請：%s（%d 個關卡）",
@@ -156,7 +158,8 @@ class MfgApprovalMixin(models.AbstractModel):
                 "res_model": rec._name,
                 "res_id": rec.id,
             })
-            rec.approval_request_id = request
+            # 同上：送簽是引擎的動作，寫入關聯欄位以 sudo 進行
+            rec.sudo().approval_request_id = request
             rec.sudo().message_post(
                 body=self.env._(
                     "已送出簽核申請：%s（%d 個關卡）",

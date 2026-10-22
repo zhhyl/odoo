@@ -10,6 +10,17 @@ from odoo.addons.mrp.tests.common import TestMrpCommon
 class TestMrpProductionPivotGraph(TestMrpCommon):
     """測試 mrp.production 的良率分析 pivot / graph view 可正確載入並彙總資料。"""
 
+    # Odoo 20 的測試框架以受限使用者執行（群組取自 _test_user_groups）：
+    # ir.ui.view 僅系統管理員可讀，故需要 base.group_system。
+    _test_user_groups = (
+        "mrp.group_mrp_user",
+        "mrp.group_mrp_manager",
+        "stock.group_stock_user",
+        "mfg_custom_base.group_user",
+        "mfg_custom_base.group_manager",
+        "base.group_system",
+    )
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

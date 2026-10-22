@@ -4,4 +4,5 @@ from . import (
     test_mrp_production_stage,
     test_mrp_production_yield,
     test_mfg_mo_yield_report,
+    test_pivot_graph,
 )
