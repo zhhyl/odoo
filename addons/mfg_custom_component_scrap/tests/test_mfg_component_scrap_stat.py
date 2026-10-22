@@ -22,6 +22,8 @@ class TestMfgComponentScrapStat(TestMrpCommon):
     _test_user_groups = (
         'mrp.group_mrp_user',
         'mrp.group_mrp_manager',
+        'stock.group_stock_user',
+        'product.group_product_manager',
         'mfg_custom_base.group_user',
     )
 
@@ -95,16 +97,17 @@ class TestMfgComponentScrapStat(TestMrpCommon):
     def _make_scrap_move(self, mo, component, qty, reason_tags=None):
         """建立一筆 ``stock.move(is_scrap=True, state='done')`` 報廢單。"""
         vals = {
-            "name": f"Scrap-{component.name}",
             "product_id": component.id,
-            "product_uom": component.uom_id.id,
+            "uom_id": component.uom_id.id,
             "product_uom_qty": qty,
             "product_qty": qty,
             "raw_material_production_id": mo.id,
             "is_scrap": True,
             "state": "done",
             "location_id": mo.location_src_id.id,
-            "location_dest_id": self.env.ref("stock.stock_location_stock").id,
+            # 目的地使用 MO 自己的庫位（測試公司），避免讀到其他公司的庫位
+            # 而觸發多公司 record rule
+            "location_dest_id": mo.location_dest_id.id,
         }
         if reason_tags is not None:
             vals["scrap_reason_tag_ids"] = [Command.set(reason_tags.ids)]

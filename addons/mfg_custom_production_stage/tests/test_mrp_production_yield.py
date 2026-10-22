@@ -71,6 +71,14 @@ class TestMrpProductionYield(TestMrpCommon):
             },
         )
 
+    def _set_raw_moves_done(self, mo, factor=1.0):
+        """把原料 move 標記為 done，數量依各原料的 BOM 需求（可乘 factor 模擬超耗）。"""
+        for move in mo.move_raw_ids:
+            move.write({
+                "state": "done",
+                "quantity": (move.product_uom_qty or 0.0) * factor,
+            })
+
     def _make_confirmed_mo(self, qty=10.0):
         mo_form = Form(self.env["mrp.production"])
         mo_form.product_id = self.product_finish
@@ -102,22 +110,16 @@ class TestMrpProductionYield(TestMrpCommon):
     # ---- 02 done 後 yield 計算 ------------------------------------------
 
     def test_03_yield_computed_when_done(self):
-        """MO 為 done 時，根據 produced / standard 計算得料率。
+        """MO 為 done 時，依實際投入原料換算理論產出並計算得料率。
 
-        情境：計劃產 10 件，原料配比 2:1 = 30 件原料；實際產 9 件 → yield = 9/30 * 100 = 30%
-        （公式中已 min(100, ...)）
+        情境：計劃產 10 件，原料配比 2:1（每件成品需 3 件原料）；
+        依計劃投入 30 件原料 → 理論產出 10 件，實際只產 9 件
+        → 得料率 = 9 / 10 * 100 = 90%
         """
         mo = self._make_confirmed_mo(qty=10.0)
         # 直接寫入 state / 庫存動作以避免 full warehouse 流程：
-        # 1) 把 move_raw_ids 標 done 且 quantity 為 30（10*2 + 10*1）
-        for move in mo.move_raw_ids:
-            move.write(
-                {
-                    "state": "done",
-                    "quantity": mo.product_qty
-                    * (move.product_qty if move.product_qty else 1),
-                }
-            )
+        # 1) 把 move_raw_ids 標 done，數量依 BOM 需求（20 + 10 = 30）
+        self._set_raw_moves_done(mo)
         # 2) 模擬產出：move_finished_ids 中與成品同 id 的標 done 且 quantity 9
         finished = mo.move_finished_ids.filtered(
             lambda m: m.product_id == mo.product_id
@@ -127,14 +129,14 @@ class TestMrpProductionYield(TestMrpCommon):
         mo.write({"state": "done"})
         # 重算（手動觸發 compute 鏈）
         mo._compute_mfg_custom_yield_rate()
-        # 期望得料率 = 9 / 30 * 100 = 30
-        self.assertAlmostEqual(mo.mfg_custom_yield_rate, 30.0, places=2)
+        # 期望得料率 = 9 / 10 * 100 = 90
+        self.assertAlmostEqual(mo.mfg_custom_yield_rate, 90.0, places=2)
 
     def test_04_yield_full_when_perfect(self):
         """完美生產：計劃 10 件、產 10 件、原料 30 → yield = 100。"""
         mo = self._make_confirmed_mo(qty=10.0)
-        for move in mo.move_raw_ids:
-            move.write({"state": "done", "quantity": mo.product_qty * 3})  # 30 件原料
+        # 依 BOM 需求投入原料（20 + 10 = 30 件）→ 理論產出 10 件
+        self._set_raw_moves_done(mo)
         finished = mo.move_finished_ids.filtered(
             lambda m: m.product_id == mo.product_id
         )
@@ -146,15 +148,15 @@ class TestMrpProductionYield(TestMrpCommon):
     def test_05_yield_capped_at_100(self):
         """得料率上限為 100（即使公式算出 >100）。"""
         mo = self._make_confirmed_mo(qty=10.0)
+        # 原料只投入 20（10 + 10），依配比理論產出 15 件，實際產 10 件
         for move in mo.move_raw_ids:
-            move.write({"state": "done", "quantity": 10.0})  # 原料只有 20，遠少於 30
+            move.write({"state": "done", "quantity": 10.0})
         finished = mo.move_finished_ids.filtered(
             lambda m: m.product_id == mo.product_id
         )
         finished.write({"state": "done", "quantity": 10.0})
         mo.write({"state": "done"})
         mo._compute_mfg_custom_yield_rate()
-        # 公式 10/20*100 = 50，但若標準用量是 BOM 推算 30 → 10/30*100 = 33.33
         # 重點：上限 100，絕不超過
         self.assertLessEqual(mo.mfg_custom_yield_rate, 100.0)
         self.assertGreater(mo.mfg_custom_yield_rate, 0.0)
@@ -164,8 +166,7 @@ class TestMrpProductionYield(TestMrpCommon):
     def test_10_cron_recompute_done_mo(self):
         """手動觸發 cron：已 done 的 MO 應被重算 yield。"""
         mo_done = self._make_confirmed_mo(qty=10.0)
-        for move in mo_done.move_raw_ids:
-            move.write({"state": "done", "quantity": 30.0})
+        self._set_raw_moves_done(mo_done)
         finished = mo_done.move_finished_ids.filtered(
             lambda m: m.product_id == mo_done.product_id
         )
@@ -179,7 +180,8 @@ class TestMrpProductionYield(TestMrpCommon):
         result = self.env["mrp.production"]._cron_recompute_mfg_custom_yield_rate()
         self.assertTrue(result)
         mo_done.invalidate_recordset()
-        self.assertAlmostEqual(mo_done.mfg_custom_yield_rate, 30.0, places=2)
+        # 產出由 10 降為 9（理論產出仍為 10）→ 得料率 90%
+        self.assertAlmostEqual(mo_done.mfg_custom_yield_rate, 90.0, places=2)
 
     def test_11_cron_recompute_no_done_mo(self):
         """沒有 done MO 時，cron 不應爆。"""

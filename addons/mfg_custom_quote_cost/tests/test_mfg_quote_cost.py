@@ -23,10 +23,21 @@ class TestMfgCustomQuoteCost(TransactionCase):
         cls.partner = cls.env["res.partner"].create({
             "name": "報價成本測試客戶",
         })
+        # 成本明細必須掛在某張報價明細上
+        cls.sale_order = cls.env["sale.order"].create({
+            "partner_id": cls.partner.id,
+        })
+        cls.sale_order_line = cls.env["sale.order.line"].create({
+            "order_id": cls.sale_order.id,
+            "product_id": cls.product.id,
+            "product_uom_qty": 1.0,
+            "price_unit": 100.0,
+        })
 
     def test_01_compute_subtotal(self):
         """subtotal = unit_cost × product_qty。"""
         line = self.CostLine.create({
+            "sale_order_line_id": self.sale_order_line.id,
             "product_id": self.product.id,
             "product_qty": 3.0,
             "unit_cost": 12.5,
@@ -73,6 +84,7 @@ class TestMfgCustomQuoteCost(TransactionCase):
     def test_04_subtotal_stored(self):
         """建立後 subtotal 應自動 store=True 計算。"""
         line = self.CostLine.create({
+            "sale_order_line_id": self.sale_order_line.id,
             "product_id": self.product.id,
             "product_qty": 2.0,
             "unit_cost": 50.0,

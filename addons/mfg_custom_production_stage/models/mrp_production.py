@@ -49,7 +49,10 @@ class MrpProduction(models.Model):
         tracking=True,
         compute="_compute_mfg_custom_yield_rate",
         store=True,
-        help="= min(100, 實際產量 / 標準用量 * 100)。未 done 時為 0。",
+        help=(
+            "= min(100, 實際產出 / 依實際投入原料換算的理論產出 * 100)。"
+            "未 done 時為 0。"
+        ),
     )
     mfg_custom_expected_yield_rate = fields.Float(
         "期望得料率 %",
@@ -96,7 +99,11 @@ class MrpProduction(models.Model):
         "bom_id",
     )
     def _compute_mfg_custom_yield_rate(self):
-        """得料率 = 實際合格產量 / 標準原料消耗 * 100，上限 100。
+        """得料率 = 實際產出 / 依實際投入原料換算的理論產出 * 100，上限 100。
+
+        以 BOM 配比換算理論產出：若依 BOM 每件成品需 R 件原料，則投入 C 件
+        原料理論上應產出 C / R 件成品；實際產出與理論值之比即為得料率。
+        完美生產（產出與投入完全符合配比）時為 100%，少產或多耗原料時下降。
 
         只在 ``state == 'done'`` 時計算；其餘情境顯示 0。
         """
@@ -104,26 +111,28 @@ class MrpProduction(models.Model):
             if production.state != "done":
                 production.mfg_custom_yield_rate = 0.0
                 continue
-            standard = production._mfg_custom_get_standard_consumption()
             produced = production._mfg_custom_get_produced_qty()
-            if standard <= 0:
-                # 沒有 BOM / 沒有原料消耗：視為 100%（純服務型工單）
-                production.mfg_custom_yield_rate = 100.0 if produced > 0 else 0.0
+            expected = production._mfg_custom_get_expected_output()
+            if expected <= 0:
+                # 沒有 BOM / 沒有原料消耗：退而以「產出 / 計劃數量」計算
+                planned = production.product_qty or 0.0
+                rate = (produced / planned * 100.0) if planned else 0.0
+                production.mfg_custom_yield_rate = min(round(rate, 2), 100.0)
                 continue
-            rate = (produced / standard) * 100.0
+            rate = (produced / expected) * 100.0
             production.mfg_custom_yield_rate = min(round(rate, 2), 100.0)
 
     def _mfg_custom_get_standard_consumption(self):
-        """計算標準原料消耗（依 BOM 與 qty 推算）。"""
+        """計算標準原料消耗（依 BOM 與計劃產量推算）。
+
+        僅供顯示／參考用；得料率本身改以「實際投入」換算（見
+        ``_mfg_custom_get_expected_output``）。
+        """
         self.ensure_one()
         if not self.bom_id:
             # 沒有 BOM：直接採用實際消耗
-            return sum(
-                self.move_raw_ids.filtered(lambda m: m.state == "done").mapped(
-                    "quantity"
-                ),
-            )
-        product_qty_in_bom_uom = self.product_uom_qty or self.product_qty
+            return self._mfg_custom_get_consumed_qty()
+        product_qty_in_bom_uom = self.product_qty or 0.0
         if self.bom_id.product_qty:
             factor = product_qty_in_bom_uom / self.bom_id.product_qty
         else:
@@ -135,12 +144,53 @@ class MrpProduction(models.Model):
             total += (line.product_qty or 0.0) * factor
         if total <= 0:
             # BOM 沒抓到原料時回退到實際消耗
-            return sum(
-                self.move_raw_ids.filtered(lambda m: m.state == "done").mapped(
-                    "quantity"
-                ),
-            )
+            return self._mfg_custom_get_consumed_qty()
         return total
+
+    def _mfg_custom_get_consumed_qty(self):
+        """實際消耗的原料數量（done 的原料 move 加總，換算為產品預設單位）。"""
+        self.ensure_one()
+        total = 0.0
+        for move in self.move_raw_ids.filtered(lambda m: m.state == "done"):
+            qty = move.quantity or 0.0
+            product = move.product_id
+            uom = product.uom_id
+            if uom and move.uom_id and uom != move.uom_id:
+                qty = move.uom_id._compute_quantity(qty, uom)
+            total += qty
+        return total
+
+    def _mfg_custom_get_raw_ratio(self):
+        """回傳 {原料 id: 每件成品需耗用的原料數量}（依 BOM 配比）。"""
+        self.ensure_one()
+        if not self.bom_id:
+            return {}
+        bom_qty = self.bom_id.product_qty or 1.0
+        ratio = {}
+        for line in self.bom_id.bom_line_ids:
+            if not line.product_id or line.product_id.type == "service":
+                continue
+            ratio[line.product_id.id] = (line.product_qty or 0.0) / bom_qty
+        return ratio
+
+    def _mfg_custom_get_expected_output(self):
+        """依實際投入的原料與 BOM 配比，換算理論上應產出的成品數量。"""
+        self.ensure_one()
+        ratio = self._mfg_custom_get_raw_ratio()
+        if not ratio:
+            return 0.0
+        expected = 0.0
+        for move in self.move_raw_ids.filtered(lambda m: m.state == "done"):
+            per_unit = ratio.get(move.product_id.id)
+            if not per_unit:
+                continue
+            qty = move.quantity or 0.0
+            product = move.product_id
+            uom = product.uom_id
+            if uom and move.uom_id and uom != move.uom_id:
+                qty = move.uom_id._compute_quantity(qty, uom)
+            expected += qty / per_unit
+        return expected
 
     def _mfg_custom_get_produced_qty(self):
         """計算實際合格產量（done 的 move_finished_ids 之產品產量）。"""
@@ -305,8 +355,9 @@ class MrpProduction(models.Model):
             if (
                 production.bom_id
                 and production.bom_id.mfg_custom_default_production_stage
-                and not production.mfg_custom_production_stage
             ):
+                # 欄位本身有預設值（mass），因此「非空」不能當成使用者已指定；
+                # 選擇 BOM 時一律帶入 BOM 的預設階段。
                 production.mfg_custom_production_stage = (
                     production.bom_id.mfg_custom_default_production_stage
                 )

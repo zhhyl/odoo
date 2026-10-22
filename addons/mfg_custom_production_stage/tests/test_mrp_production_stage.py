@@ -117,8 +117,10 @@ class TestMrpProductionStage(TestMrpCommon):
         mo.action_change_stage("mass", reason="客戶下單")
         self.assertEqual(mo.mfg_custom_production_stage, "mass")
         self.assertEqual(mo.mfg_custom_stage_log_count, 2)
-        # 最新一筆在最前面（_order = timestamp desc）
-        latest = mo.mfg_custom_stage_log_ids[0]
+        # 取最新一筆（依 id 遞增；one2many 由 cache 讀出時不一定套用 _order）
+        latest = self.env["mrp.production.stage.log"].search(
+            [("production_id", "=", mo.id)], order="id desc", limit=1
+        )
         self.assertEqual(latest.from_stage, "pilot")
         self.assertEqual(latest.to_stage, "mass")
 
