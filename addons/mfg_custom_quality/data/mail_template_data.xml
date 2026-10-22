@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo><data noupdate="1">
+<odoo><data>
+    <!-- 不使用 noupdate：通知信的收件人設定（use_default_to / email_to）
+         需要在模組升級時一併更新，否則既有資料庫仍會沿用舊設定 -->
 
     <!-- Email template: 不合格通知 -->
     <record id="mail_template_mfg_quality_check_failed" model="mail.template">

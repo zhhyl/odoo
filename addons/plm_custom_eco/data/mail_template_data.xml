@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo><data noupdate="1">
+<odoo><data>
+    <!-- 不使用 noupdate：通知信的收件人設定（use_default_to / email_to）
+         需要在模組升級時一併更新，否則既有資料庫仍會沿用舊設定 -->
     <record id="mail_template_plm_eco_apply" model="mail.template">
         <field name="name">ECO 套用通知</field>
         <field name="model_id" ref="model_plm_custom_eco"/>

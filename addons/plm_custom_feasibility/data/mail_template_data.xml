@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo noupdate="1">
+<odoo>
+    <!-- 不使用 noupdate：通知信的收件人設定（use_default_to / email_to）
+         需要在模組升級時一併更新，否則既有資料庫仍會沿用舊設定 -->
 
     <!-- 通知：請相關部門評分（送出 in_review 時） -->
     <record id="mail_template_plm_feasibility_submit" model="mail.template">
