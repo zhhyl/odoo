@@ -55,7 +55,7 @@ class TestMfgCustomBase(TransactionCase):
         user = self.env["res.users"].create({
             "name": "MFG 新人",
             "login": "mfg_auto_group_user",
-            "groups_id": [(6, 0, [self.env.ref("base.group_user").id])],
+            "group_ids": [(6, 0, [self.env.ref("base.group_user").id])],
         })
         self.assertIn(
             self.env.ref("mfg_custom_base.group_user"),
@@ -68,7 +68,7 @@ class TestMfgCustomBase(TransactionCase):
         user = self.env["res.users"].create({
             "name": "外部使用者",
             "login": "mfg_portal_user",
-            "groups_id": [(6, 0, [self.env.ref("base.group_portal").id])],
+            "group_ids": [(6, 0, [self.env.ref("base.group_portal").id])],
         })
         self.assertNotIn(
             self.env.ref("mfg_custom_base.group_user"),

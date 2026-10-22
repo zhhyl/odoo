@@ -618,7 +618,7 @@ class MfgApprovalRequest(models.Model):
         self.ensure_one()
         self.message_post(
             body=self.env._(
-                "此簽核申請已超過簽核期限（%s），請盡速處理。",
+                "此簽核申請已逾期（簽核期限 %s），請盡速處理。",
                 self.due_date,
             ),
             subtype_xmlid="mfg_custom_approval.mt_mfg_approval_request_state",
