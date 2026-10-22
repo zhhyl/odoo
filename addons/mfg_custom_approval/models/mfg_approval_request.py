@@ -99,6 +99,56 @@ class MfgApprovalRequest(models.Model):
 
     _req_idx = models.Index("(state, res_model, res_id)")
 
+    # 僅允許簽核引擎內部寫入的欄位。
+    # 這些欄位決定「這張單走了哪些關卡、現在是什麼狀態」，
+    # 一般使用者若能直接改寫等同跳過所有簽核關卡，因此一律拒絕。
+    _engine_only_fields = {
+        "state",
+        "rule_id",
+        "res_model",
+        "res_id",
+        "line_ids",
+        "current_step_id",
+        "current_step_no",
+    }
+
+    def write(self, vals):
+        """拒絕直接改寫簽核流程欄位。
+
+        簽核狀態只能透過「送出簽核 / 核准 / 駁回 / 取消」等動作推進，
+        避免使用者直接改 ``state`` 就把未簽核的單據變成已核准。
+        """
+        forbidden = self._engine_only_fields & set(vals)
+        if forbidden:
+            raise AccessError(
+                self.env._(
+                    "簽核流程欄位（%s）不可直接修改，請使用送出簽核／核准／駁回等操作。",
+                    "、".join(sorted(forbidden)),
+                )
+            )
+        return super().write(vals)
+
+    def _engine_write(self, vals):
+        """簽核引擎內部寫入（略過 ``write()`` 的保護）。
+
+        以底線開頭，無法透過 RPC 呼叫，僅供引擎內部使用。
+        """
+        return super().write(vals)
+
+    def unlink(self):
+        """只有申請人或管理員可以刪除簽核申請。"""
+        for rec in self:
+            is_requester = bool(
+                rec.requester_id and rec.requester_id == self.env.user
+            )
+            if not is_requester and not self.env.user.has_group(
+                "mfg_custom_base.group_manager"
+            ):
+                raise AccessError(
+                    self.env._("只有申請人或管理員可以刪除簽核申請")
+                )
+        return super().unlink()
+
     @api.constrains("res_model")
     def _check_res_model_exists(self):
         for rec in self:
@@ -126,19 +176,23 @@ class MfgApprovalRequest(models.Model):
             )
 
     def action_open_res_record(self):
-        """開啟被簽核的業務單據，方便簽核者檢視內容。"""
+        """開啟被簽核的業務單據，方便簽核者檢視內容。
+
+        回傳 action dict（不寫入資料庫，避免每次點擊都產生一筆 action 紀錄）。
+        """
         self.ensure_one()
         record = self._get_res_record()
         if not record or not record.exists():
             raise UserError(self.env._("對應的業務單據已不存在"))
-        return self.env["ir.actions.act_window"].create({
+        return {
+            "type": "ir.actions.act_window",
             "name": record.display_name or self.res_model,
             "res_model": self.res_model,
             "res_id": record.id,
             "view_mode": "form",
             "views": [(False, "form")],
             "target": "current",
-        })
+        }
 
     @api.model_create_multi
     def _check_no_active_duplicate(self, vals_list):
@@ -164,33 +218,65 @@ class MfgApprovalRequest(models.Model):
                     "mfg_custom.approval.request"
                 ) or "New"
         self._check_no_active_duplicate(vals_list)
+        # 先驗證關卡與簽核者：避免寫入後才失敗，在資料庫留下孤兒簽核單
+        for vals in vals_list:
+            self._validate_steps(vals)
         records = super().create(vals_list)
         for rec in records:
             rec._build_lines()
             rec._notify_approvers()
         return records
 
+    def _validate_steps(self, vals):
+        """建立前檢查規則的關卡是否適用於此單據、且每個必要關卡都找得到簽核者。"""
+        rule = self.env["mfg_custom.approval.rule"].browse(vals.get("rule_id"))
+        if not rule.exists():
+            raise UserError(self.env._("找不到對應的簽核規則"))
+        res_model = vals.get("res_model")
+        res_id = vals.get("res_id")
+        if not res_model or not res_id:
+            raise UserError(self.env._("簽核申請必須指定業務單據"))
+        record = self.env[res_model].browse(res_id)
+        self._resolve_steps_for_record(rule, record)
+        return True
+
     # ------------------------------------------------------------------
     # Compute: 當前關卡
     # ------------------------------------------------------------------
 
-    @api.depends("line_ids.decision", "line_ids.step_id", "rule_id.step_ids.sequence")
+    @api.depends("line_ids.decision", "line_ids.step_id", "rule_id.step_ids")
     def _compute_current_step(self):
         Step = self.env["mfg_custom.approval.step"]
         for rec in self:
             step = Step.browse()
             no = 0
+            # 關卡編號以規則中的順序為準；只考慮「實際建立了簽核紀錄」的關卡
+            # （金額門檻不符、或非必要而略過的關卡不算）。
             steps = rec.rule_id.step_ids.sorted("sequence")
+            effective = rec._get_effective_steps()
             for idx, s in enumerate(steps, start=1):
+                if s not in effective:
+                    continue
+                # 已完成的關卡（任一核准即可 / 全員核准）直接略過，
+                # 否則同一關卡其他人員的待簽紀錄會讓流程卡在這一關。
+                if rec._is_step_done(s):
+                    continue
                 if rec.line_ids.filtered(
                     lambda ln, s=s: ln.step_id == s and ln.decision == "pending"
                 ):
                     step = s
                     no = idx
                     break
-            if not step and steps:
-                step = steps[0]
-                no = 1
+            if not step and effective:
+                # 沒有待簽關卡：顯示第一個尚未完成的關卡
+                for idx, s in enumerate(steps, start=1):
+                    if s in effective and not rec._is_step_done(s):
+                        step = s
+                        no = idx
+                        break
+                if not step:
+                    step = effective.sorted("sequence")[0]
+                    no = 1
             rec.current_step_id = step
             rec.current_step_no = no
 
@@ -214,6 +300,7 @@ class MfgApprovalRequest(models.Model):
                 "decision": "approved",
                 "decision_date": fields.Datetime.now(),
             })
+            rec._close_other_pending_lines(step)
             rec._post_step_progress_message(step)
             rec._check_all_approved()
 
@@ -229,16 +316,17 @@ class MfgApprovalRequest(models.Model):
                 raise UserError(
                     self.env._("您不在本關卡的簽核者名單中，或已簽過")
                 )
-            reason = reason or rec.reason
+            # 用區域變數，避免多筆資料時沿用前一筆的駁回原因
+            rec_reason = reason or rec.reason
             line.write({
                 "decision": "rejected",
                 "decision_date": fields.Datetime.now(),
-                "comment": reason or line.comment,
+                "comment": rec_reason or line.comment,
             })
-            if reason:
-                rec.write({"reason": reason})
-            rec._post_step_progress_message(step, note=reason)
-            rec.write({"state": "rejected"})
+            if rec_reason:
+                rec.write({"reason": rec_reason})
+            rec._post_step_progress_message(step, note=rec_reason)
+            rec._engine_write({"state": "rejected"})
             rec._notify_business_record("_approval_on_rejected")
             rec._notify_decision()
 
@@ -247,7 +335,7 @@ class MfgApprovalRequest(models.Model):
         for rec in self:
             if rec.state in ("approved", "rejected", "cancelled"):
                 continue
-            rec.write({"state": "cancelled"})
+            rec._engine_write({"state": "cancelled"})
             rec._notify_business_record("_approval_on_cancelled")
             rec._notify_decision()
 
@@ -268,12 +356,16 @@ class MfgApprovalRequest(models.Model):
         self.ensure_one()
         # 簽核單本身擁有這些紀錄，重啟流程時由簽核單端刪除
         self.line_ids.sudo().unlink()
-        vals = {"state": "draft", "reason": False}
+        vals = {
+            "state": "draft",
+            "reason": False,
+            "submit_date": fields.Datetime.now(),
+        }
         if rule:
             vals["rule_id"] = rule.id
-        self.write(vals)
+        self._engine_write(vals)
         self._build_lines()
-        self.write({"state": "pending"})
+        self._engine_write({"state": "pending"})
         self._notify_approvers()
         return True
 
@@ -312,26 +404,65 @@ class MfgApprovalRequest(models.Model):
     def _get_effective_steps(self):
         """回傳本申請實際有簽核者的關卡。
 
-        關卡若因 ``field`` 模式取不到人（例如單據上的負責人未填），會被略過；
-        略過的關卡不應阻擋整體核准。
+        金額門檻不符、或非必要而略過的關卡不會建立簽核紀錄，
+        因此不會出現在此清單，也不會阻擋整體核准。
         """
         self.ensure_one()
         return self.rule_id.step_ids.filtered(
             lambda s: self.line_ids.filtered(lambda ln: ln.step_id == s)
         )
 
+    def _resolve_steps_for_record(self, rule, record):
+        """解析規則在此單據上的有效關卡與簽核者。
+
+        :return: ``(active_steps, {step: users})``
+        :raise UserError: 沒有適用關卡、必要關卡找不到簽核者時。
+        """
+        active_steps = rule.step_ids.sorted("sequence").filtered(
+            lambda s: s._is_active_for_record(record)
+        )
+        if not active_steps:
+            raise UserError(
+                self.env._(
+                    "簽核規則「%s」沒有適用於此單據的簽核關卡，此單據不需簽核。",
+                    rule.display_name,
+                )
+            )
+        resolved = {}
+        for step in active_steps:
+            users = step._resolve_approver_users(record)
+            if not users:
+                if step.required:
+                    raise UserError(
+                        self.env._(
+                            "簽核規則「%s」的關卡「%s」找不到可用的簽核者，"
+                            "請檢查群組成員或單據上的簽核者欄位。",
+                            rule.display_name,
+                            step.display_name,
+                        )
+                    )
+                # 非必要關卡：找不到簽核者時略過
+                continue
+            resolved[step] = users
+        if not resolved:
+            raise UserError(
+                self.env._(
+                    "簽核規則「%s」的關卡都沒有設定簽核者，無法送出簽核。"
+                    "請於【MFG Custom > 設定 > 簽核規則】補齊關卡的簽核者。",
+                    rule.display_name,
+                )
+            )
+        return active_steps, resolved
+
     def _build_lines(self):
         """依 ``rule_id.step_ids`` 建立 ``line_ids``。"""
         for rec in self:
             record = rec._get_res_record()
-            LineVals = []
-            active_steps = rec.rule_id.step_ids.sorted("sequence").filtered(
-                lambda s: s._is_active_for_record(record)
+            _active_steps, resolved = rec._resolve_steps_for_record(
+                rec.rule_id, record
             )
-            for step in active_steps:
-                users = step._resolve_approver_users(record)
-                if not users:
-                    continue
+            LineVals = []
+            for step, users in resolved.items():
                 for user in users:
                     LineVals.append({
                         "request_id": rec.id,
@@ -339,41 +470,41 @@ class MfgApprovalRequest(models.Model):
                         "user_id": user.id,
                         "decision": "pending",
                     })
-            if not active_steps:
-                raise UserError(
-                    self.env._(
-                        "簽核規則「%s」沒有適用於此單據的簽核關卡，此單據不需簽核。",
-                        rec.rule_id.display_name,
-                    )
-                )
-            if not LineVals:
-                raise UserError(
-                    self.env._(
-                        "簽核規則「%s」的關卡都沒有設定簽核者，無法送出簽核。"
-                        "請於【MFG Custom > 設定 > 簽核規則】補齊關卡的簽核者。",
-                        rec.rule_id.display_name,
-                    )
-                )
             self.env["mfg_custom.approval.line"].create(LineVals)
+        return True
+
+    def _close_other_pending_lines(self, step):
+        """「任一核准即可」的關卡：其他人員的待簽紀錄一併結案。
+
+        若不結案，這些待簽紀錄會讓「當前關卡」一直停在同一關，
+        下一個關卡的簽核者永遠輪不到（見 ``_compute_current_step``）。
+        """
+        self.ensure_one()
+        if step.approver_mode == "group_all":
+            return False
+        others = self.line_ids.filtered(
+            lambda ln: ln.step_id == step and ln.decision == "pending"
+        )
+        if not others:
+            return False
+        others._engine_write({
+            "decision": "skipped",
+            "decision_date": fields.Datetime.now(),
+            "comment": self.env._("本關卡已由其他簽核者核准，自動略過。"),
+        })
         return True
 
     def _check_all_approved(self):
         """若所有有效關卡皆已通過，將 request 設為 approved。"""
         for rec in self:
             active_steps = rec._get_effective_steps()
-            if not active_steps:
-                rec.write({"state": "approved"})
-                rec._post_final_approved_message()
-                rec._notify_business_record("_approval_on_approved")
-                rec._notify_decision()
-                continue
             all_done = True
             for step in active_steps:
                 if not rec._is_step_done(step):
                     all_done = False
                     break
             if all_done:
-                rec.write({"state": "approved"})
+                rec._engine_write({"state": "approved"})
                 rec._post_final_approved_message()
                 rec._notify_business_record("_approval_on_approved")
                 rec._notify_decision()

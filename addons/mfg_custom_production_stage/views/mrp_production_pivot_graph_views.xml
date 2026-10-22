@@ -11,15 +11,17 @@
     <record id="mrp_production_view_pivot_yield_analysis" model="ir.ui.view">
         <field name="name">mrp.production.view.pivot.yield.analysis.mfg.custom</field>
         <field name="model">mrp.production</field>
-        <field name="priority">20</field>
+        <!-- priority 必須小於 mrp 內建 pivot（16），Odoo 會取 priority 最小者為預設 -->
+        <field name="priority">15</field>
         <field name="arch" type="xml">
             <pivot string="得料率分析（按生產階段 × 月份）" sample="1">
                 <field name="mfg_custom_production_stage" type="row"/>
                 <field name="date_finished" interval="month" type="row"/>
                 <field name="product_id" type="row"/>
                 <field name="state" type="col"/>
+                <!-- mfg_custom_yield_rate 已是 0-100 的數值，不使用 percentage widget（會再乘 100） -->
                 <field name="mfg_custom_yield_rate" type="measure"
-                       string="得料率" widget="percentage"/>
+                       string="得料率"/>
                 <field name="product_uom_qty" type="measure" string="計劃數量"/>
                 <field name="qty_producing" type="measure" string="實際產量"/>
             </pivot>
@@ -34,12 +36,14 @@
     <record id="mrp_production_view_graph_yield_trend" model="ir.ui.view">
         <field name="name">mrp.production.view.graph.yield.trend.mfg.custom</field>
         <field name="model">mrp.production</field>
-        <field name="priority">20</field>
+        <!-- priority 必須小於 mrp 內建 graph（16），Odoo 會取 priority 最小者為預設 -->
+        <field name="priority">15</field>
         <field name="arch" type="xml">
             <graph string="得料率走勢圖" type="line" sample="1" stacked="0">
                 <field name="date_finished" interval="month"/>
+                <!-- mfg_custom_yield_rate 已是 0-100 的數值，不使用 percentage widget（會再乘 100） -->
                 <field name="mfg_custom_yield_rate" type="measure"
-                       string="得料率" widget="percentage"/>
+                       string="得料率"/>
             </graph>
         </field>
     </record>

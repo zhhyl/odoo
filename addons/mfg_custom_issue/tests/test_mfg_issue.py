@@ -1,7 +1,9 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+from odoo import Command
+from odoo.exceptions import UserError
 from odoo.tests import tagged
-from odoo.tests.common import TransactionCase
+from odoo.tests.common import TransactionCase, new_test_user
 
 
 @tagged("post_install", "-at_install", "mfg_custom", "plm_custom")
@@ -123,3 +125,103 @@ class TestMfgCustomIssue(TransactionCase):
         action.action_set_state("done")
         self.assertEqual(action.state, "done")
         self.assertTrue(action.done_date)
+
+
+@tagged("post_install", "-at_install", "mfg_custom", "plm_custom")
+class TestMfgIssueApproval(TransactionCase):
+    """測試問題点的簽核引擎回寫。
+
+    問題点的 ``state`` 由 ``stage_id`` 推導，因此簽核結果一律以「移動階段」
+    的方式回寫：核准 → 結案、駁回 → 分析中、取消 → 開立。
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.Issue = cls.env["mfg_custom.issue"]
+        cls.Stage = cls.env["mfg_custom.issue.stage"]
+        cls.Rule = cls.env["mfg_custom.approval.rule"]
+        cls.approver = new_test_user(
+            cls.env,
+            login="issue_approver",
+            groups="base.group_user,mfg_custom_base.group_manager",
+        )
+        cls.open_stage = cls.Stage.search(
+            [("is_closed", "=", False), ("fold", "=", False)],
+            order="sequence",
+            limit=1,
+        )
+        cls.analyzing_stage = cls.Stage.search(
+            [("name", "=", "分析中"), ("is_closed", "=", False)],
+            limit=1,
+        )
+        cls.implementing_stage = cls.Stage.search(
+            [("fold", "=", True), ("is_closed", "=", False)],
+            order="sequence",
+            limit=1,
+        )
+        cls.closed_stage = cls.Stage.search([("is_closed", "=", True)], limit=1)
+        # 測試規則 sequence=1 → 優先於種子規則「問題點結案審核」
+        cls.rule = cls.Rule.create({
+            "name": "問題點測試簽核規則",
+            "model_id": cls.env["ir.model"]._get("mfg_custom.issue").id,
+            "sequence": 1,
+            "step_ids": [
+                Command.create({
+                    "name": "測試核准",
+                    "approver_mode": "user",
+                    "user_ids": [Command.set([cls.approver.id])],
+                }),
+            ],
+        })
+
+    def _new_issue(self, **extra):
+        vals = {
+            "subject": "簽核測試問題点",
+            "description": "<p>測試現象</p>",
+            "issue_type": "defect",
+            "stage_id": self.implementing_stage.id,
+        }
+        vals.update(extra)
+        return self.Issue.create(vals)
+
+    def test_01_before_submit_blocks_closed_issue(self):
+        """已結案的問題点不可再送出簽核。"""
+        issue = self._new_issue(stage_id=self.closed_stage.id)
+        with self.assertRaises(UserError):
+            issue.action_submit_for_approval()
+
+    def test_02_approved_moves_to_closed_stage(self):
+        """簽核全部通過 → 移至結案階段，state 變 closed。"""
+        issue = self._new_issue()
+        issue.action_submit_for_approval()
+        self.assertEqual(issue.approval_state, "pending")
+        issue.approval_request_id.with_user(self.approver).action_approve()
+        issue.invalidate_recordset()
+        self.assertEqual(issue.stage_id, self.closed_stage)
+        self.assertEqual(issue.state, "closed")
+        self.assertTrue(issue.closed_date)
+        self.assertEqual(issue.approval_state, "approved")
+
+    def test_03_rejected_moves_to_analyzing_stage(self):
+        """簽核駁回 → 退回「分析中」階段，state 回到 open。"""
+        issue = self._new_issue()
+        issue.action_submit_for_approval()
+        issue.approval_request_id.with_user(self.approver).action_reject(
+            reason="分析資料不足",
+        )
+        issue.invalidate_recordset()
+        self.assertEqual(issue.stage_id, self.analyzing_stage)
+        self.assertEqual(issue.state, "open")
+        self.assertEqual(issue.approval_state, "rejected")
+
+    def test_04_cancelled_moves_to_open_stage(self):
+        """簽核取消 → 退回「開立」階段。"""
+        issue = self._new_issue()
+        issue.action_submit_for_approval()
+        issue.action_cancel_approval()
+        issue.invalidate_recordset()
+        self.assertEqual(issue.stage_id, self.open_stage)
+        self.assertEqual(issue.state, "open")
+        self.assertFalse(issue.closed_date)
+        self.assertEqual(issue.approval_state, "not_required")

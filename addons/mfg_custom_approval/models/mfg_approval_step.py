@@ -159,29 +159,51 @@ class MfgApprovalStep(models.Model):
                         step.display_name,
                     )
                 )
+            if step.approver_mode == "field" and step.approver_field_id:
+                field = step.approver_field_id
+                if field.relation != "res.users":
+                    raise ValidationError(
+                        self.env._(
+                            "關卡 %s 的簽核者欄位必須是指向使用者的欄位",
+                            step.display_name,
+                        )
+                    )
+                if field.model != step.rule_id.res_model:
+                    raise ValidationError(
+                        self.env._(
+                            "關卡 %s 的簽核者欄位不屬於規則適用的單據類型",
+                            step.display_name,
+                        )
+                    )
 
     def _resolve_approver_users(self, record):
         """依 ``approver_mode`` 解析出本關卡的所有潛在簽核者。
+
+        已停用（离职）的帳號不列入簽核者，否則一位員工離職就會永久卡住
+        該群組的所有送簽流程。
 
         :param record: 對應的業務單據 recordset
         :return: ``res.users`` recordset
         """
         self.ensure_one()
+        users = self.env["res.users"]
         if self.approver_mode == "user":
-            return self.user_ids
-        if self.approver_mode == "group":
-            return self.group_id.all_user_ids
-        if self.approver_mode == "group_all":
-            return self.group_id.all_user_ids
-        if self.approver_mode == "field":
+            users = self.user_ids
+        elif self.approver_mode in ("group", "group_all"):
+            users = self.group_id.all_user_ids
+        elif self.approver_mode == "field":
             field_name = self.approver_field
             if not field_name or field_name not in record._fields:
                 return self.env["res.users"]
-            user = record[field_name]
-            if not user:
+            field = record._fields[field_name]
+            # 簽核者欄位必須是指向 res.users 的單值欄位
+            if field.comodel_name != "res.users":
                 return self.env["res.users"]
-            return user
-        return self.env["res.users"]
+            value = record[field_name]
+            if not value or len(value) != 1:
+                return self.env["res.users"]
+            users = value
+        return users.filtered(lambda u: u.active)
 
     def _is_active_for_record(self, record):
         """依金額區間判斷本關卡是否對 ``record`` 啟用。"""
@@ -194,7 +216,13 @@ class MfgApprovalStep(models.Model):
         if amount is False or amount is None:
             return True
         currency = self.amount_currency_id
-        record_currency_name = record._fields[self.amount_field].get_currency_field(record)
+        amount_field = record._fields[self.amount_field]
+        # 只有 Monetary 欄位才有幣別換算，一般 Float 欄位直接比對門檻
+        record_currency_name = (
+            amount_field.get_currency_field(record)
+            if isinstance(amount_field, fields.Monetary)
+            else None
+        )
         if record_currency_name and record_currency_name in record._fields:
             record_curr = record[record_currency_name]
             if record_curr and currency and currency != record_curr:

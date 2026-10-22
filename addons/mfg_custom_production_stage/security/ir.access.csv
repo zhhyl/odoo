@@ -1,3 +1,4 @@
 id,name,model_id,group_id/id,operation,domain
 access_mrp_production_stage_log_user,mrp.production.stage.log,mrp.production.stage.log,mfg_custom_base.group_user,r,
 access_mrp_production_stage_log_manager,mrp.production.stage.log,mrp.production.stage.log,mfg_custom_base.group_manager,crud,
+access_mfg_production_stage_change,mfg.production.stage.change,mfg.production.stage.change,mfg_custom_base.group_user,crud,

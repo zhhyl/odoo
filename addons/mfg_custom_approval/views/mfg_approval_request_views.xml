@@ -82,7 +82,11 @@
                            readonly="1"/>
                 </header>
                 <sheet>
-                    <div class="oe_button_box" name="button_box"/>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_open_res_record" type="object"
+                                class="oe_stat_button" icon="fa-external-link"
+                                string="開啟單據"/>
+                    </div>
                     <div class="oe_title">
                         <label for="name"/>
                         <h1>
@@ -91,13 +95,13 @@
                     </div>
                     <group>
                         <group>
-                            <field name="rule_id" readonly="state != 'draft'"/>
+                            <field name="rule_id" readonly="1"/>
                             <field name="current_step_no" string="目前關卡"/>
                             <field name="current_step_id" string="目前關卡名稱"/>
                         </group>
                         <group>
-                            <field name="res_model" readonly="state != 'draft'"/>
-                            <field name="res_id" readonly="state != 'draft'"/>
+                            <field name="res_model" readonly="1"/>
+                            <field name="res_id" readonly="1"/>
                             <field name="requester_id" readonly="1"/>
                             <field name="submit_date" readonly="1"/>
                             <field name="company_id" groups="base.group_multi_company"/>
@@ -115,12 +119,13 @@
                                 <list string="簽核紀錄"
                                       decoration-success="decision == 'approved'"
                                       decoration-danger="decision == 'rejected'"
-                                      decoration-muted="decision == 'pending'">
+                                      decoration-muted="decision in ('pending', 'skipped')">
                                     <field name="step_id"/>
                                     <field name="user_id"/>
                                     <field name="decision" widget="badge"
                                            decoration-success="decision == 'approved'"
                                            decoration-danger="decision == 'rejected'"
+                                           decoration-muted="decision == 'skipped'"
                                            decoration-warning="decision == 'pending'"/>
                                     <field name="decision_date"/>
                                     <field name="comment" optional="hide"/>

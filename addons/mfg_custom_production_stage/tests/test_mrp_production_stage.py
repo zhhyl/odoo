@@ -116,6 +116,11 @@ class TestMrpProductionStage(TestMrpCommon):
         """欄位 mfg_custom_sample_request_id 已建立（即使目標模組未裝）。"""
         field = self.env["mrp.production"]._fields.get("mfg_custom_sample_request_id")
         self.assertTrue(field, "欄位 mfg_custom_sample_request_id 應存在")
-        self.assertEqual(field.comodel_name, "plm_custom.feasibility")
-        # 此時 ref 應不可解析（模組未安裝）
-        # 注意：Odoo 不會阻擋 comodel_name 寫入已宣告的字串，僅在實際 click 時才會錯。
+        self.assertEqual(field.type, "reference")
+        # selection 為動態產生：目標模型未安裝時不提供任何選項，
+        # 避免讀寫此欄位時因 env 找不到 plm_custom.feasibility 而拋 KeyError
+        values = field.get_values(self.env)
+        if "plm_custom.feasibility" in self.env:
+            self.assertIn("plm_custom.feasibility", values)
+        else:
+            self.assertEqual(values, [], "目標模型未安裝時不應提供選項")

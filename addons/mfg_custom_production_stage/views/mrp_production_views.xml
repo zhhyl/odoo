@@ -30,6 +30,17 @@
                         title="列印 MO 含得料率總覽（PDF）"/>
             </xpath>
 
+            <!-- 1.6) header 內追加「變更生產階段」按鈕（開啟確認視窗並寫日誌） -->
+            <xpath expr="//header//button[@name='action_reset_to_progress']" position="after">
+                <button name="action_change_stage"
+                        string="變更生產階段"
+                        type="object"
+                        icon="fa-exchange"
+                        class="btn-secondary"
+                        invisible="state in ['done', 'cancel']"
+                        title="變更生產階段（樣品 / 小批量 / 量產）並記錄變更日誌"/>
+            </xpath>
+
             <!-- 2) button_box 加 smart button（問題点／品檢／階段日誌） -->
             <xpath expr="//div[@name='button_box']" position="inside">
                 <button class="oe_stat_button" type="object" name="action_mfg_custom_view_stage_logs"
@@ -43,7 +54,7 @@
                 <button class="oe_stat_button" type="object" name="action_mfg_custom_view_issues"
                         icon="warning"
                         invisible="mfg_custom_issue_count == 0"
-                        help="待 mfg_custom_issue 模組安裝後啟用">
+                        help="開啟此 MO 的問題点（需安裝 mfg_custom_issue 模組）">
                     <div class="o_field_widget o_stat_info">
                         <span class="o_stat_value"><field name="mfg_custom_issue_count"/></span>
                         <span class="o_stat_text">問題点</span>
@@ -52,7 +63,7 @@
                 <button class="oe_stat_button" type="object" name="action_mfg_custom_view_quality_checks"
                         icon="check_circle"
                         invisible="mfg_custom_quality_check_count == 0"
-                        help="待 mfg_custom_quality 模組安裝後啟用">
+                        help="開啟此 MO 的品檢單（需安裝 mfg_custom_quality 模組）">
                     <div class="o_field_widget o_stat_info">
                         <span class="o_stat_value"><field name="mfg_custom_quality_check_count"/></span>
                         <span class="o_stat_text">品檢</span>
@@ -64,7 +75,7 @@
             <xpath expr="//field[@name='priority']" position="after">
                 <field name="mfg_custom_production_stage" widget="radio"
                        options="{'horizontal': true}"
-                       modifiers="{'readonly': [['state', 'in', ['done', 'cancel']]]}"/>
+                       readonly="state in ['done', 'cancel']"/>
                 <field name="mfg_custom_sample_request_id"
                        placeholder="樣品階段可關聯可行性評估"
                        invisible="mfg_custom_production_stage != 'sample'"

@@ -19,39 +19,39 @@
         <field name="help">跨 MO 的得料率走勢：依「生產階段 × 月份」分析良率（pivot）+ 月度良率走勢（graph）。</field>
     </record>
 
-    <!-- 階段變更日誌的 action -->
-    <record id="mrp_production_stage_log_action" model="ir.actions.act_window">
-        <field name="name">階段變更日誌</field>
-        <field name="res_model">mrp.production.stage.log</field>
-        <field name="view_mode">list,form</field>
-    </record>
+    <!--
+        階段變更日誌的 action 定義於 views/mrp_production_views.xml
+        （mrp_production_stage_log_action，帶 search_view_id），
+        此處不再重複定義，避免後載入的記錄覆蓋前者。
+    -->
 
     <!-- MFG Custom 子選單：生產階段 -->
+    <!-- groups 與 mrp 內建選單一致（mrp.group_mrp_user），避免一般 MFG 使用者開啟後 AccessError -->
     <menuitem id="menu_mfg_custom_stage_root"
               name="生產階段"
               parent="mfg_custom_base.menu_mfg_custom_root"
               sequence="20"
-              groups="mfg_custom_base.group_user"/>
+              groups="mrp.group_mrp_user"/>
 
     <menuitem id="menu_mfg_custom_stage_analysis"
               name="生產階段分析"
               parent="menu_mfg_custom_stage_root"
               sequence="10"
               action="mrp_production_action_group_by_stage"
-              groups="mfg_custom_base.group_user"/>
+              groups="mrp.group_mrp_user"/>
 
     <menuitem id="menu_mfg_custom_stage_yield_analysis"
               name="良率分析"
               parent="menu_mfg_custom_stage_root"
               sequence="15"
               action="mrp_production_action_yield_analysis"
-              groups="mfg_custom_base.group_user"/>
+              groups="mrp.group_mrp_user"/>
 
     <menuitem id="menu_mfg_custom_stage_log"
               name="階段變更日誌"
               parent="menu_mfg_custom_stage_root"
               sequence="20"
-              action="mrp_production_stage_log_action"
-              groups="mfg_custom_base.group_user"/>
+              action="mfg_custom_production_stage.mrp_production_stage_log_action"
+              groups="mrp.group_mrp_user"/>
 
 </odoo>

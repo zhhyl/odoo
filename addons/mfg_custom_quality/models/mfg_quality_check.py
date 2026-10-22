@@ -12,6 +12,9 @@ class MfgQualityCheck(models.Model):
     ``draft → in_progress → passed / failed / conditional``
     （建立後也可 ``→ cancelled``）
 
+    放行審核（簽核引擎）通過後，狀態會再由 ``passed`` / ``conditional`` /
+    ``in_progress`` 改為 ``approved``（已放行）；駁回則退回 ``in_progress``。
+
     * ``action_start()``：將 ``point_id`` 之 ``check_line_ids`` 規格帶入。
     * ``action_pass()``：判定合格（檢驗員最後按）。
     * ``action_fail(reason)``：判定不合格，留下原因並建立或關聯改善單。
@@ -43,6 +46,7 @@ class MfgQualityCheck(models.Model):
             ("passed", "合格"),
             ("failed", "不合格"),
             ("conditional", "特採"),
+            ("approved", "已放行"),
             ("cancelled", "取消"),
         ],
         string="狀態",
@@ -265,7 +269,7 @@ class MfgQualityCheck(models.Model):
         self.ensure_one()
         if self.state == "cancelled":
             return True
-        if self.state in ("passed", "failed", "conditional"):
+        if self.state in ("passed", "failed", "conditional", "approved"):
             raise UserError(
                 self.env._(
                     "%(name)s 已結案（%(state)s），不可取消；請用調整單據或重開。",
@@ -287,6 +291,55 @@ class MfgQualityCheck(models.Model):
             )
         self.write({"state": "draft"})
         return True
+
+    # ------------------------------------------------------------------
+    # 簽核引擎回呼（mixin hooks）
+    # ------------------------------------------------------------------
+
+    def _approval_before_submit(self):
+        """送出簽核前的業務檢查：僅檢驗中／已判定的品檢單可送簽。"""
+        for check in self:
+            if check.state not in ("in_progress", "passed", "conditional"):
+                raise UserError(
+                    self.env._(
+                        "%(name)s 目前為「%(state)s」狀態，無法送出放行簽核。",
+                        name=check.display_name,
+                        state=check.state,
+                    ),
+                )
+
+    def _approval_on_approved(self):
+        """所有簽核關卡皆通過時，品檢單改為「已放行」。"""
+        for check in self:
+            if check.state == "approved":
+                continue
+            check.sudo().write({"state": "approved"})
+            check.sudo().message_post(
+                body=self.env._("品檢單放行簽核通過，狀態改為「已放行」。"),
+                subtype_xmlid="mfg_custom_quality.mt_mfg_quality_check_state_changed",
+            )
+
+    def _approval_on_rejected(self):
+        """簽核被駁回時，品檢單退回「檢驗中」。"""
+        for check in self:
+            if check.state == "in_progress":
+                continue
+            check.sudo().write({"state": "in_progress"})
+            check.sudo().message_post(
+                body=self.env._("放行簽核被駁回，品檢單退回「檢驗中」。"),
+                subtype_xmlid="mfg_custom_quality.mt_mfg_quality_check_state_changed",
+            )
+
+    def _approval_on_cancelled(self):
+        """簽核被取消時，品檢單退回「待執行」。"""
+        for check in self:
+            if check.state == "draft":
+                continue
+            check.sudo().write({"state": "draft"})
+            check.sudo().message_post(
+                body=self.env._("放行簽核已取消，品檢單退回「待執行」。"),
+                subtype_xmlid="mfg_custom_quality.mt_mfg_quality_check_state_changed",
+            )
 
     # ------------------------------------------------------------------
     # helpers

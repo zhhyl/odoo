@@ -192,6 +192,105 @@ class MfgCustomIssue(models.Model):
                 issue.stage_id = open_stage
             issue.closed_date = False
 
+    def _get_analyzing_stage(self):
+        """取得「分析中」階段。
+
+        先依名稱找「分析中」（來源值或翻譯值）；找不到時退回未結案且未收合
+        階段中的第二個（開立 → 分析中 → 圍堵中）。
+        """
+        Stage = self.env["mfg_custom.issue.stage"]
+        names = {"分析中", self.env._("分析中")}
+        stage = Stage.search(
+            [("name", "in", list(names)), ("is_closed", "=", False)],
+            limit=1,
+        )
+        if stage:
+            return stage
+        stages = Stage.search(
+            [("is_closed", "=", False), ("fold", "=", False)],
+            order="sequence",
+        )
+        return stages[1:2] or stages[:1]
+
+    # ------------------------------------------------------------------
+    # 簽核引擎回呼（mixin hooks）
+    # ------------------------------------------------------------------
+
+    def _approval_before_submit(self):
+        """送出簽核前的業務檢查：已結案的問題点不可再送出簽核。"""
+        for issue in self:
+            if issue.stage_id.is_closed:
+                raise UserError(
+                    self.env._(
+                        "問題点 %s 已結案，無法再送出簽核。", issue.name
+                    )
+                )
+
+    def _approval_on_approved(self):
+        """所有簽核關卡皆通過時，把問題点移至「結案」階段。
+
+        ``state`` 由 ``stage_id`` 推導（見 ``_compute_state``），因此這裡
+        改的是階段而不是直接寫 ``state``；一併寫入 ``closed_date``。
+        """
+        Stage = self.env["mfg_custom.issue.stage"]
+        for issue in self:
+            if issue.stage_id.is_closed:
+                continue
+            closed_stage = Stage.search([("is_closed", "=", True)], limit=1)
+            if not closed_stage:
+                raise UserError(self.env._("請先建立一個「結案」階段"))
+            issue.sudo().write({
+                "stage_id": closed_stage.id,
+                "closed_date": fields.Datetime.now(),
+            })
+            issue.sudo().message_post(
+                body=self.env._("簽核通過，問題点已結案。"),
+                subtype_xmlid="mfg_custom_issue.mt_mfg_issue_state_changed",
+            )
+
+    def _approval_on_rejected(self):
+        """簽核被駁回時，把問題点退回「分析中」階段。"""
+        for issue in self:
+            analyzing_stage = self._get_analyzing_stage()
+            if not analyzing_stage:
+                raise UserError(
+                    self.env._("找不到「分析中」階段，請先建立問題点階段")
+                )
+            issue.sudo().write({
+                "stage_id": analyzing_stage.id,
+                "closed_date": False,
+            })
+            issue.sudo().message_post(
+                body=self.env._(
+                    "簽核駁回，問題点退回「%s」。", analyzing_stage.name
+                ),
+                subtype_xmlid="mfg_custom_issue.mt_mfg_issue_state_changed",
+            )
+
+    def _approval_on_cancelled(self):
+        """簽核被取消時，把問題点退回「開立」階段。"""
+        Stage = self.env["mfg_custom.issue.stage"]
+        for issue in self:
+            open_stage = Stage.search(
+                [("is_closed", "=", False), ("fold", "=", False)],
+                order="sequence",
+                limit=1,
+            )
+            if not open_stage:
+                raise UserError(
+                    self.env._("找不到「開立」階段，請先建立問題点階段")
+                )
+            issue.sudo().write({
+                "stage_id": open_stage.id,
+                "closed_date": False,
+            })
+            issue.sudo().message_post(
+                body=self.env._(
+                    "簽核已取消，問題点退回「%s」。", open_stage.name
+                ),
+                subtype_xmlid="mfg_custom_issue.mt_mfg_issue_state_changed",
+            )
+
     def action_escalate_to_eco(self):
         """升級為 ECO。"""
         self.ensure_one()

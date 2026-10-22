@@ -26,6 +26,7 @@ class TestMfgApprovalGate(TransactionCase):
         cls.TestModel = cls.env["mfg_custom.approval.test.model"]
         cls.user_a = new_test_user(cls.env, login="gate_a", groups="base.group_user,mfg_custom_base.group_user")
         cls.user_b = new_test_user(cls.env, login="gate_b", groups="base.group_user,mfg_custom_base.group_user")
+        cls.user_c = new_test_user(cls.env, login="gate_c", groups="base.group_user,mfg_custom_base.group_user")
         cls.model_id = cls.env["ir.model"]._get(
             "mfg_custom.approval.test.model"
         ).id
@@ -201,3 +202,82 @@ class TestMfgApprovalGate(TransactionCase):
             self.Rule._match_rule("mfg_custom.approval.test.model", rec),
             rule,
         )
+
+    # ------------------------------------------------------------------
+    # 多簽核人關卡：任一核准即可推進（不需等待其他人簽）
+    # ------------------------------------------------------------------
+
+    def test_10_multi_approver_step_advances(self):
+        """關卡有多位簽核者時，任一核准即可推進到下一關。
+
+        舊實作會讓「當前關卡」停在已有人核准的關卡，
+        導致下一關的簽核者永遠輪不到。
+        """
+        grp = self.env["res.groups"].create({"name": "Gate Multi Approver"})
+        self.user_a.group_ids = [Command.link(grp.id)]
+        self.user_b.group_ids = [Command.link(grp.id)]
+        self._make_rule(steps=[
+            {
+                "name": "S1",
+                "approver_mode": "group",
+                "group_id": grp.id,
+            },
+            {
+                "name": "S2",
+                "approver_mode": "user",
+                "user_ids": [Command.set([self.user_c.id])],
+            },
+        ])
+        _rec, req = self._submit()
+        self.assertEqual(len(req.line_ids), 3)
+        self.assertEqual(req.current_step_no, 1)
+
+        # A 核准即過關，流程自動推進到第二關
+        req.with_user(self.user_a).action_approve()
+        self.assertEqual(req.state, "pending")
+        self.assertEqual(req.current_step_no, 2)
+        # 其他簽核者的待簽紀錄自動略過
+        skipped = req.line_ids.filtered(lambda ln: ln.decision == "skipped")
+        self.assertEqual(len(skipped), 1)
+
+        # 第二關可由 C 簽核並結案
+        req.with_user(self.user_c).action_approve()
+        self.assertEqual(req.state, "approved")
+
+    # ------------------------------------------------------------------
+    # 簽核狀態不可被直接改寫（否則可繞過所有關卡）
+    # ------------------------------------------------------------------
+
+    def test_11_user_cannot_write_request_state(self):
+        """一般使用者不可直接改寫簽核單狀態。"""
+        self._make_rule()
+        _rec, req = self._submit()
+        with self.assertRaises(AccessError):
+            req.with_user(self.user_b).write({"state": "approved"})
+        self.assertEqual(req.state, "pending")
+
+    def test_12_user_cannot_delete_other_request(self):
+        """非申請人不可刪除簽核單。"""
+        self._make_rule()
+        _rec, req = self._submit()
+        with self.assertRaises(AccessError):
+            req.with_user(self.user_b).unlink()
+        self.assertTrue(req.exists())
+
+    # ------------------------------------------------------------------
+    # 金額門檻：一般 Float 欄位（Odoo 20 只有 Monetary 有幣別換算）
+    # ------------------------------------------------------------------
+
+    def test_13_float_amount_threshold_works(self):
+        """金額門檻套用在 Float 欄位時不應拋 AttributeError。"""
+        self._make_rule(steps=[{
+            "name": "Amount",
+            "approver_mode": "user",
+            "user_ids": [Command.set([self.user_a.id])],
+            "min_amount": 100,
+        }])
+        rec = self.TestModel.create({"amount_total": 500})
+        rec.action_submit_for_approval()
+        req = rec.approval_request_id
+        self.assertEqual(req.state, "pending")
+        self.assertEqual(len(req.line_ids), 1)

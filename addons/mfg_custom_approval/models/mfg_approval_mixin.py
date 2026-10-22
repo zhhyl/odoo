@@ -122,11 +122,13 @@ class MfgApprovalMixin(models.AbstractModel):
                         "此單已有進行中的簽核申請：%s", request.display_name
                     )
                 )
-            if not rule:
-                rule = self.env["mfg_custom.approval.rule"]._match_rule(
+            # 用區域變數，避免多筆資料時沿用前一筆的簽核規則
+            rec_rule = rule
+            if not rec_rule:
+                rec_rule = self.env["mfg_custom.approval.rule"]._match_rule(
                     rec._name, rec
                 )
-            if not rule:
+            if not rec_rule:
                 raise UserError(
                     self.env._(
                         "此單據（%s）尚未設定簽核規則，無法送出簽核。\n"
@@ -137,19 +139,19 @@ class MfgApprovalMixin(models.AbstractModel):
             rec._approval_before_submit()
             if request and request.exists():
                 # 重用既有簽核單：重啟流程（駁回後重送 / 核准後再走第二輪）
-                request._restart(rule=rule)
+                request._restart(rule=rec_rule)
                 rec.approval_request_id = request
                 rec.sudo().message_post(
                     body=self.env._(
                         "已重新送出簽核申請：%s（%d 個關卡）",
                         request.display_name,
-                        len(rule.step_ids),
+                        len(rec_rule.step_ids),
                     ),
                     subtype_xmlid="mfg_custom_approval.mt_mfg_approval_state_changed",
                 )
                 continue
             request = self.env["mfg_custom.approval.request"].create({
-                "rule_id": rule.id,
+                "rule_id": rec_rule.id,
                 "res_model": rec._name,
                 "res_id": rec.id,
             })
@@ -158,7 +160,7 @@ class MfgApprovalMixin(models.AbstractModel):
                 body=self.env._(
                     "已送出簽核申請：%s（%d 個關卡）",
                     request.display_name,
-                    len(rule.step_ids),
+                    len(rec_rule.step_ids),
                 ),
                 subtype_xmlid="mfg_custom_approval.mt_mfg_approval_state_changed",
             )

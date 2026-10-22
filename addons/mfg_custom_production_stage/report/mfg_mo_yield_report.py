@@ -12,9 +12,14 @@ class MfgCustomMoYieldReport(models.AbstractModel):
     * 生產階段、期望得料率 vs 實際得料率（彩色裝飾）
     * 報廢子件清單（從 ``stock.move(is_scrap=True)`` 取）
     * PASS / FAIL 結論
+
+    模型名稱須與 QWeb 樣板 id 一致：Odoo 以 ``'report.' + report.report_name``
+    取得渲染模型（見 ``odoo/addons/base/models/ir_actions_report.py``），
+    ``report_name`` 為 ``mfg_custom_production_stage.mfg_mo_yield_report_document``，
+    故模型名為 ``report.mfg_custom_production_stage.mfg_mo_yield_report_document``。
     """
 
-    _name = "report.mfg_custom_production_stage.mfg_mo_yield_report"
+    _name = "report.mfg_custom_production_stage.mfg_mo_yield_report_document"
     _description = "MO 含良率總覽報告"
 
     @api.model

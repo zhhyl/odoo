@@ -1,8 +1,9 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+from odoo import Command
 from odoo.exceptions import UserError, ValidationError
 from odoo.tests import tagged
-from odoo.tests.common import TransactionCase
+from odoo.tests.common import TransactionCase, new_test_user
 
 
 @tagged("post_install", "-at_install", "mfg_custom", "plm_custom")
@@ -227,3 +228,98 @@ class TestMfgQualityCheck(TransactionCase):
         self.assertEqual(check.state, "failed")
         # 未來版本會自動建立，這裡只驗證不爆炸即可
         self.assertFalse(check.corrective_action_id)
+
+
+@tagged("post_install", "-at_install", "mfg_custom", "plm_custom")
+class TestMfgQualityCheckApproval(TransactionCase):
+    """測試品檢單的簽核引擎回寫（放行審核 → ``approved``）。"""
+
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.Check = cls.env["mfg_custom.quality.check"]
+        cls.Point = cls.env["mfg_custom.quality.point"]
+        cls.Product = cls.env["product.product"]
+        cls.Rule = cls.env["mfg_custom.approval.rule"]
+        cls.product = cls.Product.create({"name": "QC-Approval Product", "type": "consu"})
+        cls.point = cls.Point.create({
+            "name": "QC 放行規格",
+            "product_id": cls.product.id,
+            "sample_qty": 1,
+        })
+        cls.approver = new_test_user(
+            cls.env,
+            login="qc_approver",
+            groups="base.group_user,mfg_custom_base.group_quality",
+        )
+        # 測試規則 sequence=1 → 優先於種子規則「品檢單放行審核」
+        cls.rule = cls.Rule.create({
+            "name": "品檢單測試簽核規則",
+            "model_id": cls.env["ir.model"]._get("mfg_custom.quality.check").id,
+            "sequence": 1,
+            "step_ids": [
+                Command.create({
+                    "name": "測試放行",
+                    "approver_mode": "user",
+                    "user_ids": [Command.set([cls.approver.id])],
+                }),
+            ],
+        })
+
+    def _new_check(self, **extra):
+        vals = {
+            "point_id": self.point.id,
+            "product_id": self.product.id,
+            "qty_to_check": 1.0,
+        }
+        vals.update(extra)
+        return self.Check.create(vals)
+
+    def test_01_before_submit_requires_inspectable_state(self):
+        """draft 狀態不可送出放行簽核。"""
+        check = self._new_check()
+        with self.assertRaises(UserError):
+            check.action_submit_for_approval()
+
+    def test_02_approved_sets_state_approved(self):
+        """簽核全部通過 → state 為 approved（已放行）。"""
+        check = self._new_check()
+        check.action_start()
+        check.action_submit_for_approval()
+        self.assertEqual(check.approval_state, "pending")
+        check.approval_request_id.with_user(self.approver).action_approve()
+        check.invalidate_recordset()
+        self.assertEqual(check.state, "approved")
+        self.assertEqual(check.approval_state, "approved")
+
+    def test_03_rejected_back_to_in_progress(self):
+        """簽核駁回 → state 回到 in_progress。"""
+        check = self._new_check()
+        check.action_start()
+        check.action_submit_for_approval()
+        check.approval_request_id.with_user(self.approver).action_reject(
+            reason="判定有疑慮",
+        )
+        check.invalidate_recordset()
+        self.assertEqual(check.state, "in_progress")
+        self.assertEqual(check.approval_state, "rejected")
+
+    def test_04_cancelled_back_to_draft(self):
+        """簽核取消 → state 回到 draft。"""
+        check = self._new_check()
+        check.action_start()
+        check.action_submit_for_approval()
+        check.action_cancel_approval()
+        check.invalidate_recordset()
+        self.assertEqual(check.state, "draft")
+        self.assertEqual(check.approval_state, "not_required")
+
+    def test_05_approved_check_cannot_be_cancelled(self):
+        """已放行的品檢單視為結案，不可再取消。"""
+        check = self._new_check()
+        check.action_start()
+        check.action_submit_for_approval()
+        check.approval_request_id.with_user(self.approver).action_approve()
+        check.invalidate_recordset()
+        with self.assertRaises(UserError):
+            check.action_cancel()

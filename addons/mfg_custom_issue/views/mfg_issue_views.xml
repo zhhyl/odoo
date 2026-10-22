@@ -33,7 +33,7 @@
                     <field name="state" widget="statusbar" statusbar_visible="open,analyzing,implementing,closed"/>
                     <button name="action_submit_for_approval" string="送出簽核" type="object"
                             class="btn-primary"
-                            invisible="approval_state == 'pending'"/>
+                            invisible="state == 'closed' or approval_state == 'pending'"/>
                     <button name="action_approve_current_step" string="核准目前關卡" type="object"
                             class="btn-primary"
                             invisible="approval_state != 'pending'"/>

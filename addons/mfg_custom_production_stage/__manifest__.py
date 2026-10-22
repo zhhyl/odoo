@@ -23,9 +23,11 @@ MFG Custom - Production Stage & Yield Rate
     "data": [
         "security/ir.access.csv",
         "data/mail_subtype_data.xml",
+        "data/ir_cron_data.xml",
         "views/mrp_production_views.xml",
         "views/mrp_bom_views.xml",
         "views/mfg_stage_menus.xml",
+        "views/mfg_production_stage_change_views.xml",
         "views/mrp_production_pivot_graph_views.xml",
         "report/mfg_mo_yield_report_templates.xml",
     ],

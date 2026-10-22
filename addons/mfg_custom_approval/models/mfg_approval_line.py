@@ -38,6 +38,7 @@ class MfgApprovalLine(models.Model):
             ("pending", "待簽"),
             ("approved", "核准"),
             ("rejected", "駁回"),
+            ("skipped", "略過"),
         ],
         default="pending",
         required=True,
@@ -75,6 +76,14 @@ class MfgApprovalLine(models.Model):
                             line.step_id.display_name,
                         )
                     )
+        return super().write(vals)
+
+    def _engine_write(self, vals):
+        """簽核引擎內部寫入（略過 ``write()`` 的保護）。
+
+        以底線開頭，無法透過 RPC 呼叫，僅供引擎內部使用
+        （例如關卡由一人核准後，自動略過其他人的待簽紀錄）。
+        """
         return super().write(vals)
 
     def unlink(self):

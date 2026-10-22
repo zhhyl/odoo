@@ -16,7 +16,8 @@ MFG Custom - Quality Inspection
   含可逐項定義上下限的檢查項目 (``quality.point.line``)。
 * **品檢單 (``mfg_custom.quality.check``)** — 檢驗過程單：可連結至 MO、工序、
   入庫單、批號；支援 ``draft → in_progress → passed / failed / conditional`` 等
-  狀態流轉；不合格自動建立改善單（待 ``mfg_custom_issue`` 模組上線後生效）。
+  狀態流轉，放行簽核通過後改為 ``approved``（已放行）；不合格自動建立改善單
+  （待 ``mfg_custom_issue`` 模組上線後生效）。
 * **檢驗結果 (``mfg_custom.quality.check.line``)** — 量測值與合格／不合格判定。
 
 行為

@@ -16,9 +16,14 @@ class PlmFeasibility(models.Model):
 
     1. ``draft``        — 業務/PM 建立評估單，填入客戶/產品/數量/交期/目標價
     2. ``in_review``    — 透過 ``action_submit`` 送出，要求至少有 1 筆評分
-    3. ``approved``     — 透過 ``action_approve`` 核准，要求五面向皆已評分
-    4. ``rejected``     — 透過 ``action_reject`` 駁回
+    3. ``approved``     — 簽核引擎所有關卡皆核准後自動改為「通過」，
+                          且五個必要部門（業務/工程/產線/品保/採購）都必須已評分
+    4. ``rejected``     — 簽核引擎駁回後自動改為「不通過」
     5. ``cancelled``    — 透過 ``action_cancel`` 取消
+
+    核准與駁回一律走通用簽核引擎（``mfg_custom.approval.mixin``）：
+    ``action_approve`` / ``action_reject`` 會委派給引擎處理「目前關卡」，
+    單據狀態則由 ``_approval_on_approved()`` 等 hook 回寫。
 
     決策結論（``decision``）由五項分數加總後依門檻自動計算：
 
@@ -297,43 +302,16 @@ class PlmFeasibility(models.Model):
             )
 
     def action_approve(self):
-        """評估中 → 通過。
+        """委派給簽核引擎核准「目前關卡」。
 
-        需五個必要部門（業務 / 工程 / 產線 / 品保 / 採購）皆有評分。
+        可行性評估的 ``state`` 只有在 **所有** 關卡都核准後，才會由
+        ``_approval_on_approved()`` 改為 ``approved``。
         """
-        for rec in self:
-            if rec.state != "in_review":
-                raise UserError(
-                    self.env._(
-                        "僅有 in_review 狀態可核准，目前狀態為 %s",
-                        rec.state,
-                    )
-                )
-            rec._check_all_scores_filled()
-            rec.write({"state": "approved"})
-            rec.message_post(
-                body=rec.env._(
-                    "評估通過，決策結論：%s",
-                    dict(rec._fields["decision"].selection).get(rec.decision, ""),
-                ),
-                subtype_xmlid="plm_custom_feasibility.mt_plm_feasibility_state_changed",
-            )
+        self.action_approve_current_step()
 
     def action_reject(self):
-        """評估中 → 不通過。"""
-        for rec in self:
-            if rec.state != "in_review":
-                raise UserError(
-                    self.env._(
-                        "僅有 in_review 狀態可駁回，目前狀態為 %s",
-                        rec.state,
-                    )
-                )
-            rec.write({"state": "rejected"})
-            rec.message_post(
-                body=rec.env._("評估不通過。"),
-                subtype_xmlid="plm_custom_feasibility.mt_plm_feasibility_state_changed",
-            )
+        """委派給簽核引擎駁回「目前關卡」。"""
+        self.action_reject_current_step(reason=self.env._("由可行性評估駁回"))
 
     def action_cancel(self):
         """取消評估單（任何非結束狀態皆可）。"""
@@ -343,6 +321,64 @@ class PlmFeasibility(models.Model):
             rec.write({"state": "cancelled"})
             rec.message_post(
                 body=rec.env._("評估單已取消。"),
+                subtype_xmlid="plm_custom_feasibility.mt_plm_feasibility_state_changed",
+            )
+
+    # ------------------------------------------------------------------
+    # 簽核引擎回呼（mixin hooks）
+    # ------------------------------------------------------------------
+
+    def _approval_before_submit(self):
+        """送出簽核前的業務檢查：須已送出評估且至少有一筆評分。"""
+        for rec in self:
+            if rec.state != "in_review":
+                raise UserError(
+                    self.env._(
+                        "僅有 in_review 狀態可送出簽核，目前狀態為 %s",
+                        rec.state,
+                    )
+                )
+            if not rec.score_ids:
+                raise UserError(self.env._("送出前請至少建立 1 筆評分明細"))
+
+    def _approval_on_approved(self):
+        """所有簽核關卡皆通過時，把評估單改為「通過」。
+
+        核准前仍會檢查五個必要部門是否都已評分（沿用 ``action_submit``
+        與舊版 ``action_approve`` 的業務規則），未評分時讓錯誤直接拋出。
+        """
+        for rec in self:
+            rec._check_all_scores_filled()
+            if rec.state == "approved":
+                continue
+            rec.sudo().write({"state": "approved"})
+            rec.sudo().message_post(
+                body=self.env._(
+                    "評估通過，決策結論：%s",
+                    dict(rec._fields["decision"].selection).get(rec.decision, ""),
+                ),
+                subtype_xmlid="plm_custom_feasibility.mt_plm_feasibility_state_changed",
+            )
+
+    def _approval_on_rejected(self):
+        """簽核被駁回時，把評估單改為「不通過」。"""
+        for rec in self:
+            if rec.state == "rejected":
+                continue
+            rec.sudo().write({"state": "rejected"})
+            rec.sudo().message_post(
+                body=self.env._("評估不通過。"),
+                subtype_xmlid="plm_custom_feasibility.mt_plm_feasibility_state_changed",
+            )
+
+    def _approval_on_cancelled(self):
+        """簽核被取消時，把評估單退回草稿。"""
+        for rec in self:
+            if rec.state == "draft":
+                continue
+            rec.sudo().write({"state": "draft"})
+            rec.sudo().message_post(
+                body=self.env._("簽核已取消，評估單退回草稿。"),
                 subtype_xmlid="plm_custom_feasibility.mt_plm_feasibility_state_changed",
             )
 

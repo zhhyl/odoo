@@ -34,7 +34,8 @@ class ProjectTask(models.Model):
         """從 task 開啟相關問題点。"""
         self.ensure_one()
         action = self.env["ir.actions.act_window"]._for_xml_id(
-            "mfg_custom_issue.mfg_issue_action",
+            # 本模組實際存在的 action 為 mfg_issue_action_kanban / mfg_issue_action_tree
+            "mfg_custom_issue.mfg_issue_action_kanban",
         )
         action["domain"] = [("id", "in", self.mfg_custom_issue_ids.ids)]
         action["context"] = {

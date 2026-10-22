@@ -26,7 +26,13 @@ class MrpProduction(models.Model):
     )
     mfg_custom_sample_request_id = fields.Reference(
         # 使用 Reference 而非 Many2one：避免 plm_custom_feasibility 模組互依賴
-        selection=[("plm_custom.feasibility", "可行性評估單")],
+        # selection 以 callable 動態產生：目標模型未安裝時回傳空清單，
+        # 避免讀寫此欄位時因 env["plm_custom.feasibility"] 找不到模型而拋 KeyError
+        selection=lambda model: (
+            [("plm_custom.feasibility", "可行性評估單")]
+            if "plm_custom.feasibility" in model.env
+            else []
+        ),
         string="樣品評估單",
         help="若是樣品階段，可關聯一份可行性評估單（待 plm_custom_feasibility 模組安裝後即可使用）。",
     )
@@ -54,12 +60,12 @@ class MrpProduction(models.Model):
     mfg_custom_issue_count = fields.Integer(
         "問題点數",
         compute="_compute_mfg_custom_issue_count",
-        help="此 MO 的問題点數（待 mfg_custom_issue 模組補上 mfg_custom.issue.production_id 後可自動反查）。",
+        help="此 MO 的問題点數（需安裝 mfg_custom_issue 模組，未安裝時為 0）。",
     )
     mfg_custom_quality_check_count = fields.Integer(
         "品檢次數",
         compute="_compute_mfg_custom_quality_check_count",
-        help="此 MO 的品檢次數（待 mfg_custom_quality 模組補上 mfg_custom.quality.check.production_id 後可自動反查）。",
+        help="此 MO 的品檢次數（需安裝 mfg_custom_quality 模組，未安裝時為 0）。",
     )
     mfg_custom_stage_log_ids = fields.One2many(
         "mrp.production.stage.log",
@@ -146,16 +152,35 @@ class MrpProduction(models.Model):
 
     @api.depends()
     def _compute_mfg_custom_issue_count(self):
-        """問題点計數：待 mfg_custom_issue 模組補上 mfg_custom.issue.production_id 後即可反查。"""
+        """問題点計數：反查 mfg_custom.issue（模組未安裝時為 0）。
+
+        本模組不依賴 mfg_custom_issue，因此以 ``in self.env`` 判斷模型是否存在，
+        避免循環依賴；安裝後即自動取得真實數量，MO 表單的 smart button 也會啟用。
+        """
+        Issue = self.env.get("mfg_custom.issue")
         for production in self:
-            # 不在此模組強加 depends 連結 mfg_custom.issue，避免循環依賴
-            production.mfg_custom_issue_count = 0
+            if Issue is None:
+                production.mfg_custom_issue_count = 0
+                continue
+            production.mfg_custom_issue_count = Issue.search_count(
+                [("production_id", "=", production.id)],
+            )
 
     @api.depends()
     def _compute_mfg_custom_quality_check_count(self):
-        """品檢次數：待 mfg_custom_quality 模組補上 mfg_custom.quality.check.production_id 後即可反查。"""
+        """品檢次數：反查 mfg_custom.quality.check（模組未安裝時為 0）。
+
+        本模組不依賴 mfg_custom_quality，判斷方式同上；
+        網域與 mfg_custom_quality 的 ``_get_mfg_quality_check_domain`` 一致。
+        """
+        Check = self.env.get("mfg_custom.quality.check")
         for production in self:
-            production.mfg_custom_quality_check_count = 0
+            if Check is None:
+                production.mfg_custom_quality_check_count = 0
+                continue
+            production.mfg_custom_quality_check_count = Check.search_count(
+                [("production_id", "=", production.id)],
+            )
 
     @api.depends("mfg_custom_stage_log_ids")
     def _compute_mfg_custom_stage_log_count(self):
@@ -166,12 +191,16 @@ class MrpProduction(models.Model):
 
     # ---- 動作 -------------------------------------------------------------
 
-    def action_change_stage(self, new_stage, reason=None):
+    def action_change_stage(self, new_stage=None, reason=None):
         """變更生產階段並寫日誌。
 
-        :param new_stage: 'sample' / 'pilot' / 'mass'
+        :param new_stage: 'sample' / 'pilot' / 'mass'；未指定時開啟「變更生產階段」視窗
         :param reason: 變更原因（可選，會記在日誌的 reason 欄位）
         """
+        if not new_stage:
+            # 由 MO 表單的「變更生產階段」按鈕呼叫：開啟視窗讓使用者挑選新階段
+            self.ensure_one()
+            return self._mfg_custom_get_stage_change_action()
         valid = {k for k, _ in self._fields["mfg_custom_production_stage"].selection}
         if new_stage not in valid:
             raise UserError(
@@ -179,19 +208,19 @@ class MrpProduction(models.Model):
                     "無效的生產階段：%s（應為 %s）", new_stage, ", ".join(sorted(valid))
                 ),
             )
-        Log = self.env["mrp.production.stage.log"]
-        for production in self:
-            if production.mfg_custom_production_stage == new_stage:
-                continue
-            Log.create(
-                {
-                    "production_id": production.id,
-                    "from_stage": production.mfg_custom_production_stage,
-                    "to_stage": new_stage,
-                    "reason": reason or False,
-                },
-            )
-            production.mfg_custom_production_stage = new_stage
+        # 日誌統一由 write() 寫入，變更原因透過 context 傳遞
+        productions = self.with_context(mfg_custom_stage_change_reason=reason or False)
+        productions.write({"mfg_custom_production_stage": new_stage})
+        return True
+
+    def _mfg_custom_get_stage_change_action(self):
+        """取得「變更生產階段」視窗的 action（由 action_change_stage 呼叫）。"""
+        self.ensure_one()
+        action = self.env["ir.actions.act_window"]._for_xml_id(
+            "mfg_custom_production_stage.mfg_production_stage_change_action",
+        )
+        action["context"] = {"default_production_id": self.id}
+        return action
 
     @api.model
     def _cron_recompute_mfg_custom_yield_rate(self):
@@ -205,6 +234,44 @@ class MrpProduction(models.Model):
         return True
 
     # ---- override ---------------------------------------------------------
+
+    def write(self, vals):
+        """寫入時若生產階段有變動，自動補寫階段變更日誌。
+
+        讓表單上的階段選擇器與「變更生產階段」按鈕都留下稽核紀錄；
+        變更原因可由 context 的 ``mfg_custom_stage_change_reason`` 帶入。
+        """
+        new_stage = vals.get("mfg_custom_production_stage")
+        old_stages = {}
+        if new_stage:
+            old_stages = {
+                production.id: production.mfg_custom_production_stage
+                for production in self
+            }
+        result = super().write(vals)
+        if new_stage:
+            self._mfg_custom_create_stage_logs(old_stages, new_stage)
+        return result
+
+    def _mfg_custom_create_stage_logs(self, old_stages, new_stage):
+        """依階段變更前後值建立日誌（前後值相同者不建立）。"""
+        reason = self.env.context.get("mfg_custom_stage_change_reason") or False
+        Log = self.env["mrp.production.stage.log"]
+        for production in self:
+            old_stage = old_stages.get(production.id)
+            if not old_stage or old_stage == new_stage:
+                continue
+            if not isinstance(production.id, int):
+                # 尚未寫入資料庫的暫存記錄（NewId）無法建立日誌
+                continue
+            Log.create(
+                {
+                    "production_id": production.id,
+                    "from_stage": old_stage,
+                    "to_stage": new_stage,
+                    "reason": reason,
+                },
+            )
 
     @api.model_create_multi
     def create(self, vals_list):
@@ -248,11 +315,16 @@ class MrpProduction(models.Model):
         return action
 
     def action_mfg_custom_view_issues(self):
-        """問題点：待 mfg_custom_issue 模組補上 mfg_custom.issue.production_id 後即可正常運作。
+        """開啟此 MO 的問題点清單。
 
-        目前以 placeholder 形式回傳，避免使用者按了無反應。
+        mfg_custom_issue 模組已安裝時，改用其提供的 action；
+        未安裝時顯示提示訊息，避免使用者按了無反應。
         """
         self.ensure_one()
+        if "mfg_custom.issue" in self.env:
+            action = getattr(self, "action_view_mfg_custom_issues", None)
+            if action is not None:
+                return action()
         return {
             "type": "ir.actions.client",
             "tag": "display_notification",
@@ -275,8 +347,23 @@ class MrpProduction(models.Model):
         ).report_action(self)
 
     def action_mfg_custom_view_quality_checks(self):
-        """品檢：待 mfg_custom_quality 模組補上 mfg_custom.quality.check.production_id 後即可正常運作。"""
+        """開啟此 MO 的品檢單。
+
+        mfg_custom_quality 模組已安裝時，改用其提供的 action_view_mfg_quality_checks；
+        未安裝時顯示提示訊息（保持原本行為）。
+        """
         self.ensure_one()
+        if "mfg_custom.quality.check" in self.env:
+            action = getattr(self, "action_view_mfg_quality_checks", None)
+            if action is not None:
+                return action()
+            # 備援：直接開啟 mfg_custom_quality 的品檢單 action
+            action = self.env["ir.actions.act_window"]._for_xml_id(
+                "mfg_custom_quality.mfg_quality_check_action",
+            )
+            action["domain"] = [("production_id", "=", self.id)]
+            action["context"] = {"default_production_id": self.id}
+            return action
         return {
             "type": "ir.actions.client",
             "tag": "display_notification",

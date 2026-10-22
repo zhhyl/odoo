@@ -13,7 +13,7 @@ class TestMfgMoYieldReport(TestMrpCommon):
     def setUpClass(cls):
         super().setUpClass()
         cls.report_model = cls.env[
-            "report.mfg_custom_production_stage.mfg_mo_yield_report"
+            "report.mfg_custom_production_stage.mfg_mo_yield_report_document"
         ]
 
     # ---- 01 _get_report_values 字典完整性 ------------------

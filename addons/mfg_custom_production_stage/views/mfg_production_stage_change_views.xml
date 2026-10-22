@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- 變更生產階段的確認視窗（由 MO 表單的「變更生產階段」按鈕開啟） -->
+    <record id="mfg_production_stage_change_view_form" model="ir.ui.view">
+        <field name="name">mfg.production.stage.change.view.form</field>
+        <field name="model">mfg.production.stage.change</field>
+        <field name="arch" type="xml">
+            <form string="變更生產階段">
+                <group>
+                    <field name="production_id"/>
+                    <field name="new_stage"/>
+                    <field name="reason" placeholder="選填：例如 PP 試量產、客戶下單"/>
+                </group>
+                <footer>
+                    <button name="action_confirm" string="確認變更" type="object" class="btn-primary"/>
+                    <button string="取消" special="cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="mfg_production_stage_change_action" model="ir.actions.act_window">
+        <field name="name">變更生產階段</field>
+        <field name="res_model">mfg.production.stage.change</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="mrp.model_mrp_production"/>
+        <field name="binding_type">action</field>
+    </record>
+
+</odoo>

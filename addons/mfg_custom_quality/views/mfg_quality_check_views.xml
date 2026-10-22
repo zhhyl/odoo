@@ -11,13 +11,13 @@
             <list string="品檢單"
                   decoration-info="state == 'draft'"
                   decoration-warning="state == 'in_progress'"
-                  decoration-success="state == 'passed'"
+                  decoration-success="state == 'passed' or state == 'approved'"
                   decoration-danger="state == 'failed'">
                 <field name="name" decoration-bf="1"/>
                 <field name="state" widget="badge"
                        decoration-info="state == 'draft'"
                        decoration-warning="state == 'in_progress'"
-                       decoration-success="state == 'passed'"
+                       decoration-success="state == 'passed' or state == 'approved'"
                        decoration-danger="state == 'failed'"
                        decoration-muted="state == 'cancelled'"
                        decoration-primary="state == 'conditional'"/>
@@ -48,10 +48,10 @@
             <form string="品檢單">
                 <header>
                     <field name="state" widget="statusbar"
-                           statusbar_visible="draft,in_progress,passed,failed"/>
+                           statusbar_visible="draft,in_progress,passed,failed,approved"/>
                     <button name="action_submit_for_approval" string="送出簽核" type="object"
                             class="btn-primary"
-                            invisible="approval_state == 'pending'"/>
+                            invisible="state not in ('in_progress', 'passed', 'conditional') or approval_state == 'pending'"/>
                     <button name="action_approve_current_step" string="核准目前關卡" type="object"
                             class="btn-primary"
                             invisible="approval_state != 'pending'"/>
@@ -92,7 +92,7 @@
                     <button name="action_cancel"
                             type="object"
                             string="取消"
-                            invisible="state in ('passed', 'failed', 'conditional', 'cancelled')"/>
+                            invisible="state in ('passed', 'failed', 'conditional', 'approved', 'cancelled')"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
@@ -111,6 +111,9 @@
                     <widget name="web_ribbon" title="特採"
                             bg_color="text-bg-warning"
                             invisible="state != 'conditional'"/>
+                    <widget name="web_ribbon" title="已放行"
+                            bg_color="text-bg-success"
+                            invisible="state != 'approved'"/>
                     <div class="oe_title">
                         <label for="name" class="oe_edit_only"/>
                         <h1>
@@ -225,7 +228,7 @@
         <field name="name">品檢歷史</field>
         <field name="res_model">mfg_custom.quality.check</field>
         <field name="view_mode">list,form</field>
-                <field name="domain">[('state', 'in', ['passed', 'failed', 'conditional', 'cancelled'])]</field>
+                <field name="domain">[('state', 'in', ['passed', 'failed', 'conditional', 'approved', 'cancelled'])]</field>
         <field name="help">已結案的品檢單。</field>
     </record>
 
