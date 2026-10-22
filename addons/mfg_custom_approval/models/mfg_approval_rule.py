@@ -10,6 +10,28 @@ from odoo.fields import Domain
 _logger = logging.getLogger(__name__)
 
 
+def _approvable_model_names(env, selectable_only=False):
+    """回傳已掛載簽核 mixin 的模型技術名清單（遞增排序）。
+
+    直接掃描 ``env.registry.models`` 而非 ``env[model_name]``：
+    模組安裝初期（資料載入階段）模型可能尚未 setup 完成，
+    用 ``env[...]`` 會出現 KeyError。
+
+    :param selectable_only: 只回傳管理者可選的模型（排除測試用模型）
+    """
+    mixin_cls = env.registry.models.get("mfg_custom.approval.mixin")
+    if mixin_cls is None:
+        return []
+    names = []
+    for name, cls in env.registry.models.items():
+        if cls._abstract or not issubclass(cls, mixin_cls):
+            continue
+        if selectable_only and getattr(cls, "_mfg_custom_approval_hidden", False):
+            continue
+        names.append(name)
+    return sorted(names)
+
+
 class MfgApprovalRule(models.Model):
     """簽核規則.
 
@@ -35,11 +57,7 @@ class MfgApprovalRule(models.Model):
         index=True,
         # 下拉只列出已掛載簽核功能（且非測試用）的模型
         domain=lambda env: [
-            (
-                "model",
-                "in",
-                env["mfg_custom.approval.rule"]._get_selectable_models(),
-            )
+            ("model", "in", _approvable_model_names(env, selectable_only=True))
         ],
         help="要套用此簽核流程的單據類型。只能選擇已掛載簽核功能的單據。",
     )
@@ -110,12 +128,7 @@ class MfgApprovalRule(models.Model):
 
         以 runtime 掃描 registry 得出，不需人工維護清單。
         """
-        mixin_cls = type(self.env["mfg_custom.approval.mixin"])
-        return sorted(
-            name
-            for name, cls in self.env.registry.models.items()
-            if not cls._abstract and issubclass(cls, mixin_cls)
-        )
+        return _approvable_model_names(self.env)
 
     @api.model
     def _get_selectable_models(self):
@@ -125,12 +138,7 @@ class MfgApprovalRule(models.Model):
         （標記 ``_mfg_custom_approval_hidden``）不在此清單中，
         避免正式環境的管理介面出現測試模型。
         """
-        hidden = {
-            name
-            for name, cls in self.env.registry.models.items()
-            if getattr(cls, "_mfg_custom_approval_hidden", False)
-        }
-        return [name for name in self._get_approvable_models() if name not in hidden]
+        return _approvable_model_names(self.env, selectable_only=True)
 
     @api.constrains("model_id")
     def _check_model_is_approvable(self):
