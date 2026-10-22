@@ -17,7 +17,11 @@ MFG Custom - Base
 privilege 分組機制），並形成以下隸屬關係：
 
 * ``mfg_custom_base.group_user`` （User）— 一般使用者，隸含 ``base.group_user``；
-  可讀取 mfg_custom / plm_custom 模組的資料並填寫被分配的欄位
+  可讀取 mfg_custom / plm_custom 模組的資料並填寫被分配的欄位。
+  **新建內部使用者時會自動加入此群組** （見 ``models/res_users.py``），
+  如此使用者才看得到「MFG Custom」選單樹與其中的資料、簽核功能；
+  Portal／外部使用者不會自動加入。既有資料庫升級時會由
+  ``migrations/1.1.0/post-migrate.py`` 補上既有的內部使用者。
 * ``mfg_custom_base.group_manager`` （Manager）— 管理員，隸含 User；
   可建立／修改／刪除 mfg_custom 與 plm_custom 模組的所有資料
 * ``mfg_custom_base.group_engineering`` （Engineering）— 工程部，隸含 User；
