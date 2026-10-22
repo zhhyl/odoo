@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo noupdate="1">
+
+    <!-- 每日提醒逾期的待簽核申請（簽核期限由規則的「簽核期限（天）」決定） -->
+    <record id="mfg_approval_notify_overdue_server_action" model="ir.actions.server">
+        <field name="name">MFG: 提醒逾期的簽核申請</field>
+        <field name="model_id" ref="model_mfg_custom_approval_request"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_notify_overdue_approvals()</field>
+        <field name="usage">ir_cron</field>
+    </record>
+
+    <record id="ir_cron_mfg_approval_notify_overdue" model="ir.cron">
+        <field name="name">MFG: 提醒逾期的簽核申請</field>
+        <field name="model_id" ref="model_mfg_custom_approval_request"/>
+        <field name="ir_actions_server_id" ref="mfg_approval_notify_overdue_server_action"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_notify_overdue_approvals()</field>
+        <field name="active" eval="True"/>
+        <field name="interval_number">1</field>
+        <field name="interval_type">days</field>
+        <field name="nextcall" eval="(DateTime.now().replace(hour=8, minute=0, second=0, microsecond=0) + relativedelta(days=1 if DateTime.now().hour >= 8 else 0)).strftime('%Y-%m-%d %H:%M:%S')"/>
+    </record>
+
+</odoo>

@@ -1,5 +1,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
+from datetime import timedelta
+
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, UserError, ValidationError
 
@@ -96,6 +98,18 @@ class MfgApprovalRequest(models.Model):
         compute="_compute_res_display_name",
         help="被簽核的業務單據名稱。",
     )
+    due_date = fields.Date(
+        "簽核期限",
+        help=(
+            "預設依規則的「簽核期限（天）」帶出，可由申請人或管理者調整。"
+            "逾期仍未簽核時，會由每日 cron 提醒簽核者。"
+        ),
+    )
+    is_overdue = fields.Boolean(
+        "已逾期",
+        compute="_compute_is_overdue",
+        help="仍在待簽核狀態且已超過簽核期限。",
+    )
 
     _req_idx = models.Index("(state, res_model, res_id)")
 
@@ -191,6 +205,14 @@ class MfgApprovalRequest(models.Model):
                 else False
             )
 
+    @api.depends("due_date", "state")
+    def _compute_is_overdue(self):
+        today = fields.Date.today()
+        for rec in self:
+            rec.is_overdue = bool(
+                rec.state == "pending" and rec.due_date and rec.due_date < today
+            )
+
     def action_open_res_record(self):
         """開啟被簽核的業務單據，方便簽核者檢視內容。
 
@@ -236,6 +258,14 @@ class MfgApprovalRequest(models.Model):
                 vals["name"] = self.env["ir.sequence"].next_by_code(
                     "mfg_custom.approval.request"
                 ) or "New"
+            if not vals.get("due_date"):
+                # 依規則的「簽核期限（天）」帶出期限日
+                rule = self.env["mfg_custom.approval.rule"].browse(
+                    vals.get("rule_id")
+                )
+                days = rule.due_days or 0
+                if days:
+                    vals["due_date"] = fields.Date.today() + timedelta(days=days)
         self._check_no_active_duplicate(vals_list)
         # 先驗證關卡與簽核者：避免寫入後才失敗，在資料庫留下孤兒簽核單
         for vals in vals_list:
@@ -563,6 +593,43 @@ class MfgApprovalRequest(models.Model):
             )
             if template:
                 template.send_mail(rec.id, force_send=False)
+
+    # ------------------------------------------------------------------
+    # 逾期提醒
+    # ------------------------------------------------------------------
+
+    @api.model
+    def _cron_notify_overdue_approvals(self):
+        """每日提醒逾期的待簽核申請（由 ir.cron 呼叫）。
+
+        逾期定義：仍為 pending 且已超過簽核期限日。
+        """
+        requests = self.search([
+            ("state", "=", "pending"),
+            ("due_date", "!=", False),
+            ("due_date", "<", fields.Date.today()),
+        ])
+        for request in requests:
+            request._notify_overdue()
+        return len(requests)
+
+    def _notify_overdue(self):
+        """在簽核單上留下逾期提醒，並通知目前關卡的簽核者。"""
+        self.ensure_one()
+        self.message_post(
+            body=self.env._(
+                "此簽核申請已超過簽核期限（%s），請盡速處理。",
+                self.due_date,
+            ),
+            subtype_xmlid="mfg_custom_approval.mt_mfg_approval_request_state",
+        )
+        template = self.env.ref(
+            "mfg_custom_approval.mail_template_mfg_approval_request",
+            raise_if_not_found=False,
+        )
+        if template and self.pending_approver_emails:
+            template.send_mail(self.id, force_send=False)
+        return True
 
     def _notify_decision(self):
         """通知申請人簽核結果。"""

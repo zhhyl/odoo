@@ -29,6 +29,7 @@ MFG Custom - Multi-level Approval
         "security/mfg_approval_security.xml",
         "security/ir.access.csv",
         "data/ir_sequence_data.xml",
+        "data/ir_cron_data.xml",
         "data/mail_subtype_data.xml",
         "data/mail_template_data.xml",
         "views/mfg_approval_rule_views.xml",

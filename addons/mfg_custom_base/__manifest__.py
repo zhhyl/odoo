@@ -2,7 +2,7 @@
 
 {
     "name": "MFG Custom - Base",
-    "version": "20.0.1.0.0",
+    "version": "20.0.1.1.0",
     "category": "Manufacturing/MFG Custom",
     "sequence": 350,
     "summary": "共用 mixin、群組、序號、mail subtype 入口（其他 MFG Custom 模組的前置）",

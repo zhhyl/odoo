@@ -50,6 +50,32 @@ class TestMfgCustomBase(TransactionCase):
         val = self.env["ir.sequence"].next_by_code("mfg_custom.sequence.mixin")
         self.assertTrue(val, "序號應能產生")
 
+    def test_05_new_internal_user_gets_mfg_group(self):
+        """新建內部使用者時自動加入 MFG Custom 共用群組（否則看不到 MFG Custom 選單）。"""
+        user = self.env["res.users"].create({
+            "name": "MFG 新人",
+            "login": "mfg_auto_group_user",
+            "groups_id": [(6, 0, [self.env.ref("base.group_user").id])],
+        })
+        self.assertIn(
+            self.env.ref("mfg_custom_base.group_user"),
+            user.all_group_ids,
+            "新建的內部使用者應自動加入 MFG Custom 共用群組",
+        )
+
+    def test_06_portal_user_not_in_mfg_group(self):
+        """Portal（外部）使用者不應取得 MFG Custom 群組。"""
+        user = self.env["res.users"].create({
+            "name": "外部使用者",
+            "login": "mfg_portal_user",
+            "groups_id": [(6, 0, [self.env.ref("base.group_portal").id])],
+        })
+        self.assertNotIn(
+            self.env.ref("mfg_custom_base.group_user"),
+            user.all_group_ids,
+            "Portal 使用者不應自動加入 MFG Custom 共用群組",
+        )
+
     def test_05_groups_defined(self):
         """驗證 4 個共用群組皆已建立。"""
         Groups = self.env["res.groups"]

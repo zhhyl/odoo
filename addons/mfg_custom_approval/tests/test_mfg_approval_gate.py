@@ -2,7 +2,9 @@
 
 """針對 20.0.1.1.0 修正的缺陷所新增的回歸測試。"""
 
-from odoo import Command
+from datetime import timedelta
+
+from odoo import Command, fields
 from odoo.exceptions import AccessError, UserError, ValidationError
 from odoo.tests import tagged
 from odoo.tests.common import TransactionCase, new_test_user
@@ -32,7 +34,13 @@ class TestMfgApprovalGate(TransactionCase):
         ).id
 
     def _make_rule(
-        self, name="Gate Rule", steps=None, company=None, sequence=10, domain=None
+        self,
+        name="Gate Rule",
+        steps=None,
+        company=None,
+        sequence=10,
+        domain=None,
+        due_days=0,
     ):
         if steps is None:
             steps = [{
@@ -45,6 +53,7 @@ class TestMfgApprovalGate(TransactionCase):
             "model_id": self.model_id,
             "sequence": sequence,
             "domain": domain or False,
+            "due_days": due_days,
             "company_id": company.id if company else self.env.company.id,
             "step_ids": [Command.create(s) for s in steps],
         })
@@ -270,6 +279,45 @@ class TestMfgApprovalGate(TransactionCase):
     # ------------------------------------------------------------------
     # 金額門檻：一般 Float 欄位（Odoo 20 只有 Monetary 有幣別換算）
     # ------------------------------------------------------------------
+
+    def test_17_due_date_from_rule(self):
+        """簽核期限依規則的「簽核期限（天）」自動帶出。"""
+        self._make_rule(due_days=3)
+        rec = self.TestModel.create({})
+        rec.action_submit_for_approval()
+        req = rec.approval_request_id
+        self.assertTrue(req.due_date)
+        self.assertEqual(
+            req.due_date,
+            fields.Date.today() + timedelta(days=3),
+        )
+        self.assertFalse(req.is_overdue)
+
+    def test_18_overdue_cron_notifies(self):
+        """逾期的待簽核申請會被每日 cron 找出並留下提醒。"""
+        self._make_rule(due_days=1)
+        rec = self.TestModel.create({})
+        rec.action_submit_for_approval()
+        req = rec.approval_request_id
+        # 改成昨天到期
+        req.due_date = fields.Date.today() - timedelta(days=1)
+        self.assertTrue(req.is_overdue)
+        count = self.Request._cron_notify_overdue_approvals()
+        self.assertEqual(count, 1)
+        # 提醒訊息應貼在簽核單上
+        bodies = req.message_ids.mapped("body")
+        self.assertTrue(
+            any("逾期" in (body or "") for body in bodies),
+            "應留下逾期提醒訊息",
+        )
+
+    def test_19_no_due_date_means_no_reminder(self):
+        """規則未設定期限時，不列入逾期提醒。"""
+        self._make_rule()
+        rec = self.TestModel.create({})
+        rec.action_submit_for_approval()
+        self.assertFalse(rec.approval_request_id.due_date)
+        self.assertEqual(self.Request._cron_notify_overdue_approvals(), 0)
 
     def test_14_selectable_models_exclude_test_model(self):
         """管理者可選的單據類型不得包含測試用模型，但規則仍可對它建立。"""

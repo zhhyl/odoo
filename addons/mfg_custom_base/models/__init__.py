@@ -2,3 +2,4 @@
 
 from . import mfg_custom_model_mixin
 from . import mfg_custom_tag
+from . import res_users

@@ -105,6 +105,14 @@ class MfgApprovalRule(models.Model):
         index=True,
     )
     note = fields.Text("說明")
+    due_days = fields.Integer(
+        "簽核期限（天）",
+        default=0,
+        help=(
+            "送出簽核後幾天內必須完成簽核；0 表示不限時。"
+            "逾期的待簽核申請會由每日 cron 提醒簽核者。"
+        ),
+    )
 
     _rule_model_uniq = models.Constraint(
         "UNIQUE(res_model, name, company_id)",

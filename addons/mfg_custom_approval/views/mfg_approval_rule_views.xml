@@ -61,6 +61,7 @@
                             <field name="res_model" invisible="1"/>
                             <field name="model_name" invisible="1"/>
                             <field name="sequence"/>
+                            <field name="due_days"/>
                             <field name="company_id" groups="base.group_multi_company"/>
                         </group>
                         <group>

@@ -207,12 +207,41 @@
     <!-- =============================================================== -->
     <!--  品檢單  Action                                                -->
     <!-- =============================================================== -->
+    <!-- 品檢單：搜尋檢視（含審核中／已核准篩選） -->
+    <record id="mfg_quality_check_view_search" model="ir.ui.view">
+        <field name="name">mfg_custom.quality.check.view.search</field>
+        <field name="model">mfg_custom.quality.check</field>
+        <field name="arch" type="xml">
+            <search string="搜尋品檢單">
+                <field name="name"/>
+                <field name="point_id"/>
+                <field name="product_id"/>
+                <field name="production_id"/>
+                <field name="inspector_id"/>
+                <separator/>
+                <filter name="state_draft" string="待執行" domain="[('state', '=', 'draft')]"/>
+                <filter name="state_in_progress" string="檢驗中" domain="[('state', '=', 'in_progress')]"/>
+                <filter name="state_passed" string="合格" domain="[('state', '=', 'passed')]"/>
+                <filter name="state_failed" string="不合格" domain="[('state', '=', 'failed')]"/>
+                <filter name="state_approved" string="已放行" domain="[('state', '=', 'approved')]"/>
+                <separator/>
+                <filter name="approval_pending" string="審核中" domain="[('approval_state', '=', 'pending')]"/>
+                <filter name="approval_approved" string="審核已核准" domain="[('approval_state', '=', 'approved')]"/>
+                <group>
+                    <filter name="group_by_state" string="依狀態" context="{'group_by': 'state'}"/>
+                    <filter name="group_by_product" string="依產品" context="{'group_by': 'product_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
     <record id="mfg_quality_check_action" model="ir.actions.act_window">
         <field name="name">品檢單</field>
         <field name="res_model">mfg_custom.quality.check</field>
         <field name="view_mode">list,form</field>
                 <field name="context">{'search_default_state_draft': 1}</field>
         <field name="help">從品檢點帶入檢項規格，記錄量測值並判定合格／不合格／特採。</field>
+            <field name="search_view_id" ref="mfg_quality_check_view_search"/>
     </record>
 
     <record id="mfg_quality_check_action_pending" model="ir.actions.act_window">
@@ -222,6 +251,7 @@
                 <field name="domain">[('state', 'in', ['draft', 'in_progress'])]</field>
         <field name="context">{'search_default_state_draft': 1}</field>
         <field name="help">目前待執行（draft）或檢驗中（in_progress）的品檢單。</field>
+            <field name="search_view_id" ref="mfg_quality_check_view_search"/>
     </record>
 
     <record id="mfg_quality_check_action_history" model="ir.actions.act_window">
@@ -230,6 +260,7 @@
         <field name="view_mode">list,form</field>
                 <field name="domain">[('state', 'in', ['passed', 'failed', 'conditional', 'approved', 'cancelled'])]</field>
         <field name="help">已結案的品檢單。</field>
+            <field name="search_view_id" ref="mfg_quality_check_view_search"/>
     </record>
 
 </odoo>

@@ -13,6 +13,7 @@
                 <field name="res_id"/>
                 <field name="res_display_name" string="業務單據"/>
                 <field name="requester_id"/>
+                <field name="due_date"/>
                 <field name="company_id" groups="base.group_multi_company"/>
                 <separator/>
                 <filter name="pending" string="待簽核" domain="[('state', '=', 'pending')]"/>
@@ -22,6 +23,8 @@
                 <separator/>
                 <filter name="mine" string="我提出的" domain="[('requester_id', '=', uid)]"/>
                 <filter name="my_decision" string="我待簽" domain="[('line_ids.user_id', '=', uid), ('line_ids.decision', '=', 'pending')]"/>
+                <separator/>
+                <filter name="overdue" string="逾期未簽" domain="[('state', '=', 'pending'), ('due_date', '&lt;', context_today())]"/>
                 <group>
                     <filter name="group_rule" string="依規則" context="{'group_by': 'rule_id'}"/>
                     <filter name="group_res_model" string="依業務模型" context="{'group_by': 'res_model'}"/>
@@ -36,7 +39,7 @@
         <field name="name">mfg_custom.approval.request.view.tree</field>
         <field name="model">mfg_custom.approval.request</field>
         <field name="arch" type="xml">
-            <list string="MFG Custom 簽核申請" decoration-danger="state == 'rejected'"
+            <list string="MFG Custom 簽核申請" decoration-danger="state == 'rejected' or is_overdue"
                   decoration-success="state == 'approved'" decoration-muted="state == 'cancelled'">
                 <field name="name"/>
                 <field name="rule_id"/>
@@ -53,6 +56,8 @@
                        decoration-muted="state == 'cancelled'"/>
                 <field name="requester_id"/>
                 <field name="submit_date"/>
+                <field name="due_date" optional="show"/>
+                <field name="is_overdue" column_invisible="True"/>
                 <field name="company_id" optional="hide" groups="base.group_multi_company"/>
             </list>
         </field>
@@ -104,6 +109,10 @@
                             <field name="res_id" readonly="1"/>
                             <field name="requester_id" readonly="1"/>
                             <field name="submit_date" readonly="1"/>
+                            <field name="due_date"/>
+                            <field name="is_overdue" invisible="not is_overdue"
+                                   widget="badge" decoration-danger="True"
+                                   string="已逾期"/>
                             <field name="company_id" groups="base.group_multi_company"/>
                         </group>
                     </group>
