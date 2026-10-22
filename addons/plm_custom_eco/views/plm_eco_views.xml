@@ -190,7 +190,7 @@
     <menuitem id="menu_plm_eco_root"
               name="ECO"
               parent="mfg_custom_base.menu_plm_custom_root"
-              sequence="10"
+              sequence="40"
               groups="mfg_custom_base.group_user"/>
 
     <menuitem id="menu_plm_eco_all"

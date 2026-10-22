@@ -5,7 +5,7 @@
     <menuitem id="menu_plm_feasibility"
               name="可行性評估"
               parent="mfg_custom_base.menu_plm_custom_root"
-              sequence="10"
+              sequence="30"
               action="plm_feasibility_action"
               groups="mfg_custom_base.group_user"/>
 
@@ -13,7 +13,7 @@
     <menuitem id="menu_plm_feasibility_my"
               name="我負責的評估"
               parent="mfg_custom_base.menu_plm_custom_root"
-              sequence="20"
+              sequence="50"
               action="plm_feasibility_action_my"
               groups="mfg_custom_base.group_user"/>
 
