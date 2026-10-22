@@ -408,7 +408,9 @@ class TestPlmFeasibilityApproval(TransactionCase):
         self._add_full_scores(rec)
         rec.action_submit()
         rec.action_submit_for_approval()
-        rec.with_user(self.approver).action_reject(reason="請補充採購評分")
+        rec.approval_request_id.with_user(self.approver).action_reject(
+            reason="請補充採購評分",
+        )
         rec.invalidate_recordset()
         self.assertEqual(rec.state, "rejected")
         # 重新送簽：應回到評估中並建立新的簽核申請

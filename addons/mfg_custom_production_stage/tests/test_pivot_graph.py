@@ -2,6 +2,7 @@
 
 from odoo import Command
 from odoo.tests import Form, tagged
+from odoo.tools.safe_eval import safe_eval
 
 from odoo.addons.mrp.tests.common import TestMrpCommon
 
@@ -88,7 +89,9 @@ class TestMrpProductionPivotGraph(TestMrpCommon):
             move.write(
                 {
                     "state": "done",
-                    "quantity": mo.product_qty * 3,  # 30 件原料（10 * (2+1)）
+                    # 依各原料的 BOM 需求投入（20 + 10 = 30 件），
+                    # 理論產出 10 件；少產時得料率等比下降
+                    "quantity": move.product_uom_qty or 0.0,
                 },
             )
         finished = mo.move_finished_ids.filtered(
@@ -109,10 +112,11 @@ class TestMrpProductionPivotGraph(TestMrpCommon):
         mo_pilot = self._make_done_mo(qty=10.0, produced=8.0, stage="pilot")
         mo_mass = self._make_done_mo(qty=10.0, produced=10.0, stage="mass")
 
-        # 預期 yield：5/30=16.67, 8/30=26.67, 10/30=33.33
-        self.assertAlmostEqual(mo_sample.mfg_custom_yield_rate, 16.67, places=2)
-        self.assertAlmostEqual(mo_pilot.mfg_custom_yield_rate, 26.67, places=2)
-        self.assertAlmostEqual(mo_mass.mfg_custom_yield_rate, 33.33, places=2)
+        # 預期 yield：投入 30 件原料 → 理論產出 10 件，
+        # 實際產 5 / 8 / 10 件 → 得料率 50% / 80% / 100%
+        self.assertAlmostEqual(mo_sample.mfg_custom_yield_rate, 50.0, places=2)
+        self.assertAlmostEqual(mo_pilot.mfg_custom_yield_rate, 80.0, places=2)
+        self.assertAlmostEqual(mo_mass.mfg_custom_yield_rate, 100.0, places=2)
 
         # 三個 MO 都應為 done 狀態
         self.assertEqual(
@@ -179,8 +183,9 @@ class TestMrpProductionPivotGraph(TestMrpCommon):
         view_modes = action.view_mode.split(",")
         self.assertIn("graph", view_modes)
         self.assertIn("pivot", view_modes)
-        # 預設啟用 filter_done
-        self.assertEqual(action.context.get("search_default_filter_done"), 1)
+        # 預設啟用 filter_done（Odoo 20 的 context 欄位存的是字串）
+        context = safe_eval(action.context or "{}")
+        self.assertEqual(context.get("search_default_filter_done"), 1)
 
     # ------------------------------------------------------------------
     # 05 原 group_by_stage action 不再含 graph/pivot
