@@ -100,7 +100,6 @@ class TestMfgComponentScrapStat(TestMrpCommon):
             "product_id": component.id,
             "uom_id": component.uom_id.id,
             "product_uom_qty": qty,
-            "product_qty": qty,
             "raw_material_production_id": mo.id,
             "is_scrap": True,
             "state": "done",
@@ -221,16 +220,14 @@ class TestMfgComponentScrapStat(TestMrpCommon):
         # 模擬消耗 5 件原料 A（非報廢）
         consume_move = self.env["stock.move"].create(
             {
-                "name": "Consume-A",
                 "product_id": self.product_comp_a.id,
-                "product_uom": self.product_comp_a.uom_id.id,
+                "uom_id": self.product_comp_a.uom_id.id,
                 "product_uom_qty": 5.0,
-                "product_qty": 5.0,
                 "raw_material_production_id": mo.id,
                 "is_scrap": False,
                 "state": "done",
                 "location_id": mo.location_src_id.id,
-                "location_dest_id": self.env.ref("stock.stock_location_stock").id,
+                "location_dest_id": mo.location_dest_id.id,
             },
         )
         self.assertTrue(consume_move)

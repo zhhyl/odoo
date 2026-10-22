@@ -174,23 +174,31 @@ class MrpProduction(models.Model):
         return ratio
 
     def _mfg_custom_get_expected_output(self):
-        """依實際投入的原料與 BOM 配比，換算理論上應產出的成品數量。"""
+        """依實際投入的原料與 BOM 配比，換算理論上應產出的成品數量。
+
+        以「實際投入的原料總量 / 每件成品所需的原料總量」換算：
+        例如 BOM 每件成品需 3 件原料，實際投入 30 件 → 理論產出 10 件；
+        多耗原料時理論產出提高（得料率下降），少耗原料則相反。
+        """
         self.ensure_one()
         ratio = self._mfg_custom_get_raw_ratio()
         if not ratio:
             return 0.0
-        expected = 0.0
+        consumed = 0.0
         for move in self.move_raw_ids.filtered(lambda m: m.state == "done"):
-            per_unit = ratio.get(move.product_id.id)
-            if not per_unit:
+            if move.product_id.id not in ratio:
+                # 非 BOM 內的原料不列入計算
                 continue
             qty = move.quantity or 0.0
             product = move.product_id
             uom = product.uom_id
             if uom and move.uom_id and uom != move.uom_id:
                 qty = move.uom_id._compute_quantity(qty, uom)
-            expected += qty / per_unit
-        return expected
+            consumed += qty
+        total_ratio = sum(ratio.values())
+        if not total_ratio or consumed <= 0:
+            return 0.0
+        return consumed / total_ratio
 
     def _mfg_custom_get_produced_qty(self):
         """計算實際合格產量（done 的 move_finished_ids 之產品產量）。"""
