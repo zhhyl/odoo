@@ -24,7 +24,7 @@
             <xpath expr="//header//button[@name='action_reset_to_progress']" position="after">
                 <button name="action_mfg_custom_print_yield_report"
                         string="列印含良率"
-                        type="action"
+                        type="object"
                         icon="fa-print"
                         class="btn-secondary"
                         title="列印 MO 含得料率總覽（PDF）"/>
