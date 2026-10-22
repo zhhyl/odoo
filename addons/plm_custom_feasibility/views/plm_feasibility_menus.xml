@@ -1,17 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- 子選單根：PLM Custom（掛在 MFG Custom 根選單下） -->
-    <menuitem id="menu_plm_custom_root"
-              name="PLM Custom"
-              parent="mfg_custom_base.menu_mfg_custom_root"
-              sequence="40"
-              groups="mfg_custom_base.group_user"/>
-
     <!-- 可行性評估主選單 -->
     <menuitem id="menu_plm_feasibility"
               name="可行性評估"
-              parent="menu_plm_custom_root"
+              parent="mfg_custom_base.menu_plm_custom_root"
               sequence="10"
               action="plm_feasibility_action"
               groups="mfg_custom_base.group_user"/>
@@ -19,7 +12,7 @@
     <!-- 我負責的評估 -->
     <menuitem id="menu_plm_feasibility_my"
               name="我負責的評估"
-              parent="menu_plm_custom_root"
+              parent="mfg_custom_base.menu_plm_custom_root"
               sequence="20"
               action="plm_feasibility_action_my"
               groups="mfg_custom_base.group_user"/>

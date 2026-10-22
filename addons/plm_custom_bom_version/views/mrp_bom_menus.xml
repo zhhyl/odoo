@@ -1,17 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- PLM Custom 根選單（與 mfg_custom_base 共用 MFG Custom 主選單下一層） -->
-    <menuitem id="menu_plm_custom_root"
-              name="PLM Custom"
-              parent="mfg_custom_base.menu_mfg_custom_root"
-              sequence="10"
-              groups="mfg_custom_base.group_user"/>
-
     <!-- BOM 版本快照清單 -->
     <menuitem id="menu_mrp_bom_version"
               name="BOM 版本快照"
-              parent="menu_plm_custom_root"
+              parent="mfg_custom_base.menu_plm_custom_root"
               sequence="10"
               action="mrp_bom_version_action"
               groups="mfg_custom_base.group_user"/>
@@ -19,7 +12,7 @@
     <!-- 快照明細單獨清單（從 BOM 端深入元件歷史用） -->
     <menuitem id="menu_mrp_bom_version_line"
               name="BOM 快照明細"
-              parent="menu_plm_custom_root"
+              parent="mfg_custom_base.menu_plm_custom_root"
               sequence="20"
               action="action_mrp_bom_version_line"
               groups="mfg_custom_base.group_manager"/>

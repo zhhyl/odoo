@@ -15,6 +15,13 @@
               sequence="100"
               groups="mfg_custom_base.group_manager"/>
 
+    <!-- 子選單根：PLM Custom（plm_custom_* 系列共用同一個根選單） -->
+    <menuitem id="menu_plm_custom_root"
+              name="PLM Custom"
+              parent="menu_mfg_custom_root"
+              sequence="50"
+              groups="mfg_custom_base.group_user"/>
+
     <!-- 子選單：標籤字典 -->
     <menuitem id="menu_mfg_custom_tag"
               name="標籤"

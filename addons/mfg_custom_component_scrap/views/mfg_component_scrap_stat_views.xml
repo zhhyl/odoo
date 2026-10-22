@@ -127,7 +127,7 @@
     <menuitem id="menu_mfg_custom_scrap_stat_root"
               name="報表"
               parent="mfg_custom_base.menu_mfg_custom_root"
-              sequence="60"
+              sequence="70"
               groups="mfg_custom_base.group_user"/>
 
     <menuitem id="menu_mfg_custom_scrap_stat"

@@ -189,7 +189,7 @@
 
     <menuitem id="menu_plm_eco_root"
               name="ECO"
-              parent="plm_custom_feasibility.menu_plm_custom_root"
+              parent="mfg_custom_base.menu_plm_custom_root"
               sequence="10"
               groups="mfg_custom_base.group_user"/>
 
