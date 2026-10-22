@@ -73,14 +73,24 @@ class TestMfgCustomIssue(TransactionCase):
 
     def test_06_action_create_under_mo(self):
         """從 MO 建立 issue。"""
-        product = self.env.ref("product.product_product_4")
-        bom = self.env["mrp.bom"].search([("product_tmpl_id", "=", product.product_tmpl_id.id)], limit=1)
-        if not bom:
-            self.skipTest("需要 mrp demo BOM 才能測試")
+        # 測試庫沒有 demo 資料，自行建立產品與 BOM
+        product = self.env["product.product"].create({
+            "name": "問題點測試產品",
+            "type": "consu",
+            "is_storable": True,
+        })
+        bom = self.env["mrp.bom"].create({
+            "product_id": product.id,
+            "product_tmpl_id": product.product_tmpl_id.id,
+            "product_qty": 1.0,
+            "uom_id": product.uom_id.id,
+            "type": "normal",
+        })
         mo = self.env["mrp.production"].create({
             "product_id": product.id,
             "product_qty": 1.0,
             "bom_id": bom.id,
+            "uom_id": product.uom_id.id,
         })
         issue = self.Issue.create({
             "subject": "MO 端建立",

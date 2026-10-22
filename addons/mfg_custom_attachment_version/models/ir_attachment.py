@@ -85,6 +85,11 @@ class IrAttachment(models.Model):
         readonly=True,
         help="當自身由新版取代時，由 create / bump_version 反向連結到新版；新版清空自身。",
     )
+    mfg_custom_version_reason = fields.Char(
+        "版本說明",
+        readonly=True,
+        help="建立此版本的原因（例如由 ECO 跳版時的原因）。",
+    )
 
     # 命名遵循「以底線開頭 + 描述性後綴」，與 mfg_custom_base 風格一致
     _mfg_doc_type_state_idx = models.Index("(mfg_custom_doc_type, mfg_custom_doc_state)")
@@ -165,6 +170,7 @@ class IrAttachment(models.Model):
                 "mfg_custom_doc_type": att.mfg_custom_doc_type,
                 "mfg_custom_doc_state": "draft",
                 "mfg_custom_version": att.mfg_custom_version + 1,
+                "mfg_custom_version_reason": reason or False,
             })
 
         new_attachments = self.create(new_vals_list)
@@ -175,12 +181,8 @@ class IrAttachment(models.Model):
                 "mfg_custom_superseded_by_id": new_att.id,
                 "mfg_custom_doc_state": "obsolete",
             })
-            # 在新版 chatter 留一筆訊息說明觸發原因
-            new_att.message_post(
-                body=self.env._("由 ECO 建立新版本（原因：%s）；原附件已標為 obsolete。", reason),
-                message_type="notification",
-                subtype_xmlid="mfg_custom_attachment_version.mt_mfg_attachment_version_changed",
-            )
+            # Odoo 20 的 ir.attachment 沒有 chatter（不繼承 mail.thread），
+            # 因此以「版本說明」欄位記錄觸發原因（建立時已帶入），不使用 message_post。
 
         return new_attachments
 

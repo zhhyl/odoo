@@ -156,8 +156,13 @@ class MrpProduction(models.Model):
 
         本模組不依賴 mfg_custom_issue，因此以 ``in self.env`` 判斷模型是否存在，
         避免循環依賴；安裝後即自動取得真實數量，MO 表單的 smart button 也會啟用。
+
+        以 ``sudo()`` 查詢：這是純技術性計數器，一般 MRP 使用者（未加入
+        mfg_custom_base 群組）開啟 MO 表單時不應因此發生 AccessError。
         """
         Issue = self.env.get("mfg_custom.issue")
+        if Issue is not None:
+            Issue = Issue.sudo()
         for production in self:
             if Issue is None:
                 production.mfg_custom_issue_count = 0
@@ -172,8 +177,12 @@ class MrpProduction(models.Model):
 
         本模組不依賴 mfg_custom_quality，判斷方式同上；
         網域與 mfg_custom_quality 的 ``_get_mfg_quality_check_domain`` 一致。
+
+        同樣以 ``sudo()`` 查詢，避免一般 MRP 使用者開啟 MO 表單時發生 AccessError。
         """
         Check = self.env.get("mfg_custom.quality.check")
+        if Check is not None:
+            Check = Check.sudo()
         for production in self:
             if Check is None:
                 production.mfg_custom_quality_check_count = 0
@@ -256,7 +265,10 @@ class MrpProduction(models.Model):
     def _mfg_custom_create_stage_logs(self, old_stages, new_stage):
         """依階段變更前後值建立日誌（前後值相同者不建立）。"""
         reason = self.env.context.get("mfg_custom_stage_change_reason") or False
-        Log = self.env["mrp.production.stage.log"]
+        # 以 sudo() 建立日誌：mrp.production.stage.log 的 ACL 僅開放建立權限給
+        # mfg_custom_base.group_manager，一般 MRP 使用者變更階段時不應被擋下。
+        # sudo() 不會改變目前使用者，user_id / create_uid 仍會記錄實際操作者。
+        Log = self.env["mrp.production.stage.log"].sudo()
         for production in self:
             old_stage = old_stages.get(production.id)
             if not old_stage or old_stage == new_stage:

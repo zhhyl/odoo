@@ -94,6 +94,8 @@ class TestMfgAttachmentVersion(TransactionCase):
         self.assertEqual(new.name, original.name)
         self.assertEqual(new.mfg_custom_version, original.mfg_custom_version + 1)
         self.assertEqual(new.mfg_custom_doc_state, "draft")
+        # ir.attachment 在 Odoo 20 沒有 chatter，觸發原因記在「版本說明」
+        self.assertEqual(new.mfg_custom_version_reason, "ECO-001")
 
         # 原附件 invalidate 後讀取：obsolete + 指向新版
         original.invalidate_recordset()

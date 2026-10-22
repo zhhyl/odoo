@@ -123,11 +123,9 @@ class MfgApprovalStep(models.Model):
     @api.constrains("min_amount", "max_amount")
     def _check_amount_range(self):
         for step in self:
-            if (
-                step.min_amount is not False
-                and step.max_amount is not False
-                and step.min_amount > step.max_amount
-            ):
+            # 0 代表「未設定」（與 _is_active_for_record 的判斷一致），
+            # 只有上下限都有設定時才需要比較。
+            if step.max_amount and step.min_amount > step.max_amount:
                 raise ValidationError(
                     self.env._(
                         "關卡 %s 的最小金額不可大於最大金額",

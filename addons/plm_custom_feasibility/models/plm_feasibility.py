@@ -386,11 +386,15 @@ class PlmFeasibility(models.Model):
     # 顯示輔助
     # ------------------------------------------------------------------
 
-    def name_get(self):
-        result = []
+    @api.depends("name", "product_id")
+    def _compute_display_name(self):
+        """顯示名稱為「單號 - 產品」。
+
+        Odoo 20 已移除 ``name_get()``，顯示名稱改由 ``display_name``
+        欄位計算，覆寫 ``_compute_display_name()`` 即可。
+        """
         for rec in self:
             label = rec.name or ""
             if rec.product_id:
                 label = f"{label} - {rec.product_id.display_name}"
-            result.append((rec.id, label))
-        return result
+            rec.display_name = label

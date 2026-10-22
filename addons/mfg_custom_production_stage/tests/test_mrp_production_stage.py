@@ -9,6 +9,18 @@ from odoo.addons.mrp.tests.common import TestMrpCommon
 class TestMrpProductionStage(TestMrpCommon):
     """測試 mfg_custom_production_stage 模組的階段變更與預設邏輯。"""
 
+    # Odoo 20 的測試框架會以受限使用者執行測試（_test_user_groups），
+    # 此處需補齊本模組測試會用到的權限：
+    # - mrp.group_mrp_manager：可修改 mrp.bom（寫入 BOM 預設階段）
+    # - mfg_custom_base.group_user：可讀取 mfg_custom.quality.check
+    # - mfg_custom_base.group_manager：可建立 mrp.production.stage.log
+    _test_user_groups = (
+        'mrp.group_mrp_user',
+        'mrp.group_mrp_manager',
+        'mfg_custom_base.group_user',
+        'mfg_custom_base.group_manager',
+    )
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

@@ -303,6 +303,23 @@ class TestPlmFeasibilityApproval(TransactionCase):
             login="feas_approval_approver",
             groups="base.group_user,mfg_custom_base.group_user",
         )
+        # 評分者必須是「啟用」的帳號：Odoo 20 的測試預設使用者（OdooBot）
+        # 已是停用狀態，評分模型會拒絕停用帳號當評分者。
+        cls.user_sales = new_test_user(
+            cls.env, login="feas_appr_sales", groups="base.group_user"
+        )
+        cls.user_engineering = new_test_user(
+            cls.env, login="feas_appr_eng", groups="base.group_user"
+        )
+        cls.user_production = new_test_user(
+            cls.env, login="feas_appr_prod", groups="base.group_user"
+        )
+        cls.user_qa = new_test_user(
+            cls.env, login="feas_appr_qa", groups="base.group_user"
+        )
+        cls.user_procurement = new_test_user(
+            cls.env, login="feas_appr_proc", groups="base.group_user"
+        )
         # 測試規則 sequence=1 → 優先於種子規則「可行性評估簽核」
         cls.rule = cls.Rule.create({
             "name": "可行性評估審核測試規則",
@@ -321,18 +338,41 @@ class TestPlmFeasibilityApproval(TransactionCase):
         vals = {
             "partner_id": self.partner.id,
             "product_id": self.product.id,
-            "user_id": self.env.user.id,
+            "user_id": self.user_sales.id,
         }
         vals.update(extra)
         return self.Feasibility.create(vals)
 
-    def _add_score(self, feasibility):
+    def _add_score(self, feasibility, department="sales", reviewer=None):
+        """新增一筆評分明細（評分者預設為啟用中的業務評分者）。"""
         return self.Score.create({
             "feasibility_id": feasibility.id,
-            "department": "sales",
-            "reviewer_id": self.env.user.id,
+            "department": department,
+            "reviewer_id": (reviewer or self.user_sales).id,
             "score": 8,
         })
+
+    def _add_full_scores(self, feasibility, base=8):
+        """五個必要部門（業務/工程/產線/品保/採購）都評分。
+
+        核准時 ``_approval_on_approved()`` 會呼叫 ``_check_all_scores_filled()``，
+        缺任何一個部門都會拋 UserError。
+        """
+        scores = [
+            ("sales", self.user_sales),
+            ("engineering", self.user_engineering),
+            ("production", self.user_production),
+            ("qa", self.user_qa),
+            ("procurement", self.user_procurement),
+        ]
+        for dept, user in scores:
+            self.Score.create({
+                "feasibility_id": feasibility.id,
+                "department": dept,
+                "reviewer_id": user.id,
+                "score": base,
+            })
+        return scores
 
     def test_01_before_submit_requires_in_review(self):
         """draft 狀態不可送出簽核（須先送出評估）。"""
@@ -353,7 +393,8 @@ class TestPlmFeasibilityApproval(TransactionCase):
     def test_03_approved_sets_state_approved(self):
         """所有關卡核准後，評估單改為「通過」。"""
         rec = self._make_feasibility()
-        self._add_score(rec)
+        # 核准前必須五個必要部門都已評分
+        self._add_full_scores(rec)
         rec.action_submit()
         rec.action_submit_for_approval()
         rec.with_user(self.approver).action_approve()

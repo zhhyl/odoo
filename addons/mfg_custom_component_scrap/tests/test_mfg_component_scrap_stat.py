@@ -17,6 +17,14 @@ class TestMfgComponentScrapStat(TestMrpCommon):
     * 報廢率、有效得料率公式正確
     """
 
+    # Odoo 20 的測試框架以受限使用者執行測試（群組取自 _test_user_groups，
+    # 見 odoo/addons/base/tests/common.py），此處需補上讀取品檢單的權限。
+    _test_user_groups = (
+        'mrp.group_mrp_user',
+        'mrp.group_mrp_manager',
+        'mfg_custom_base.group_user',
+    )
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -107,7 +115,9 @@ class TestMfgComponentScrapStat(TestMrpCommon):
     def test_01_model_loads(self):
         """模型可被 ORM 載入，且為 SQL view。"""
         model = self.env["mfg_custom.component.scrap.stat"]
-        self.assertTrue(model)
+        # SQL view 模型沒有資料列時 recordset 為空（falsy），
+        # 因此改以「模型已註冊且為 SQL view」來驗證。
+        self.assertTrue(model._table)
         self.assertFalse(
             model._auto,
             "mfg_custom.component.scrap.stat 應為 SQL view（_auto=False）",

@@ -62,13 +62,18 @@ class MfgCustomModelMixin(models.AbstractModel):
     )
     _code_company_idx = models.Index("(company_id, code)")
 
-    def name_get(self):
-        """預設顯示為「code - 自動名稱」。子模型可覆寫。"""
-        result = []
+    @api.depends("code")
+    def _compute_display_name(self):
+        """預設顯示為單號（code）。
+
+        Odoo 20 已移除 ``name_get()``，顯示名稱改由 ``display_name``
+        計算欄位提供（見 ``odoo/orm/models.py`` 的 ``_compute_display_name``）。
+        """
         for rec in self:
-            name = rec.code or rec.display_name or ""
-            result.append((rec.id, name))
-        return result
+            if rec.code:
+                rec.display_name = rec.code
+            else:
+                super(MfgCustomModelMixin, rec)._compute_display_name()
 
     @api.constrains("priority")
     def _check_priority(self):

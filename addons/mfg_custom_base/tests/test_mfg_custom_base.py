@@ -23,11 +23,8 @@ class TestMfgCustomBase(TransactionCase):
         self.assertTrue(tag.id)
         self.assertEqual(tag.name, "高優先")
         self.assertTrue(tag.active)
-        self.assertIn(
-            (tag.id, tag.name),
-            tag.name_get(),
-            "name_get 應回傳 (id, name) tuple",
-        )
+        # Odoo 20 已移除 name_get()，顯示名稱改由 display_name 提供
+        self.assertEqual(tag.display_name, tag.name)
 
     def test_02_tag_translation(self):
         """標籤名稱欄位為 translate=True。"""

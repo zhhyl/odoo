@@ -239,6 +239,7 @@ class TestMfgQualityCheckApproval(TransactionCase):
         super().setUpClass()
         cls.Check = cls.env["mfg_custom.quality.check"]
         cls.Point = cls.env["mfg_custom.quality.point"]
+        cls.PointLine = cls.env["mfg_custom.quality.point.line"]
         cls.Product = cls.env["product.product"]
         cls.Rule = cls.env["mfg_custom.approval.rule"]
         cls.product = cls.Product.create({"name": "QC-Approval Product", "type": "consu"})
@@ -246,6 +247,13 @@ class TestMfgQualityCheckApproval(TransactionCase):
             "name": "QC 放行規格",
             "product_id": cls.product.id,
             "sample_qty": 1,
+        })
+        # action_start() 拒絕在「品檢點沒有任何檢項」時啟動檢驗，
+        # 因此放行簽核用的品檢點必須先設定檢項規格。
+        cls.point_line = cls.PointLine.create({
+            "point_id": cls.point.id,
+            "name": "外觀",
+            "spec_value": "無刮傷",
         })
         cls.approver = new_test_user(
             cls.env,

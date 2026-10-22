@@ -107,13 +107,16 @@ class MfgApprovalLine(models.Model):
             or self.env.user.has_group("mfg_custom_base.group_manager")
         )
 
-    def name_get(self):
-        result = []
+    @api.depends("step_id", "user_id")
+    def _compute_display_name(self):
+        """顯示為「關卡 / 簽核者」。
+
+        Odoo 20 已移除 ``name_get()``，顯示名稱改由 ``display_name``
+        計算欄位提供（見 ``odoo/orm/models.py`` 的 ``_compute_display_name``）。
+        """
         for rec in self:
-            label = self.env._(
+            rec.display_name = rec.env._(
                 "%(step)s / %(user)s",
                 step=rec.step_id.display_name or "",
                 user=rec.user_id.display_name or "",
             )
-            result.append((rec.id, label))
-        return result

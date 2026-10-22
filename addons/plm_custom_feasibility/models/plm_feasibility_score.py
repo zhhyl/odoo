@@ -1,6 +1,6 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import _, api, fields, models
+from odoo import api, fields, models
 from odoo.exceptions import ValidationError
 
 
@@ -70,8 +70,13 @@ class PlmFeasibilityScore(models.Model):
     # 顯示輔助
     # ------------------------------------------------------------------
 
-    def name_get(self):
-        """顯示「可行性單號 / 部門中文名」。"""
+    @api.depends("department", "reviewer_id")
+    def _compute_display_name(self):
+        """顯示「部門中文名 / 評分者」。
+
+        Odoo 20 已移除 ``name_get()``，顯示名稱改由 ``display_name``
+        欄位計算，覆寫 ``_compute_display_name()`` 即可。
+        """
         labels = {
             "sales": "業務",
             "engineering": "工程",
@@ -80,15 +85,12 @@ class PlmFeasibilityScore(models.Model):
             "procurement": "採購",
             "legal": "法規",
         }
-        result = []
         for rec in self:
-            label = self.env._(
-                "%(feasibility)s / %(dept)s",
-                feasibility=rec.feasibility_id.name or "",
+            rec.display_name = rec.env._(
+                "%(dept)s / %(user)s",
                 dept=labels.get(rec.department, rec.department or ""),
+                user=rec.reviewer_id.display_name or "",
             )
-            result.append((rec.id, label))
-        return result
 
     # ------------------------------------------------------------------
     # 約束

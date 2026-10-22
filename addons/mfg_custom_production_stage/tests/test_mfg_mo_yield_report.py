@@ -9,6 +9,15 @@ from odoo.addons.mrp.tests.common import TestMrpCommon
 class TestMfgMoYieldReport(TestMrpCommon):
     """測試 MO 含良率總覽 PDF report 的資料收集。"""
 
+    # Odoo 20 的測試框架會以受限使用者執行測試（_test_user_groups），
+    # 此處需補齊本模組測試會用到的權限（讀寫 MO / BOM / 品檢單）。
+    _test_user_groups = (
+        'mrp.group_mrp_user',
+        'mrp.group_mrp_manager',
+        'mfg_custom_base.group_user',
+        'mfg_custom_base.group_manager',
+    )
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -49,13 +58,12 @@ class TestMfgMoYieldReport(TestMrpCommon):
         )
         scrap_move = self.env["stock.move"].create(
             {
-                "name": "scrap test",
                 "product_id": self.product_5.id,
-                "product_uom": self.product_5.uom_id.id,
+                "uom_id": self.product_5.uom_id.id,
                 "raw_material_production_id": mo.id,
                 "is_scrap": True,
                 "state": "done",
-                "product_qty": 1.0,
+                "product_uom_qty": 1.0,
             },
         )
         values = self.report_model._get_report_values(mo.ids)
@@ -79,13 +87,12 @@ class TestMfgMoYieldReport(TestMrpCommon):
         )
         scrap_b = self.env["stock.move"].create(
             {
-                "name": "scrap B",
                 "product_id": self.product_5.id,
-                "product_uom": self.product_5.uom_id.id,
+                "uom_id": self.product_5.uom_id.id,
                 "raw_material_production_id": mo_b.id,
                 "is_scrap": True,
                 "state": "done",
-                "product_qty": 1.0,
+                "product_uom_qty": 1.0,
             },
         )
         values = self.report_model._get_report_values([mo_a.id, mo_b.id])
@@ -110,6 +117,9 @@ class TestMfgMoYieldReport(TestMrpCommon):
                 "bom_id": self.bom_1.id,
                 "product_qty": 1.0,
                 "state": "done",
+                # Odoo 20 的 uom_id 為必填且僅在 draft 狀態由 _compute_uom_id 帶入，
+                # 直接以 done 狀態建立時必須自行指定，否則會產生 NOT NULL 違規。
+                "uom_id": self.product_4.uom_id.id,
             },
         )
         # 直接寫欄位避免 full warehouse 流程
@@ -131,6 +141,8 @@ class TestMfgMoYieldReport(TestMrpCommon):
                 "bom_id": self.bom_1.id,
                 "product_qty": 1.0,
                 "state": "done",
+                # 同 test_05：done 狀態建立時 uom_id 不會被自動計算，須自行指定。
+                "uom_id": self.product_4.uom_id.id,
             },
         )
         mo.write(

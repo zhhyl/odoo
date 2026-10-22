@@ -13,11 +13,21 @@ class TestMfgCustomQuoteCost(TransactionCase):
         super().setUpClass()
         cls.CostLine = cls.env["mfg_custom.quote.cost.line"]
         cls.currency = cls.env.company.currency_id
+        # 測試庫沒有 demo 資料，自行建立測試用的產品與聯絡人
+        cls.product = cls.env["product.product"].create({
+            "name": "報價成本測試產品",
+            "type": "consu",
+            "is_storable": True,
+            "standard_price": 10.0,
+        })
+        cls.partner = cls.env["res.partner"].create({
+            "name": "報價成本測試客戶",
+        })
 
     def test_01_compute_subtotal(self):
         """subtotal = unit_cost × product_qty。"""
         line = self.CostLine.create({
-            "product_id": self.env.ref("product.product_product_4").id,
+            "product_id": self.product.id,
             "product_qty": 3.0,
             "unit_cost": 12.5,
             "cost_type": "material",
@@ -27,11 +37,11 @@ class TestMfgCustomQuoteCost(TransactionCase):
     def test_02_suggested_price_formula(self):
         """target_margin=20, cost=80 → suggested_price=100。"""
         so = self.env["sale.order"].create({
-            "partner_id": self.env.ref("base.res_partner_4").id,
+            "partner_id": self.partner.id,
         })
         sol = self.env["sale.order.line"].create({
             "order_id": so.id,
-            "product_id": self.env.ref("product.product_product_4").id,
+            "product_id": self.product.id,
             "product_uom_qty": 1.0,
             "price_unit": 100.0,
         })
@@ -45,11 +55,11 @@ class TestMfgCustomQuoteCost(TransactionCase):
     def test_03_suggested_price_zero_when_margin_100(self):
         """target_margin=100 → suggested_price=0。"""
         so = self.env["sale.order"].create({
-            "partner_id": self.env.ref("base.res_partner_4").id,
+            "partner_id": self.partner.id,
         })
         sol = self.env["sale.order.line"].create({
             "order_id": so.id,
-            "product_id": self.env.ref("product.product_product_4").id,
+            "product_id": self.product.id,
             "product_uom_qty": 1.0,
             "price_unit": 100.0,
         })
@@ -63,7 +73,7 @@ class TestMfgCustomQuoteCost(TransactionCase):
     def test_04_subtotal_stored(self):
         """建立後 subtotal 應自動 store=True 計算。"""
         line = self.CostLine.create({
-            "product_id": self.env.ref("product.product_product_4").id,
+            "product_id": self.product.id,
             "product_qty": 2.0,
             "unit_cost": 50.0,
             "cost_type": "labor",
