@@ -265,7 +265,25 @@ class MfgQualityCheck(models.Model):
         )
         if not template:
             return
-        template.send_mail(self.id, force_send=False)
+        partners = self._mfg_quality_failed_recipients()
+        if not partners:
+            return
+        template.send_mail(self.id, force_send=False, email_values={
+            "email_to": ", ".join(partners.mapped("email")),
+            "recipient_ids": [(6, 0, partners.ids)],
+        })
+
+    def _mfg_quality_failed_recipients(self):
+        """不合格通知的收件人：MO 負責人 → 入庫單負責人 → 檢驗員。"""
+        self.ensure_one()
+        for user in (
+            self.production_id.user_id,
+            self.picking_id.user_id,
+            self.inspector_id,
+        ):
+            if user and user.email:
+                return user.partner_id
+        return self.env["res.partner"]
 
     def action_conditional(self):
         """特採（讓步接收）。不擋後續入庫。"""

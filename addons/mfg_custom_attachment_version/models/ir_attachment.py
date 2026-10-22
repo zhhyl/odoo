@@ -54,14 +54,12 @@ class IrAttachment(models.Model):
         "版本",
         default=1,
         readonly=True,
-        tracking=True,
         help="同 res_model+res_id+name 群組內的遞增版本；首版為 1。",
     )
     mfg_custom_doc_type = fields.Selection(
         DOC_TYPE_SELECTION,
         string="文件類型",
         index=True,
-        tracking=True,
         help="客戶規格書、圖面、承認書等業務用途分類。",
     )
     mfg_custom_doc_state = fields.Selection(
@@ -70,7 +68,6 @@ class IrAttachment(models.Model):
         default="draft",
         required=True,
         index=True,
-        tracking=True,
         help="受控狀態：draft → in_review → released；被新發行版本取代後轉為 obsolete。",
     )
     mfg_custom_tag_ids = fields.Many2many(

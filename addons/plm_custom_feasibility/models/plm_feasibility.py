@@ -314,7 +314,7 @@ class PlmFeasibility(models.Model):
         if not template:
             return
         for rec in self:
-            template.send_mail(rec.id, force_send=False)
+            rec._send_feasibility_mail(template)
 
     def _notify_feasibility_decided(self):
         """評估做出結論時，以電子郵件通知負責業務與各部門評分者。"""
@@ -325,7 +325,33 @@ class PlmFeasibility(models.Model):
         if not template:
             return
         for rec in self:
-            template.send_mail(rec.id, force_send=False)
+            rec._send_feasibility_mail(template)
+
+    def _send_feasibility_mail(self, template):
+        """寄出可行性評估通知信，並明確指定收件人。
+
+        收件人：負責業務 + 各部門評分者。明確指定是必要的：
+        既有可能沿用舊版範本的 ``use_default_to`` 設定而寄給追隨者，
+        新建的單據通常沒有追隨者，信件會沒有收件人。
+        """
+        self.ensure_one()
+        partners = self._feasibility_recipient_partners()
+        if not partners:
+            return False
+        template.send_mail(self.id, force_send=False, email_values={
+            "email_to": ", ".join(partners.mapped("email")),
+            "recipient_ids": [(6, 0, partners.ids)],
+        })
+        return True
+
+    def _feasibility_recipient_partners(self):
+        """通知信收件人：負責業務 + 各部門評分者。"""
+        self.ensure_one()
+        users = self.env["res.users"]
+        if self.user_id:
+            users |= self.user_id
+        users |= self.sudo().score_ids.mapped("reviewer_id")
+        return users.mapped("partner_id")
 
     def _feasibility_reviewer_emails(self):
         """各部門評分者的電子郵件（供通知信使用）。

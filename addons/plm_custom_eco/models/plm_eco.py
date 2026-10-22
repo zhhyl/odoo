@@ -263,7 +263,12 @@ class PlmCustomEco(models.Model):
         for eco in self:
             if not eco.owner_id or not eco.owner_id.email:
                 continue
-            template.send_mail(eco.id, force_send=False)
+            # 明確指定收件人（既有可能沿用舊版範本的 use_default_to 設定）
+            partners = eco.owner_id.partner_id
+            template.send_mail(eco.id, force_send=False, email_values={
+                "email_to": eco.owner_id.email,
+                "recipient_ids": [(6, 0, partners.ids)],
+            })
 
     def action_cancel(self):
         for eco in self:

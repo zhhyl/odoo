@@ -186,7 +186,13 @@ class MfgCustomIssue(models.Model):
         for issue in self:
             if not issue.user_id or not issue.user_id.email:
                 continue
-            template.send_mail(issue.id, force_send=False)
+            # 明確指定收件人：既有可能沿用舊版範本設定（use_default_to），
+            # 只寄給追隨者會寄不出去
+            partners = issue.user_id.partner_id
+            template.send_mail(issue.id, force_send=False, email_values={
+                "email_to": issue.user_id.email,
+                "recipient_ids": [(6, 0, partners.ids)],
+            })
 
     def action_close(self):
         for issue in self:
