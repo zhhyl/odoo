@@ -12,10 +12,19 @@ class TestPlmCustomEco(TransactionCase):
     def setUpClass(cls):
         super().setUpClass()
         cls.Eco = cls.env["plm_custom.eco"]
-        cls.product = cls.env.ref("product.product_product_4")
-        cls.bom = cls.env["mrp.bom"].search(
-            [("product_tmpl_id", "=", cls.product.product_tmpl_id.id)], limit=1
-        )
+        # 測試庫沒有 demo 資料，自行建立測試用產品與 BOM
+        cls.product = cls.env["product.product"].create({
+            "name": "ECO 測試產品",
+            "type": "consu",
+            "is_storable": True,
+        })
+        cls.bom = cls.env["mrp.bom"].create({
+            "product_id": cls.product.id,
+            "product_tmpl_id": cls.product.product_tmpl_id.id,
+            "product_qty": 1.0,
+            "uom_id": cls.product.uom_id.id,
+            "type": "normal",
+        })
         cls.user = cls.env.ref("base.user_admin")
 
     def _make_rule(self, steps=None):
