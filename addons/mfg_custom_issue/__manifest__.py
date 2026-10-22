@@ -13,11 +13,12 @@ MFG Custom - Production Issue
 產線問題点管理系統（取代 Enterprise ``helpdesk``）：
 
 * Kanban 看板（依 stage 自動分組）
-* 8D 流程欄位（D1~D7）
+* 8D 流程欄位（D1 / D2 / D3 / D5 / D7）與 5Why 根因分析
 * 改善行動追蹤（deadline、負責人、驗證）
-* 從 mrp.production / mfg_custom.quality.check 自動建立
+* 從 mrp.production 一鍵新增問題点；品檢單以「對應品檢」欄位互相連結
 * 可升級為 ECO（plm_custom.eco）
 * 多部門協作：MO、工序、工作中心、產品、批號、品檢
+* 多層簽核（透過 mfg_custom_approval）
 """,
     "depends": [
         "mfg_custom_approval",
@@ -26,6 +27,7 @@ MFG Custom - Production Issue
         "mfg_custom_quality",
         "mrp",
         "project",
+        "rating",
     ],
     "data": [
         "security/ir.access.csv",

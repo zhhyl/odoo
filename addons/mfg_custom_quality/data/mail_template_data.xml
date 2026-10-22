@@ -23,6 +23,9 @@
 </div>
         </field>
         <field name="lang">{{ object.inspector_id.lang or object.company_id.partner_id.lang }}</field>
+        <!-- 收件人：MO 負責人 → 入庫單負責人 → 檢驗員（依序取第一個有信箱者） -->
+        <field name="use_default_to" eval="False"/>
+        <field name="email_to">{{ object.production_id.user_id.email or object.picking_id.user_id.email or object.inspector_id.email }}</field>
         <field name="auto_delete" eval="True"/>
     </record>
 

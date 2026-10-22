@@ -168,7 +168,25 @@ class MfgCustomIssue(models.Model):
                 vals["name"] = number
                 if vals.get("code", "New") == "New":
                     vals["code"] = number
-        return super().create(vals_list)
+        issues = super().create(vals_list)
+        issues._notify_issue_opened()
+        return issues
+
+    def _notify_issue_opened(self):
+        """問題點開立時，以電子郵件通知負責人。
+
+        只在開立當下寄一封，之後的狀態異動不另寄信，避免騷擾。
+        """
+        template = self.env.ref(
+            "mfg_custom_issue.mail_template_mfg_issue_open",
+            raise_if_not_found=False,
+        )
+        if not template:
+            return
+        for issue in self:
+            if not issue.user_id or not issue.user_id.email:
+                continue
+            template.send_mail(issue.id, force_send=False)
 
     def action_close(self):
         for issue in self:
@@ -318,5 +336,6 @@ class MfgCustomIssue(models.Model):
         })
         self.eco_id = f"plm_custom.eco,{eco.id}"
         self.message_post(
-            body=self.env._("已升級為 ECO %s", eco.display_name)
+            body=self.env._("已升級為 ECO %s", eco.display_name),
+            subtype_xmlid="mfg_custom_issue.mt_mfg_issue_escalated",
         )

@@ -142,7 +142,8 @@ class PlmCustomEco(models.Model):
             eco._auto_populate_lines()
             eco.state = "impact_analysis"
             eco.message_post(
-                body=self.env._("ECO 進入影響分析階段")
+                body=self.env._("ECO 進入影響分析階段"),
+                subtype_xmlid="plm_custom_eco.mt_plm_eco_state_changed",
             )
 
     def action_submit_approval(self):
@@ -158,6 +159,10 @@ class PlmCustomEco(models.Model):
             # 交給通用簽核引擎：自動比對規則、建立簽核單、掛回本單
             eco.action_submit_for_approval()
             eco.write({"state": "pending_approval"})
+            eco.message_post(
+                body=self.env._("ECO 已送出簽核，等待核准"),
+                subtype_xmlid="plm_custom_eco.mt_plm_eco_state_changed",
+            )
 
     def action_approve(self):
         """委派給簽核引擎核准「目前關卡」。
@@ -181,7 +186,10 @@ class PlmCustomEco(models.Model):
             if eco.state == "approved":
                 continue
             eco.sudo().write({"state": "approved"})
-            eco.sudo().message_post(body=self.env._("ECO 已核准"))
+            eco.sudo().message_post(
+                body=self.env._("ECO 已核准"),
+                subtype_xmlid="plm_custom_eco.mt_plm_eco_state_changed",
+            )
 
     def _approval_on_rejected(self):
         """簽核被駁回時，把 ECO 改為已駁回。"""
@@ -189,7 +197,10 @@ class PlmCustomEco(models.Model):
             if eco.state == "rejected":
                 continue
             eco.sudo().write({"state": "rejected"})
-            eco.sudo().message_post(body=self.env._("ECO 已駁回"))
+            eco.sudo().message_post(
+                body=self.env._("ECO 已駁回"),
+                subtype_xmlid="plm_custom_eco.mt_plm_eco_state_changed",
+            )
 
     def _approval_on_cancelled(self):
         """簽核被取消時，把 ECO 退回影響分析階段。"""
@@ -197,7 +208,10 @@ class PlmCustomEco(models.Model):
             if eco.state != "pending_approval":
                 continue
             eco.sudo().write({"state": "impact_analysis"})
-            eco.sudo().message_post(body=self.env._("ECO 簽核已取消，退回影響分析"))
+            eco.sudo().message_post(
+                body=self.env._("ECO 簽核已取消，退回影響分析"),
+                subtype_xmlid="plm_custom_eco.mt_plm_eco_state_changed",
+            )
 
     def action_apply(self):
         for eco in self:
@@ -230,8 +244,26 @@ class PlmCustomEco(models.Model):
             eco.message_post(
                 body=self.env._(
                     "ECO 已套用：BOM 升至 %s", eco.to_version
-                )
+                ),
+                subtype_xmlid="plm_custom_eco.mt_plm_eco_applied",
             )
+            eco._notify_eco_applied()
+
+    def _notify_eco_applied(self):
+        """ECO 套用後，以電子郵件通知負責人。
+
+        只在真正套用（BOM 升版）當下寄一封。
+        """
+        template = self.env.ref(
+            "plm_custom_eco.mail_template_plm_eco_apply",
+            raise_if_not_found=False,
+        )
+        if not template:
+            return
+        for eco in self:
+            if not eco.owner_id or not eco.owner_id.email:
+                continue
+            template.send_mail(eco.id, force_send=False)
 
     def action_cancel(self):
         for eco in self:
@@ -240,7 +272,10 @@ class PlmCustomEco(models.Model):
                     self.env._("已套用的 ECO 不可取消，請另開新單處理")
                 )
             eco.state = "cancelled"
-            eco.message_post(body=self.env._("ECO 已取消"))
+            eco.message_post(
+                body=self.env._("ECO 已取消"),
+                subtype_xmlid="plm_custom_eco.mt_plm_eco_state_changed",
+            )
 
     def action_view_lines(self):
         self.ensure_one()
@@ -260,7 +295,10 @@ class PlmCustomEco(models.Model):
                     self.env._("已套用的 ECO 不可重設為草稿")
                 )
             eco.state = "draft"
-            eco.message_post(body=self.env._("ECO 重設為草稿"))
+            eco.message_post(
+                body=self.env._("ECO 重設為草稿"),
+                subtype_xmlid="plm_custom_eco.mt_plm_eco_state_changed",
+            )
 
     def _auto_populate_lines(self):
         """自動建立影響清單。"""

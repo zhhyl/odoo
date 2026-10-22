@@ -12,3 +12,4 @@ PLM Custom - Engineering Change Order
     - 升版附件版本（透過 mfg_custom_attachment_version）
 * 可從問題点升級
 * 多層簽核（透過 mfg_custom_approval）
+* 套用後以電子郵件通知 ECO 負責人

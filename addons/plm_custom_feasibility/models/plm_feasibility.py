@@ -300,6 +300,45 @@ class PlmFeasibility(models.Model):
                 body=rec.env._("已送出評估，等待各部門完成評分。"),
                 subtype_xmlid="plm_custom_feasibility.mt_plm_feasibility_state_changed",
             )
+            rec._notify_feasibility_submitted()
+
+    def _notify_feasibility_submitted(self):
+        """送出評估時，以電子郵件通知負責業務與各部門評分者。
+
+        只在送出評估當下寄一封，評分明細異動不另寄信。
+        """
+        template = self.env.ref(
+            "plm_custom_feasibility.mail_template_plm_feasibility_submit",
+            raise_if_not_found=False,
+        )
+        if not template:
+            return
+        for rec in self:
+            template.send_mail(rec.id, force_send=False)
+
+    def _notify_feasibility_decided(self):
+        """評估做出結論時，以電子郵件通知負責業務與各部門評分者。"""
+        template = self.env.ref(
+            "plm_custom_feasibility.mail_template_plm_feasibility_decided",
+            raise_if_not_found=False,
+        )
+        if not template:
+            return
+        for rec in self:
+            template.send_mail(rec.id, force_send=False)
+
+    def _feasibility_reviewer_emails(self):
+        """各部門評分者的電子郵件（供通知信使用）。
+
+        以 ``sudo`` 讀取評分明細，避免送出通知者沒有讀取權限時
+        連帶讓通知信寄不出去。
+        """
+        self.ensure_one()
+        emails = []
+        for email in self.sudo().score_ids.mapped("reviewer_id.email"):
+            if email and email not in emails:
+                emails.append(email)
+        return ", ".join(emails)
 
     def action_approve(self):
         """委派給簽核引擎核准「目前關卡」。
@@ -359,6 +398,7 @@ class PlmFeasibility(models.Model):
                 ),
                 subtype_xmlid="plm_custom_feasibility.mt_plm_feasibility_state_changed",
             )
+            rec._notify_feasibility_decided()
 
     def _approval_on_rejected(self):
         """簽核被駁回時，把評估單改為「不通過」。"""
@@ -370,6 +410,7 @@ class PlmFeasibility(models.Model):
                 body=self.env._("評估不通過。"),
                 subtype_xmlid="plm_custom_feasibility.mt_plm_feasibility_state_changed",
             )
+            rec._notify_feasibility_decided()
 
     def _approval_on_cancelled(self):
         """簽核被取消時，把評估單退回草稿。"""

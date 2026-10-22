@@ -7,7 +7,9 @@
         <field name="model_id" ref="model_plm_custom_feasibility"/>
         <field name="subject">{{ object.name }}：請各部門完成可行性評分</field>
         <field name="email_from">{{ (object.user_id.email_formatted or user.email_formatted) }}</field>
-        <field name="use_default_to" eval="True"/>
+        <!-- 收件人：負責業務 + 各部門評分者（不採用預設的「客戶」追隨者） -->
+        <field name="use_default_to" eval="False"/>
+        <field name="email_to">{{ object.user_id.email }},{{ object._feasibility_reviewer_emails() }}</field>
         <field name="description">送出評估時通知相關部門與負責業務</field>
         <field name="body_html" type="html">
 <div style="margin: 0px; padding: 0px;">
@@ -38,7 +40,9 @@
         <field name="model_id" ref="model_plm_custom_feasibility"/>
         <field name="subject">{{ object.name }}：可行性評估結論 - {{ object.decision }}</field>
         <field name="email_from">{{ (user.email_formatted) }}</field>
-        <field name="use_default_to" eval="True"/>
+        <!-- 收件人：負責業務 + 各部門評分者（不採用預設的「客戶」追隨者） -->
+        <field name="use_default_to" eval="False"/>
+        <field name="email_to">{{ object.user_id.email }},{{ object._feasibility_reviewer_emails() }}</field>
         <field name="description">可行性評估做出決策時通知客戶業務與相關部門</field>
         <field name="body_html" type="html">
 <div style="margin: 0px; padding: 0px;">

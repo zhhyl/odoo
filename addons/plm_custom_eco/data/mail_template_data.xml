@@ -13,6 +13,8 @@
     <li>影響清單：<t t-out="len(object.line_ids)"/> 筆</li>
 </ul>
         ]]></field>
+        <!-- 收件人由 template 指定（ECO 負責人），不採用預設追隨者 -->
+        <field name="use_default_to" eval="False"/>
         <field name="email_to">{{ object.owner_id.email }}</field>
     </record>
 </data></odoo>

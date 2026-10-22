@@ -99,7 +99,15 @@ class MfgApprovalStep(models.Model):
         "金額幣別",
         default=lambda self: self.env.company.currency_id,
     )
-    required = fields.Boolean("必經關卡", default=True)
+    required = fields.Boolean(
+        "必經關卡",
+        default=True,
+        help=(
+            "必經關卡：若解析不到任何簽核者，送出簽核時會直接報錯，"
+            "避免單據在無人簽核的情況下通過。"
+            "取消勾選後，解析不到簽核者的關卡會被略過。"
+        ),
+    )
     note = fields.Char("說明")
 
     _step_rule_idx = models.Index("(rule_id, sequence)")

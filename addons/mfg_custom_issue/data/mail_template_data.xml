@@ -12,6 +12,8 @@
     <li>MO：<t t-out="object.production_id.name or ''"/></li>
 </ul>
         ]]></field>
+        <!-- 收件人由 template 指定（問題点負責人），不採用預設追隨者 -->
+        <field name="use_default_to" eval="False"/>
         <field name="email_to">{{ object.user_id.email }}</field>
     </record>
 </data></odoo>

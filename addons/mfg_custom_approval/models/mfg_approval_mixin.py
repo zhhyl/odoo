@@ -78,7 +78,8 @@ class MfgApprovalMixin(models.AbstractModel):
     def _get_approval_rule_domain(self):
         """子模型可覆寫：回傳用以匹配 ``approval.rule`` 的額外 domain。
 
-        預設回傳空 list。回傳值會以 AND 方式加入 rule 本身的 domain。
+        預設回傳空 list。回傳值會以 AND 方式加入 rule 本身的 domain，
+        由 ``mfg_custom.approval.rule._match_rule()`` 呼叫。
         """
         return []
 
@@ -188,6 +189,13 @@ class MfgApprovalMixin(models.AbstractModel):
                 raise UserError(
                     self.env._(
                         "簽核單已是 %s 狀態，無法取消", rec.approval_request_id.state
+                    )
+                )
+            if rec.approval_request_id.state == "rejected":
+                # 已駁回的簽核單請改用「重新送出簽核」重啟流程
+                raise UserError(
+                    self.env._(
+                        "簽核單已被駁回，請直接重新送出簽核以重啟流程。"
                     )
                 )
             rec.approval_request_id.action_cancel()

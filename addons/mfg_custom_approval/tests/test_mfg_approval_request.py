@@ -49,7 +49,7 @@ class TestMfgApprovalRequest(TransactionCase):
 
     def test_sequential_approval_full_pass(self):
         """三個 user-mode 關卡依序簽完，request 進入 approved。"""
-        rule = self._make_rule([
+        self._make_rule([
             {"name": "S1", "approver_mode": "user", "user_ids": [Command.set([self.user_a.id])]},
             {"name": "S2", "approver_mode": "user", "user_ids": [Command.set([self.user_b.id])]},
             {"name": "S3", "approver_mode": "user", "user_ids": [Command.set([self.user_c.id])]},
@@ -78,7 +78,7 @@ class TestMfgApprovalRequest(TransactionCase):
 
     def test_reject_short_circuits(self):
         """任一關卡駁回後，request 直接進入 rejected，後續關卡不再觸發。"""
-        rule = self._make_rule([
+        self._make_rule([
             {"name": "S1", "approver_mode": "user", "user_ids": [Command.set([self.user_a.id])]},
             {"name": "S2", "approver_mode": "user", "user_ids": [Command.set([self.user_b.id])]},
         ])

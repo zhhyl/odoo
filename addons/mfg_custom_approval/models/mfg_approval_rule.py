@@ -1,10 +1,13 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 import ast
+import logging
 
 from odoo import _, api, fields, models
 from odoo.exceptions import ValidationError
 from odoo.fields import Domain
+
+_logger = logging.getLogger(__name__)
 
 
 class MfgApprovalRule(models.Model):
@@ -30,6 +33,14 @@ class MfgApprovalRule(models.Model):
         required=True,
         ondelete="cascade",
         index=True,
+        # 下拉只列出已掛載簽核功能（且非測試用）的模型
+        domain=lambda env: [
+            (
+                "model",
+                "in",
+                env["mfg_custom.approval.rule"]._get_selectable_models(),
+            )
+        ],
         help="要套用此簽核流程的單據類型。只能選擇已掛載簽核功能的單據。",
     )
     res_model = fields.Char(
@@ -106,6 +117,21 @@ class MfgApprovalRule(models.Model):
             if not cls._abstract and issubclass(cls, mixin_cls)
         )
 
+    @api.model
+    def _get_selectable_models(self):
+        """回傳管理者在「適用單據類型」下拉選單中可選的模型。
+
+        與 ``_get_approvable_models()`` 的差別：測試用模型
+        （標記 ``_mfg_custom_approval_hidden``）不在此清單中，
+        避免正式環境的管理介面出現測試模型。
+        """
+        hidden = {
+            name
+            for name, cls in self.env.registry.models.items()
+            if getattr(cls, "_mfg_custom_approval_hidden", False)
+        }
+        return [name for name in self._get_approvable_models() if name not in hidden]
+
     @api.constrains("model_id")
     def _check_model_is_approvable(self):
         """規則只能套用在已掛載簽核 mixin 的模型上。"""
@@ -138,6 +164,42 @@ class MfgApprovalRule(models.Model):
                 raise ValidationError(
                     self.env._("簽核規則 domain 必須是 list 或 tuple")
                 )
+            rec._check_domain_fields(parsed)
+
+    def _check_domain_fields(self, parsed):
+        """確認 domain 中引用的欄位確實存在於規則適用的模型。
+
+        domain 錯誤會讓單據表單在計算「符合的簽核規則」時直接拋錯，
+        因此在儲存規則時就擋下，避免整張單據開不起來。
+        """
+        self.ensure_one()
+        if not self.res_model:
+            return True
+        model_fields = set(
+            self.env["ir.model.fields"]._get_fields_cached(self.res_model)
+        )
+        for leaf in parsed:
+            if (
+                isinstance(leaf, (list, tuple))
+                and len(leaf) == 3
+                and isinstance(leaf[0], str)
+            ):
+                name = leaf[0]
+                if name not in model_fields and name not in (
+                    "id", "create_uid", "write_uid", "create_date", "write_date",
+                    "display_name",
+                ):
+                    raise ValidationError(
+                        self.env._(
+                            "簽核規則的適用條件使用了不存在的欄位「%s」"
+                            "（模型：%s）",
+                            name,
+                            self.res_model,
+                        )
+                    )
+            elif isinstance(leaf, (list, tuple)):
+                self._check_domain_fields(leaf)
+        return True
 
     @api.model
     def _match_rule(self, res_model, record):
@@ -157,11 +219,30 @@ class MfgApprovalRule(models.Model):
             ],
             order="sequence asc, id asc",
         )
+        # 單據端可透過 _get_approval_rule_domain() 追加額外條件（與規則 domain 取 AND）
+        extra_domain = []
+        getter = getattr(record, "_get_approval_rule_domain", None)
+        if callable(getter):
+            extra_domain = getter() or []
         for rule in rules:
-            extra = rule._parse_domain()
-            if extra is None:
+            rule_domain = rule._parse_domain()
+            if rule_domain is None:
                 continue
-            if record.filtered_domain(Domain.AND([extra])):
+            domains = [rule_domain]
+            if extra_domain:
+                domains.append(Domain(extra_domain))
+            try:
+                matched = record.filtered_domain(Domain.AND(domains))
+            except ValueError as err:
+                # domain 引用了不存在的欄位：略過這條規則，
+                # 不可讓整張單據的表單開不起來（錯誤已於儲存規則時擋下）
+                _logger.warning(
+                    "mfg_custom.approval: 規則「%s」的適用條件無法套用：%s",
+                    rule.display_name,
+                    err,
+                )
+                continue
+            if matched:
                 return rule
         return self.browse()
 

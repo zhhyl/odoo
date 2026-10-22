@@ -157,12 +157,24 @@ class MfgApprovalRequest(models.Model):
                     self.env._("業務模型 %s 不存在", rec.res_model)
                 )
 
-    @api.depends("line_ids.user_id", "line_ids.decision")
+    @api.depends(
+        "line_ids.user_id",
+        "line_ids.decision",
+        "line_ids.step_id",
+        "current_step_id",
+    )
     def _compute_pending_approver_emails(self):
+        """目前關卡的待簽核者信箱（供通知信使用）。
+
+        只取「當前關卡」的待簽核者，避免在送出簽核時就一次寄給後續所有關卡。
+        """
         for rec in self:
-            users = rec.line_ids.filtered(
+            step = rec.current_step_id
+            lines = rec.line_ids.filtered(
                 lambda ln: ln.decision == "pending"
-            ).mapped("user_id")
+                and (not step or ln.step_id == step)
+            )
+            users = lines.mapped("user_id")
             rec.pending_approver_emails = ", ".join(
                 [email for email in users.mapped("email") if email]
             )
@@ -171,8 +183,12 @@ class MfgApprovalRequest(models.Model):
     def _compute_res_display_name(self):
         for rec in self:
             record = rec._get_res_record()
+            # 以 sudo 讀取：簽核單本身對一般使用者可讀，
+            # 不應因核准者無權讀取該業務單據而開不起簽核單。
             rec.res_display_name = (
-                record.display_name if record and record.exists() else False
+                record.sudo().display_name
+                if record and record.exists()
+                else False
             )
 
     def action_open_res_record(self):
@@ -205,6 +221,9 @@ class MfgApprovalRequest(models.Model):
                 ("res_id", "=", vals.get("res_id")),
                 ("state", "=", "pending"),
             ]
+            company = vals.get("company_id")
+            if company:
+                domain.append(("company_id", "=", company))
             if self.search_count(domain):
                 raise ValidationError(
                     self.env._("此單據已有進行中的簽核申請，請先取消或重置後再送出")
@@ -325,7 +344,7 @@ class MfgApprovalRequest(models.Model):
             })
             if rec_reason:
                 rec.write({"reason": rec_reason})
-            rec._post_step_progress_message(step, note=rec_reason)
+            rec._post_step_progress_message(step, note=rec_reason, approved=False)
             rec._engine_write({"state": "rejected"})
             rec._notify_business_record("_approval_on_rejected")
             rec._notify_decision()
@@ -336,6 +355,10 @@ class MfgApprovalRequest(models.Model):
             if rec.state in ("approved", "rejected", "cancelled"):
                 continue
             rec._engine_write({"state": "cancelled"})
+            rec.sudo().message_post(
+                body=self.env._("簽核申請已取消"),
+                subtype_xmlid="mfg_custom_approval.mt_mfg_approval_request_state",
+            )
             rec._notify_business_record("_approval_on_cancelled")
             rec._notify_decision()
 
@@ -530,7 +553,7 @@ class MfgApprovalRequest(models.Model):
                 hook()
 
     def _notify_approvers(self):
-        """通知目前關卡的簽核者有待辦。"""
+        """通知目前關卡的簽核者有待辦（只通知當前關卡，不會一次寄給後續關卡）。"""
         for rec in self:
             if rec.state != "pending" or not rec.pending_approver_emails:
                 continue
@@ -553,8 +576,12 @@ class MfgApprovalRequest(models.Model):
             if template:
                 template.send_mail(rec.id, force_send=False)
 
-    def _post_step_progress_message(self, step, note=""):
-        """在 chatter 紀錄當前關卡進度。"""
+    def _post_step_progress_message(self, step, note="", approved=True):
+        """在 chatter 紀錄當前關卡進度。
+
+        業務單據與簽核單各自留一份紀錄：業務單據記錄流程進度，
+        簽核單則記錄「哪個關卡由誰做了什麼決定」。
+        """
         self.ensure_one()
         record = self._get_res_record()
         if record and hasattr(record, "message_post"):
@@ -569,6 +596,24 @@ class MfgApprovalRequest(models.Model):
                 body=body,
                 subtype_xmlid="mfg_custom_approval.mt_mfg_approval_state_changed",
             )
+        if approved:
+            request_body = self.env._(
+                "關卡「%s」已由 %s 核准",
+                step.display_name,
+                self.env.user.display_name,
+            )
+        else:
+            request_body = self.env._(
+                "關卡「%s」已由 %s 駁回",
+                step.display_name,
+                self.env.user.display_name,
+            )
+        if note:
+            request_body += self.env._("\n意見：%s", note)
+        self.sudo().message_post(
+            body=request_body,
+            subtype_xmlid="mfg_custom_approval.mt_mfg_approval_request_state",
+        )
 
     def _post_final_approved_message(self):
         self.ensure_one()
@@ -578,3 +623,7 @@ class MfgApprovalRequest(models.Model):
                 body=self.env._("所有簽核關卡皆已通過，狀態：已核准"),
                 subtype_xmlid="mfg_custom_approval.mt_mfg_approval_state_changed",
             )
+        self.sudo().message_post(
+            body=self.env._("所有簽核關卡皆已通過，狀態：已核准"),
+            subtype_xmlid="mfg_custom_approval.mt_mfg_approval_request_state",
+        )

@@ -31,7 +31,9 @@ class TestMfgApprovalGate(TransactionCase):
             "mfg_custom.approval.test.model"
         ).id
 
-    def _make_rule(self, name="Gate Rule", steps=None, company=None, sequence=10):
+    def _make_rule(
+        self, name="Gate Rule", steps=None, company=None, sequence=10, domain=None
+    ):
         if steps is None:
             steps = [{
                 "name": "S1",
@@ -42,6 +44,7 @@ class TestMfgApprovalGate(TransactionCase):
             "name": name,
             "model_id": self.model_id,
             "sequence": sequence,
+            "domain": domain or False,
             "company_id": company.id if company else self.env.company.id,
             "step_ids": [Command.create(s) for s in steps],
         })
@@ -267,6 +270,28 @@ class TestMfgApprovalGate(TransactionCase):
     # ------------------------------------------------------------------
     # 金額門檻：一般 Float 欄位（Odoo 20 只有 Monetary 有幣別換算）
     # ------------------------------------------------------------------
+
+    def test_14_selectable_models_exclude_test_model(self):
+        """管理者可選的單據類型不得包含測試用模型，但規則仍可對它建立。"""
+        selectable = self.Rule._get_selectable_models()
+        approvable = self.Rule._get_approvable_models()
+        self.assertNotIn("mfg_custom.approval.test.model", selectable)
+        self.assertIn("mfg_custom.approval.test.model", approvable)
+
+    def test_15_rule_domain_field_must_exist(self):
+        """規則的適用條件若引用不存在的欄位，儲存時即報錯（避免單據表單開不起來）。"""
+        with self.assertRaises(ValidationError):
+            self._make_rule(domain="[('no_such_field', '=', 1)]")
+
+    def test_16_business_model_can_add_extra_domain(self):
+        """單據端可透過 _get_approval_rule_domain() 追加條件（與規則 domain 取 AND）。"""
+        self._make_rule(domain="[('state', '=', 'confirmed')]")
+        rec = self.TestModel.create({"state": "confirmed"})
+        self.assertTrue(self.Rule._match_rule("mfg_custom.approval.test.model", rec))
+        rec2 = self.TestModel.create({"state": "draft"})
+        self.assertFalse(
+            self.Rule._match_rule("mfg_custom.approval.test.model", rec2)
+        )
 
     def test_13_float_amount_threshold_works(self):
         """金額門檻套用在 Float 欄位時不應拋 AttributeError。"""

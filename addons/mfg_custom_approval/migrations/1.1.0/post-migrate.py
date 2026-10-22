@@ -69,6 +69,14 @@ def migrate(cr, version):
         step = Step.browse(step_id)
         if step.approver_field_id:
             continue
+        if not step.rule_id.res_model:
+            _logger.warning(
+                "mfg_custom_approval: 關卡 #%s 的規則未指定 model_id，"
+                "無法回填 approver_field（%s），請手動設定。",
+                step_id,
+                field_name,
+            )
+            continue
         field = IrModelFields.search(
             [("model", "=", step.rule_id.res_model), ("name", "=", field_name)],
             limit=1,
@@ -81,6 +89,14 @@ def migrate(cr, version):
     ):
         step = Step.browse(step_id)
         if step.amount_field_id:
+            continue
+        if not step.rule_id.res_model:
+            _logger.warning(
+                "mfg_custom_approval: 關卡 #%s 的規則未指定 model_id，"
+                "無法回填 amount_field（%s），請手動設定。",
+                step_id,
+                field_name,
+            )
             continue
         field = IrModelFields.search(
             [("model", "=", step.rule_id.res_model), ("name", "=", field_name)],

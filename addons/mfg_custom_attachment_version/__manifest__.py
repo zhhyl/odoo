@@ -22,13 +22,13 @@ MFG Custom - Attachment Version
 * 由 ECO 流程觸發的「跳版」輔助方法：`_mfg_custom_bump_version`。
 
 文件類型（``mfg_custom_doc_type``）
----------------------------------
+-----------------------------------
 
 ``customer_spec`` / ``drawing`` / ``acknowledgement`` / ``coa`` /
 ``tool_drawing`` / ``internal`` / ``other``。
 
 文件狀態（``mfg_custom_doc_state``）
-----------------------------------
+------------------------------------
 
 ``draft`` → ``in_review`` → ``released``；被取代或退版時轉為 ``obsolete``。
 """,

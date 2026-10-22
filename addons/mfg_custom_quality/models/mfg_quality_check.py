@@ -248,7 +248,24 @@ class MfgQualityCheck(models.Model):
                 ),
             )
         self.write(vals)
+        self._notify_check_failed()
         return True
+
+    def _notify_check_failed(self):
+        """判定不合格時，以電子郵件通知相關負責人。
+
+        只在狀態真的轉為 ``failed`` 時寄信；重複呼叫不會再寄。
+        """
+        self.ensure_one()
+        if self.state != "failed":
+            return
+        template = self.env.ref(
+            "mfg_custom_quality.mail_template_mfg_quality_check_failed",
+            raise_if_not_found=False,
+        )
+        if not template:
+            return
+        template.send_mail(self.id, force_send=False)
 
     def action_conditional(self):
         """特採（讓步接收）。不擋後續入庫。"""
