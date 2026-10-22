@@ -56,8 +56,14 @@ class MfgApprovalRule(models.Model):
         ondelete="cascade",
         index=True,
         # 下拉只列出已掛載簽核功能（且非測試用）的模型
-        domain=lambda env: [
-            ("model", "in", _approvable_model_names(env, selectable_only=True))
+        # callable domain 收到的是「欄位所屬模型」的 recordset（見
+        # odoo/orm/fields_relational.py 的 _internal_description_domain_raw）
+        domain=lambda recs: [
+            (
+                "model",
+                "in",
+                _approvable_model_names(recs.env, selectable_only=True),
+            )
         ],
         help="要套用此簽核流程的單據類型。只能選擇已掛載簽核功能的單據。",
     )
