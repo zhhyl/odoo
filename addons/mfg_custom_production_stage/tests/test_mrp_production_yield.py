@@ -173,9 +173,9 @@ class TestMrpProductionYield(TestMrpCommon):
         finished.write({"state": "done", "quantity": 10.0})
         mo_done.write({"state": "done"})
         # 模擬 done 後有人改產量 → 9 件
+        # yield 為 store 欄位且依賴 move 的數量，改完即時重算為 90%
         finished.write({"quantity": 9.0})
-        # 此時 yield 仍為 100（compute 尚未重跑）
-        self.assertEqual(mo_done.mfg_custom_yield_rate, 100.0)
+        self.assertAlmostEqual(mo_done.mfg_custom_yield_rate, 90.0, places=2)
         # 觸發 cron
         result = self.env["mrp.production"]._cron_recompute_mfg_custom_yield_rate()
         self.assertTrue(result)

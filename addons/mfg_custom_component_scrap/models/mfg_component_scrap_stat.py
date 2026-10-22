@@ -142,7 +142,7 @@ class MfgCustomComponentScrapStat(models.Model):
                     sm.id                                 AS scrap_move_id,
                     sm.raw_material_production_id         AS production_id,
                     sm.product_id                         AS component_product_id,
-                    sm.product_qty                        AS scrapped_qty,
+                    COALESCE(sm.quantity, sm.product_uom_qty, 0) AS scrapped_qty,
                     sm.date                               AS scrap_date,
                     sm.create_uid                         AS scrap_user_id,
                     mo.bom_id                             AS bom_id,
@@ -163,7 +163,7 @@ class MfgCustomComponentScrapStat(models.Model):
                              AND (bl.product_qty * mo.product_qty / bom.product_qty)
                                  > 0
                         THEN
-                            sm.product_qty
+                            COALESCE(sm.quantity, sm.product_uom_qty, 0)
                             / (bl.product_qty * (mo.product_qty / bom.product_qty))
                             * 100
                         ELSE 0
@@ -177,7 +177,7 @@ class MfgCustomComponentScrapStat(models.Model):
                         THEN
                             100.0
                             - (
-                                sm.product_qty
+                                COALESCE(sm.quantity, sm.product_uom_qty, 0)
                                 / (bl.product_qty * (mo.product_qty / bom.product_qty))
                                 * 100
                             )
@@ -192,7 +192,7 @@ class MfgCustomComponentScrapStat(models.Model):
                     ON bl.bom_id = bom.id
                     AND bl.product_id = sm.product_id
                 LEFT JOIN LATERAL (
-                    SELECT SUM(sm2.product_qty) AS total_consumed
+                    SELECT SUM(COALESCE(sm2.quantity, sm2.product_uom_qty, 0)) AS total_consumed
                     FROM stock_move sm2
                     WHERE sm2.raw_material_production_id = sm.raw_material_production_id
                       AND sm2.product_id = sm.product_id

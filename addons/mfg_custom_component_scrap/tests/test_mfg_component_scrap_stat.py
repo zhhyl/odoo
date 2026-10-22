@@ -100,6 +100,8 @@ class TestMfgComponentScrapStat(TestMrpCommon):
             "product_id": component.id,
             "uom_id": component.uom_id.id,
             "product_uom_qty": qty,
+            # 直接建立 done 的 move 時，實際完成數量需自行指定
+            "quantity": qty,
             "raw_material_production_id": mo.id,
             "is_scrap": True,
             "state": "done",
@@ -223,6 +225,7 @@ class TestMfgComponentScrapStat(TestMrpCommon):
                 "product_id": self.product_comp_a.id,
                 "uom_id": self.product_comp_a.uom_id.id,
                 "product_uom_qty": 5.0,
+                "quantity": 5.0,
                 "raw_material_production_id": mo.id,
                 "is_scrap": False,
                 "state": "done",
