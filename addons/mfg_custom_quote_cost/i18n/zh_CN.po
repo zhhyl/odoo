@@ -1,0 +1,327 @@
+# Chinese (Simplified) translation of Odoo Server module mfg_custom_quote_cost.
+# This file contains the translation of the following modules:
+# 	* mfg_custom_quote_cost
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 20.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 09:42+0000\n"
+"PO-Revision-Date: 2026-10-26 09:42+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: mfg_custom_quote_cost
+#: model:ir.module.module,description:base.module_mfg_custom_quote_cost
+msgid "\nMFG Custom - Quote BOM Cost Explosion\n=====================================\n\n報價階段的 BOM 成本自動展開：\n\n* SO line 從主 BOM 遞迴展開所有元件\n* 每筆元件帶入標準成本、計算小計\n* 工序成本 =（``time_cycle`` × 數量 ÷ 60）× ``workcenter.costs_hour``\n* 自動計算 ``成本底價`` 與 ``建議報價`` （依目標毛利率）\n\n取代 OCA ``sale_mrp_cost`` （不需 backport）。\n"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#. odoo-python
+#: code:addons/mfg_custom_quote_cost/models/mfg_quote_cost_wizard.py:0
+msgid "%s 找不到 BOM，無法展開成本"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields,help:mfg_custom_quote_cost.field_mfg_custom_quote_cost_line__level
+msgid "BOM 展開層級，0=主件本身。"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields.selection,name:mfg_custom_quote_cost.selection__mfg_custom_quote_cost_line__source__bom
+msgid "BOM 自動"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_line__create_uid
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_wizard__create_uid
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_wizard_line__create_uid
+msgid "Created by"
+msgstr "创建人"
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_line__create_date
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_wizard__create_date
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_wizard_line__create_date
+msgid "Created on"
+msgstr "创建于"
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_line__currency_id
+msgid "Currency"
+msgstr "币别"
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_line__display_name
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_wizard__display_name
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_wizard_line__display_name
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_sale_order_line__display_name
+msgid "Display Name"
+msgstr "‎显示名称‎"
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_line__id
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_wizard__id
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_wizard_line__id
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_sale_order_line__id
+msgid "ID"
+msgstr "ID"
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_line__write_uid
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_wizard__write_uid
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_wizard_line__write_uid
+msgid "Last Updated by"
+msgstr "上一更新人"
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_line__write_date
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_wizard__write_date
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_wizard_line__write_date
+msgid "Last Updated on"
+msgstr "上一更新日期"
+
+#. module: mfg_custom_quote_cost
+#: model:ir.module.module,shortdesc:base.module_mfg_custom_quote_cost
+msgid "MFG Custom - Quote BOM Cost Explosion"
+msgstr "MFG Custom - Quote BOM Cost Explosion"
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_wizard_line__product_id
+msgid "Product"
+msgstr "产品"
+
+#. module: mfg_custom_quote_cost
+#: model:ir.module.module,summary:base.module_mfg_custom_quote_cost
+msgid "SO line 自動從 BOM 展成本 / 加工費 / 包裝費，產生報價底價"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_wizard__sale_order_id
+msgid "Sale Order"
+msgstr "销售订单"
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_line__sale_order_line_id
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_wizard_line__sale_order_line_id
+msgid "Sale Order Line"
+msgstr "销售订单明细"
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model,name:mfg_custom_quote_cost.model_sale_order_line
+msgid "Sales Order Line"
+msgstr "销售订单明细"
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_line__sequence
+msgid "Sequence"
+msgstr "单号规则"
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_line__source
+msgid "Source"
+msgstr "来源"
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_wizard_line__wizard_id
+msgid "Wizard"
+msgstr "向导"
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields.selection,name:mfg_custom_quote_cost.selection__mfg_custom_quote_cost_line__cost_type__labor
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quote_cost.mfg_quote_cost_line_view_search
+msgid "人工"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quote_cost.mfg_quote_cost_line_view_search
+msgid "依成本類型"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_line__note
+msgid "備註"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_line__product_id
+msgid "元件"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields.selection,name:mfg_custom_quote_cost.selection__mfg_custom_quote_cost_line__cost_type__other
+msgid "其他"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields.selection,name:mfg_custom_quote_cost.selection__mfg_custom_quote_cost_line__cost_type__packaging
+msgid "包裝"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quote_cost.mfg_quote_cost_wizard_view_form
+msgid "取消"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_line__uom_id
+msgid "單位"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_line__unit_cost
+msgid "單價"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model_terms:ir.actions.act_window,help:mfg_custom_quote_cost.mfg_quote_cost_line_action
+msgid "報價 BOM 展開後的成本明細。"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model,name:mfg_custom_quote_cost.model_mfg_custom_quote_cost_wizard
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quote_cost.mfg_quote_cost_wizard_view_form
+msgid "報價 BOM 成本展開"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model:ir.actions.act_window,name:mfg_custom_quote_cost.mfg_quote_cost_line_action
+#: model:ir.ui.menu,name:mfg_custom_quote_cost.menu_mfg_quote_cost
+msgid "報價成本展開"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model,name:mfg_custom_quote_cost.model_mfg_custom_quote_cost_wizard_line
+msgid "報價成本展開 wizard 行"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model,name:mfg_custom_quote_cost.model_mfg_custom_quote_cost_line
+msgid "報價成本展開明細"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields.selection,name:mfg_custom_quote_cost.selection__mfg_custom_quote_cost_line__cost_type__subcontract
+msgid "委外加工"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_line__subtotal
+msgid "小計"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_wizard_line__include
+msgid "展開"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quote_cost.mfg_quote_cost_wizard_view_form
+msgid "展開成本"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_line__level
+msgid "層級"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#. odoo-python
+#: code:addons/mfg_custom_quote_cost/models/mfg_quote_cost_wizard.py:0
+msgid "工序 %s %.2fmin × %.2f 單位"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_sale_order_line__mfg_custom_suggested_price
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quote_cost.sale_order_line_view_tree_inherit_mfg_quote_cost
+msgid "建議報價"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields,help:mfg_custom_quote_cost.field_sale_order_line__mfg_custom_target_margin_percent
+msgid "建議報價 = 成本底價 / (1 - 毛利率%)"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_sale_order_line__mfg_custom_cost_explosion_ids
+msgid "成本展開"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quote_cost.mfg_quote_cost_line_view_tree
+msgid "成本展開明細"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model:mail.message.subtype,name:mfg_custom_quote_cost.mt_mfg_quote_cost_exploded
+msgid "成本展開更新"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_sale_order_line__mfg_custom_cost_explosion_total
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quote_cost.sale_order_line_view_tree_inherit_mfg_quote_cost
+msgid "成本底價"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_line__cost_type
+msgid "成本類型"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields.selection,name:mfg_custom_quote_cost.selection__mfg_custom_quote_cost_line__source__manual
+msgid "手動加成"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quote_cost.mfg_quote_cost_line_view_search
+msgid "搜尋成本展開"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_line__product_qty
+msgid "數量"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_sale_order_line__mfg_custom_cost_explosion_date
+msgid "最後展開時間"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields.selection,name:mfg_custom_quote_cost.selection__mfg_custom_quote_cost_line__cost_type__material
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quote_cost.mfg_quote_cost_line_view_search
+msgid "材料"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model:mail.message.subtype,description:mfg_custom_quote_cost.mt_mfg_quote_cost_exploded
+msgid "當 SO line 的成本被重新展開時通知。"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_sale_order_line__mfg_custom_target_margin_percent
+msgid "目標毛利率 %"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields.selection,name:mfg_custom_quote_cost.selection__mfg_custom_quote_cost_line__cost_type__overhead
+msgid "製造費用"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#: model:ir.model.fields,field_description:mfg_custom_quote_cost.field_mfg_custom_quote_cost_wizard__line_ids
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quote_cost.mfg_quote_cost_wizard_view_form
+msgid "要展開的明細"
+msgstr ""
+
+#. module: mfg_custom_quote_cost
+#. odoo-python
+#: code:addons/mfg_custom_quote_cost/models/mfg_quote_cost_wizard.py:0
+msgid "請至少勾選一筆明細展開"
+msgstr ""

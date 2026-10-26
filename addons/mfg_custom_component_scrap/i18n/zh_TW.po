@@ -1,0 +1,227 @@
+# Chinese (Traditional) translation of Odoo Server module mfg_custom_component_scrap.
+# This file contains the translation of the following modules:
+# 	* mfg_custom_component_scrap
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 20.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 09:42+0000\n"
+"PO-Revision-Date: 2026-10-26 09:42+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: zh_TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: mfg_custom_component_scrap
+#: model:ir.module.module,description:base.module_mfg_custom_component_scrap
+msgid "\nMFG Custom - Component Scrap Stat\n=================================\n\n以 SQL View 聚合 ``stock.move(is_scrap=True, state='done', raw_material_production_id)``，\n提供「每張 MO × 每個 BOM 子件」的報廢分析：\n\n* 標準用量（從 BOM 推算）\n* 實際消耗（從同 MO 的非報廢 stock.move 加總）\n* 報廢數量\n* 報廢率（%）\n* 有效得料率（%）\n\n提供 list / pivot / graph / search view，給業務、品保做 RCA（root cause analysis）。\n\n注意\n----\n\n* 需搭配 ``mfg_custom_production_stage`` 才能在 mfg_custom 選單下顯示。\n* Odoo 20.0 的 ``stock.scrap`` 已改為 ``stock.move(is_scrap=True)`` 旗標；本模組的 SQL\n  僅過濾 ``is_scrap = TRUE`` 的 stock.move，與原始 stock.scrap 流程等價。\n* 報廢率 = 報廢數量 / 標準用量；標準用量 = BOM 子件用量 * (MO 數量 / BOM 數量)。\n* 若 BOM 子件不存在或標準用量 = 0，報廢率視為 0、有效得料率視為 100。\n"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model:ir.model.fields,help:mfg_custom_component_scrap.field_mfg_custom_component_scrap_stat__effective_yield
+msgid "= 100 - 報廢率。"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model:ir.model.fields,help:mfg_custom_component_scrap.field_mfg_custom_component_scrap_stat__standard_qty
+msgid "= BOM 子件用量 * (MO 數量 / BOM 數量)。"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model:ir.model.fields,help:mfg_custom_component_scrap.field_mfg_custom_component_scrap_stat__actual_consumed_qty
+msgid "= 同 MO、同產品的非報廢 stock.move (state='done') 數量加總。"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model:ir.model.fields,help:mfg_custom_component_scrap.field_mfg_custom_component_scrap_stat__scrap_rate
+msgid "= 報廢數量 / 標準用量 * 100。"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model:ir.model.fields,field_description:mfg_custom_component_scrap.field_mfg_custom_component_scrap_stat__bom_id
+msgid "BOM"
+msgstr "BOM"
+
+#. module: mfg_custom_component_scrap
+#: model_terms:ir.ui.view,arch_db:mfg_custom_component_scrap.mfg_component_scrap_stat_view_form
+#: model_terms:ir.ui.view,arch_db:mfg_custom_component_scrap.mfg_component_scrap_stat_view_list
+msgid "BOM 子件報廢"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model_terms:ir.ui.view,arch_db:mfg_custom_component_scrap.mfg_component_scrap_stat_view_pivot
+msgid "BOM 子件報廢分析"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model:ir.actions.act_window,name:mfg_custom_component_scrap.mfg_component_scrap_stat_action
+#: model:ir.model,name:mfg_custom_component_scrap.model_mfg_custom_component_scrap_stat
+msgid "BOM 子件報廢統計"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model_terms:ir.ui.view,arch_db:mfg_custom_component_scrap.mfg_component_scrap_stat_view_graph
+msgid "BOM 子件報廢走勢"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model:ir.ui.menu,name:mfg_custom_component_scrap.menu_mfg_custom_scrap_stat
+msgid "BOM 子件損耗"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model:ir.model.fields,field_description:mfg_custom_component_scrap.field_mfg_custom_component_scrap_stat__bom_line_id
+msgid "BOM 明細"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model:ir.model.fields,field_description:mfg_custom_component_scrap.field_mfg_custom_component_scrap_stat__display_name
+msgid "Display Name"
+msgstr "顯示名稱"
+
+#. module: mfg_custom_component_scrap
+#: model:ir.model.fields,field_description:mfg_custom_component_scrap.field_mfg_custom_component_scrap_stat__id
+msgid "ID"
+msgstr "ID"
+
+#. module: mfg_custom_component_scrap
+#: model:ir.module.module,shortdesc:base.module_mfg_custom_component_scrap
+msgid "MFG Custom - Component Scrap Stat"
+msgstr "MFG Custom - Component Scrap Stat"
+
+#. module: mfg_custom_component_scrap
+#: model:ir.model.fields,field_description:mfg_custom_component_scrap.field_mfg_custom_component_scrap_stat__primary_reason_tag_id
+msgid "主要原因"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model:ir.model.fields,field_description:mfg_custom_component_scrap.field_mfg_custom_component_scrap_stat__scrap_move_id
+msgid "報廢 stock.move"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model:ir.model.fields,field_description:mfg_custom_component_scrap.field_mfg_custom_component_scrap_stat__scrap_reason_tag_ids
+msgid "報廢原因"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model_terms:ir.ui.view,arch_db:mfg_custom_component_scrap.mfg_component_scrap_stat_view_form
+msgid "報廢單"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model_terms:ir.ui.view,arch_db:mfg_custom_component_scrap.mfg_component_scrap_stat_view_graph
+msgid "報廢數"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model:ir.model.fields,field_description:mfg_custom_component_scrap.field_mfg_custom_component_scrap_stat__scrapped_qty
+msgid "報廢數量"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model:ir.model.fields,field_description:mfg_custom_component_scrap.field_mfg_custom_component_scrap_stat__scrap_date
+msgid "報廢日期"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model:ir.model.fields,field_description:mfg_custom_component_scrap.field_mfg_custom_component_scrap_stat__scrap_rate
+msgid "報廢率 %"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model:ir.model.fields,field_description:mfg_custom_component_scrap.field_mfg_custom_component_scrap_stat__scrap_user_id
+msgid "報廢者"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model:ir.ui.menu,name:mfg_custom_component_scrap.menu_mfg_custom_scrap_stat_root
+msgid "報表"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model:ir.model.fields,field_description:mfg_custom_component_scrap.field_mfg_custom_component_scrap_stat__actual_consumed_qty
+msgid "實際消耗"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model_terms:ir.ui.view,arch_db:mfg_custom_component_scrap.mfg_component_scrap_stat_view_form
+msgid "工單 / BOM"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model_terms:ir.ui.view,arch_db:mfg_custom_component_scrap.mfg_component_scrap_stat_view_pivot
+msgid "平均報廢率"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model_terms:ir.ui.view,arch_db:mfg_custom_component_scrap.mfg_component_scrap_stat_view_pivot
+msgid "平均有效得料率"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model_terms:ir.actions.act_window,help:mfg_custom_component_scrap.mfg_component_scrap_stat_action
+msgid "從 stock.move(is_scrap=True) 聚合每張 MO × 每個 BOM 子件的標準用量、實際消耗、報廢率、有效得料率。用於找出最容易壞的零件、影響良率最大的工單。"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model:ir.model.fields,field_description:mfg_custom_component_scrap.field_mfg_custom_component_scrap_stat__finished_product_id
+msgid "成品"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model_terms:ir.ui.view,arch_db:mfg_custom_component_scrap.mfg_component_scrap_stat_view_form
+msgid "數量分析"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model:ir.model.fields,field_description:mfg_custom_component_scrap.field_mfg_custom_component_scrap_stat__effective_yield
+msgid "有效得料率 %"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model:ir.model.fields,field_description:mfg_custom_component_scrap.field_mfg_custom_component_scrap_stat__standard_qty
+msgid "標準用量"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model_terms:ir.ui.view,arch_db:mfg_custom_component_scrap.mfg_component_scrap_stat_view_form
+msgid "比率分析"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model_terms:ir.ui.view,arch_db:mfg_custom_component_scrap.mfg_component_scrap_stat_view_list
+#: model_terms:ir.ui.view,arch_db:mfg_custom_component_scrap.mfg_component_scrap_stat_view_pivot
+msgid "總報廢數"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model_terms:ir.ui.view,arch_db:mfg_custom_component_scrap.mfg_component_scrap_stat_view_list
+#: model_terms:ir.ui.view,arch_db:mfg_custom_component_scrap.mfg_component_scrap_stat_view_pivot
+msgid "總實際消耗"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model_terms:ir.ui.view,arch_db:mfg_custom_component_scrap.mfg_component_scrap_stat_view_list
+#: model_terms:ir.ui.view,arch_db:mfg_custom_component_scrap.mfg_component_scrap_stat_view_pivot
+msgid "總標準用量"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model:ir.module.module,summary:base.module_mfg_custom_component_scrap
+msgid "聚合 BOM 子件報廢統計（哪個零件最常壞、報廢率、影響良率）"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model:ir.model.fields,field_description:mfg_custom_component_scrap.field_mfg_custom_component_scrap_stat__production_id
+msgid "製造工單"
+msgstr ""
+
+#. module: mfg_custom_component_scrap
+#: model:ir.model.fields,field_description:mfg_custom_component_scrap.field_mfg_custom_component_scrap_stat__component_product_id
+msgid "零件"
+msgstr ""

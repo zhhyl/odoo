@@ -1,0 +1,558 @@
+# Chinese (Simplified) translation of Odoo Server module plm_custom_bom_version.
+# This file contains the translation of the following modules:
+# 	* plm_custom_bom_version
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 20.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 09:42+0000\n"
+"PO-Revision-Date: 2026-10-26 09:42+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: plm_custom_bom_version
+#: model:ir.module.module,description:base.module_plm_custom_bom_version
+msgid "\nPLM Custom - BOM Version Snapshot\n=================================\n\n為 ``mrp.bom`` 提供 immutable 版本快照機制，取代 OCA ``mrp_bom_version``：\n\n* BOM 可手動或 ECO 觸發「凍結快照」\n* 快照為 immutable（防止事後竄改）\n* 提供「現行快照」smart button 與「歷史版本」清單\n* 快照含明細、工序、副產品三類子記錄\n* 支援 ``plm_custom.eco`` （plm_custom_eco 模組）的反向追溯\n\n依賴\n----\n\n* ``mfg_custom_base`` — 共用群組、序號、mail subtype\n* ``mrp`` — ``mrp.bom``、``mrp.bom.line``、``mrp.routing.workcenter``、``mrp.bom.byproduct``\n"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model_terms:ir.ui.view,arch_db:plm_custom_bom_version.mrp_bom_form_view_inherit_plm
+msgid "<span class=\"o_stat_text\">凍結快照</span>"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model_terms:ir.ui.view,arch_db:plm_custom_bom_version.mrp_bom_form_view_inherit_plm
+msgid "<span class=\"o_stat_text\">歷史版本</span>"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version__message_needaction
+msgid "Action Needed"
+msgstr "待处理"
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version__message_attachment_count
+msgid "Attachment Count"
+msgstr "附件数量"
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version__bom_id
+#: model_terms:ir.ui.view,arch_db:plm_custom_bom_version.mrp_bom_version_view_search
+msgid "BOM"
+msgstr "BOM"
+
+#. module: plm_custom_bom_version
+#. odoo-python
+#: code:addons/plm_custom_bom_version/models/mrp_bom_version_byproduct.py:0
+msgid "BOM 快照副產品不可修改。"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#. odoo-python
+#: code:addons/plm_custom_bom_version/models/mrp_bom_version_byproduct.py:0
+msgid "BOM 快照副產品不可刪除。"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#. odoo-python
+#: code:addons/plm_custom_bom_version/models/mrp_bom_version_operation.py:0
+msgid "BOM 快照工序不可修改。"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#. odoo-python
+#: code:addons/plm_custom_bom_version/models/mrp_bom_version_operation.py:0
+msgid "BOM 快照工序不可刪除。"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:mail.message.subtype,name:plm_custom_bom_version.mt_mrp_bom_version_state
+msgid "BOM 快照建立"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.actions.act_window,name:plm_custom_bom_version.action_mrp_bom_version_line
+#: model:ir.ui.menu,name:plm_custom_bom_version.menu_mrp_bom_version_line
+#: model_terms:ir.ui.view,arch_db:plm_custom_bom_version.mrp_bom_version_line_view_tree
+msgid "BOM 快照明細"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#. odoo-python
+#: code:addons/plm_custom_bom_version/models/mrp_bom_version_line.py:0
+msgid "BOM 快照明細不可修改。"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#. odoo-python
+#: code:addons/plm_custom_bom_version/models/mrp_bom_version_line.py:0
+msgid "BOM 快照明細不可刪除。"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version__line_ids
+msgid "BOM 明細快照"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.actions.act_window,name:plm_custom_bom_version.mrp_bom_version_action
+#: model:ir.model,name:plm_custom_bom_version.model_mrp_bom_version
+#: model:ir.ui.menu,name:plm_custom_bom_version.menu_mrp_bom_version
+#: model_terms:ir.ui.view,arch_db:plm_custom_bom_version.mrp_bom_version_view_form
+#: model_terms:ir.ui.view,arch_db:plm_custom_bom_version.mrp_bom_version_view_tree
+msgid "BOM 版本快照"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model,name:plm_custom_bom_version.model_mrp_bom_version_byproduct
+msgid "BOM 版本快照副產品"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model,name:plm_custom_bom_version.model_mrp_bom_version_operation
+msgid "BOM 版本快照工序"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model,name:plm_custom_bom_version.model_mrp_bom_version_line
+msgid "BOM 版本快照明細"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.module.module,summary:base.module_plm_custom_bom_version
+msgid "BOM 版本快照（手動或 ECO 觸發凍結、比對、復原）"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,help:plm_custom_bom_version.field_mrp_bom_version__version
+msgid "BOM 邏輯版本字串（與 mrp.bom.plm_custom_version 一致）。"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,help:plm_custom_bom_version.field_mrp_bom__plm_custom_version
+msgid "BOM 邏輯版本，由 ECO 控管遞增（例如 1.0、1.1、2.0）。"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model,name:plm_custom_bom_version.model_mrp_bom
+msgid "Bill of Material"
+msgstr "物料清单"
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version__create_uid
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version_byproduct__create_uid
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version_line__create_uid
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version_operation__create_uid
+msgid "Created by"
+msgstr "创建人"
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version__create_date
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version_byproduct__create_date
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version_line__create_date
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version_operation__create_date
+msgid "Created on"
+msgstr "创建于"
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom__display_name
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version__display_name
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version_byproduct__display_name
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version_line__display_name
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version_operation__display_name
+msgid "Display Name"
+msgstr "‎显示名称‎"
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields.selection,name:plm_custom_bom_version.selection__mrp_bom_version__eco_id__plm_custom_eco
+msgid "ECO"
+msgstr "ECO"
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields.selection,name:plm_custom_bom_version.selection__mrp_bom_version__reason__eco
+#: model_terms:ir.ui.view,arch_db:plm_custom_bom_version.mrp_bom_version_view_search
+msgid "ECO 觸發"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version__message_follower_ids
+msgid "Followers"
+msgstr "关注者"
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "关注者(合作伙伴)"
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version__has_message
+msgid "Has Message"
+msgstr "有消息"
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom__id
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version__id
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version_byproduct__id
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version_line__id
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version_operation__id
+msgid "ID"
+msgstr "ID"
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,help:plm_custom_bom_version.field_mrp_bom_version__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "如果勾选此项，则需要查看新消息。"
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,help:plm_custom_bom_version.field_mrp_bom_version__message_has_error
+#: model:ir.model.fields,help:plm_custom_bom_version.field_mrp_bom_version__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "如果勾选此项， 某些消息将出现发送错误。"
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version__message_is_follower
+msgid "Is Follower"
+msgstr "是关注者"
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version__write_uid
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version_byproduct__write_uid
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version_line__write_uid
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version_operation__write_uid
+msgid "Last Updated by"
+msgstr "上一更新人"
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version__write_date
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version_byproduct__write_date
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version_line__write_date
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version_operation__write_date
+msgid "Last Updated on"
+msgstr "上一更新日期"
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version__message_has_error
+msgid "Message Delivery error"
+msgstr "消息传递错误"
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version__message_ids
+msgid "Messages"
+msgstr "消息"
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version__name
+msgid "Name"
+msgstr "名称"
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version__message_needaction_counter
+msgid "Number of Actions"
+msgstr "动作数量"
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version__message_has_error_counter
+msgid "Number of errors"
+msgstr "错误数"
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,help:plm_custom_bom_version.field_mrp_bom_version__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "需要采取行动的信息数量"
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,help:plm_custom_bom_version.field_mrp_bom_version__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "出现发送错误的消息数量"
+
+#. module: plm_custom_bom_version
+#: model:ir.module.module,shortdesc:base.module_plm_custom_bom_version
+msgid "PLM Custom - BOM Version Snapshot"
+msgstr "PLM Custom - BOM Version Snapshot"
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version__rating_ids
+msgid "Ratings"
+msgstr "点评"
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "短信发送错误"
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version_byproduct__sequence
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version_line__sequence
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version_operation__sequence
+msgid "Sequence"
+msgstr "单号规则"
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version__eco_id
+msgid "來源 ECO"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version__note
+#: model_terms:ir.ui.view,arch_db:plm_custom_bom_version.mrp_bom_version_view_form
+msgid "備註"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#. odoo-python
+#: code:addons/plm_custom_bom_version/models/mrp_bom_version.py:0
+msgid "僅 Manager 可刪除 BOM 快照。"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version_line__product_id
+#: model_terms:ir.ui.view,arch_db:plm_custom_bom_version.mrp_bom_version_line_view_search
+msgid "元件"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model_terms:ir.ui.view,arch_db:plm_custom_bom_version.mrp_bom_version_view_form
+msgid "元件明細"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version__company_id
+msgid "公司"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version_byproduct__product_id
+#: model_terms:ir.ui.view,arch_db:plm_custom_bom_version.mrp_bom_version_view_form
+msgid "副產品"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version__byproduct_ids
+msgid "副產品快照"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model_terms:ir.ui.view,arch_db:plm_custom_bom_version.mrp_bom_version_view_search
+msgid "原因"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,help:plm_custom_bom_version.field_mrp_bom__plm_custom_is_current
+msgid "同一 product 群組中，目前生效的 BOM。改版時由 ECO 把舊版設為 False。"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version__product_uom_id
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version_byproduct__product_uom_id
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version_line__product_uom_id
+msgid "單位"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version_operation__workcenter_id
+msgid "工作中心"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model_terms:ir.ui.view,arch_db:plm_custom_bom_version.mrp_bom_version_view_form
+msgid "工序"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version_operation__name
+msgid "工序名稱"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version__operation_ids
+msgid "工序快照"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version_operation__cost
+msgid "工序成本"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version_operation__time_cycle
+msgid "工時（分鐘）"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model_terms:ir.ui.view,arch_db:plm_custom_bom_version.mrp_bom_version_view_form
+msgid "工時（分）"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#. odoo-python
+#: code:addons/plm_custom_bom_version/models/mrp_bom_version.py:0
+msgid "已建立版本快照 %s，含 %s 條明細。"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#. odoo-python
+#: code:addons/plm_custom_bom_version/models/mrp_bom.py:0
+msgid "已歸檔的 BOM 無法建立快照：%s"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version__locked
+#: model_terms:ir.ui.view,arch_db:plm_custom_bom_version.mrp_bom_version_view_form
+msgid "已鎖定"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model_terms:ir.ui.view,arch_db:plm_custom_bom_version.mrp_bom_version_view_form
+msgid "建立當下的說明"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version__user_id
+#: model_terms:ir.ui.view,arch_db:plm_custom_bom_version.mrp_bom_version_view_search
+msgid "建立者"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version_byproduct__version_id
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version_line__version_id
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version_operation__version_id
+#: model_terms:ir.ui.view,arch_db:plm_custom_bom_version.mrp_bom_version_line_view_search
+msgid "快照"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#. odoo-python
+#: code:addons/plm_custom_bom_version/models/mrp_bom_version.py:0
+msgid "快照已鎖定，不可修改：%s。若需更新，請建立新快照。"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,help:plm_custom_bom_version.field_mrp_bom_version__locked
+msgid "快照建立後即鎖定，不允許修改明細 / 工序 / 副產品。"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,help:plm_custom_bom_version.field_mrp_bom__plm_custom_current_version_id
+msgid "快照日期最新的 immutable 快照，作為「現行 BOM 狀態」的歷史佐證。"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version__snapshot_date
+msgid "快照時間"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,help:plm_custom_bom_version.field_mrp_bom_version_operation__cost
+msgid "快照當下由 workcenter.costs_hour 計算的成本。"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,help:plm_custom_bom_version.field_mrp_bom_version_line__product_cost
+msgid "快照當下的 standard_price，方便事後比較成本差異。"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,help:plm_custom_bom_version.field_mrp_bom_version_operation__time_cycle
+msgid "快照當下的 time_cycle_manual。"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields.selection,name:plm_custom_bom_version.selection__mrp_bom_version__reason__manual
+#: model_terms:ir.ui.view,arch_db:plm_custom_bom_version.mrp_bom_version_view_search
+msgid "手動建立"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model_terms:ir.ui.view,arch_db:plm_custom_bom_version.mrp_bom_version_line_view_search
+msgid "搜尋 BOM 快照明細"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model_terms:ir.ui.view,arch_db:plm_custom_bom_version.mrp_bom_version_view_search
+msgid "搜尋 BOM 版本快照"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version_byproduct__product_qty
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version_line__product_qty
+msgid "數量"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom__plm_custom_is_current
+msgid "是否現行版本"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model_terms:ir.ui.view,arch_db:plm_custom_bom_version.mrp_bom_version_view_search
+msgid "本月"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom__plm_custom_version_ids
+msgid "歷史快照"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model_terms:ir.actions.act_window,help:plm_custom_bom_version.action_mrp_bom_version_line
+msgid "每一筆 BOM 快照明細（immutable）。"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom__plm_custom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version__version
+msgid "版本"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom__plm_custom_version_count
+#: model_terms:ir.ui.view,arch_db:plm_custom_bom_version.mrp_bom_tree_view_inherit_plm
+msgid "版本數"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom__plm_custom_current_version_id
+msgid "現行快照"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version__product_qty
+msgid "產量"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,help:plm_custom_bom_version.field_mrp_bom_version__eco_id
+msgid "由 ECO 觸發時對應的 ECO 單據。plm_custom_eco 模組未安裝時為空。"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:mail.message.subtype,description:plm_custom_bom_version.mt_mrp_bom_version_state
+msgid "當 BOM 快照被建立時通知追蹤者。"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version_line__product_cost
+msgid "當時標準成本"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields,field_description:plm_custom_bom_version.field_mrp_bom_version__reason
+msgid "觸發原因"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model_terms:ir.actions.act_window,help:plm_custom_bom_version.mrp_bom_version_action
+msgid "記錄每一張 BOM 的歷史快照，所有快照為 immutable。"
+msgstr ""
+
+#. module: plm_custom_bom_version
+#: model:ir.model.fields.selection,name:plm_custom_bom_version.selection__mrp_bom_version__reason__milestone
+#: model_terms:ir.ui.view,arch_db:plm_custom_bom_version.mrp_bom_version_view_search
+msgid "里程碑"
+msgstr ""

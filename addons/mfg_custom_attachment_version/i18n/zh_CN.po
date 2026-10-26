@@ -1,0 +1,284 @@
+# Chinese (Simplified) translation of Odoo Server module mfg_custom_attachment_version.
+# This file contains the translation of the following modules:
+# 	* mfg_custom_attachment_version
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 20.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 09:42+0000\n"
+"PO-Revision-Date: 2026-10-26 09:42+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: mfg_custom_attachment_version
+#: model:ir.module.module,description:base.module_mfg_custom_attachment_version
+msgid "\nMFG Custom - Attachment Version\n===============================\n\n為 ``ir.attachment`` 增加版本（version）、文件分類（doc_type）、受控狀態（doc_state），\n在不引入 Enterprise ``documents`` 模組的前提下提供輕量 PLM / DMS 機制。\n\n本模組覆蓋的場景\n----------------\n\n* 客戶規格書 / 圖面 / 承認書等外部文件，皆掛在對應單據的 ``ir.attachment`` 上。\n* 同一份「檔名」在同一單據（``res_model + res_id``）上傳新版時，自動遞增版本號。\n* 新版文件被「發行」時，自動把同群組舊版切到 ``已停用（obsolete）``。\n* 由 ECO 流程觸發的「跳版」輔助方法：`_mfg_custom_bump_version`。\n\n文件類型（``mfg_custom_doc_type``）\n-----------------------------------\n\n``customer_spec`` / ``drawing`` / ``acknowledgement`` / ``coa`` /\n``tool_drawing`` / ``internal`` / ``other``。\n\n文件狀態（``mfg_custom_doc_state``）\n------------------------------------\n\n``draft`` → ``in_review`` → ``released``；被取代或退版時轉為 ``obsolete``。\n"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#: model:ir.model.fields,field_description:mfg_custom_attachment_version.field_mfg_custom_attachment_tag__active
+msgid "Active"
+msgstr "启用"
+
+#. module: mfg_custom_attachment_version
+#: model:ir.model,name:mfg_custom_attachment_version.model_ir_attachment
+msgid "Attachment"
+msgstr "附件"
+
+#. module: mfg_custom_attachment_version
+#: model:ir.model.fields.selection,name:mfg_custom_attachment_version.selection__ir_attachment__mfg_custom_doc_type__coa
+msgid "CoA 報告"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#: model:ir.model.fields,field_description:mfg_custom_attachment_version.field_mfg_custom_attachment_tag__create_uid
+msgid "Created by"
+msgstr "创建人"
+
+#. module: mfg_custom_attachment_version
+#: model:ir.model.fields,field_description:mfg_custom_attachment_version.field_mfg_custom_attachment_tag__create_date
+msgid "Created on"
+msgstr "创建于"
+
+#. module: mfg_custom_attachment_version
+#: model:ir.model.fields,field_description:mfg_custom_attachment_version.field_ir_attachment__display_name
+#: model:ir.model.fields,field_description:mfg_custom_attachment_version.field_mfg_custom_attachment_tag__display_name
+msgid "Display Name"
+msgstr "‎显示名称‎"
+
+#. module: mfg_custom_attachment_version
+#: model:ir.model.fields,field_description:mfg_custom_attachment_version.field_ir_attachment__id
+#: model:ir.model.fields,field_description:mfg_custom_attachment_version.field_mfg_custom_attachment_tag__id
+msgid "ID"
+msgstr "ID"
+
+#. module: mfg_custom_attachment_version
+#: model:ir.model.fields,field_description:mfg_custom_attachment_version.field_mfg_custom_attachment_tag__write_uid
+msgid "Last Updated by"
+msgstr "上一更新人"
+
+#. module: mfg_custom_attachment_version
+#: model:ir.model.fields,field_description:mfg_custom_attachment_version.field_mfg_custom_attachment_tag__write_date
+msgid "Last Updated on"
+msgstr "上一更新日期"
+
+#. module: mfg_custom_attachment_version
+#: model:ir.module.module,shortdesc:base.module_mfg_custom_attachment_version
+msgid "MFG Custom - Attachment Version"
+msgstr "MFG Custom - Attachment Version"
+
+#. module: mfg_custom_attachment_version
+#: model:ir.actions.act_window,name:mfg_custom_attachment_version.mfg_attachment_tag_action
+#: model:ir.model,name:mfg_custom_attachment_version.model_mfg_custom_attachment_tag
+#: model_terms:ir.ui.view,arch_db:mfg_custom_attachment_version.mfg_attachment_tag_view_form
+#: model_terms:ir.ui.view,arch_db:mfg_custom_attachment_version.mfg_attachment_tag_view_tree
+msgid "MFG 附件標籤"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#: model:ir.model.fields,field_description:mfg_custom_attachment_version.field_mfg_custom_attachment_tag__name
+msgid "Name"
+msgstr "名称"
+
+#. module: mfg_custom_attachment_version
+#: model:ir.module.module,summary:base.module_mfg_custom_attachment_version
+msgid "ir.attachment 擴增版本 / 文件分類 / 受控狀態（取代部分 PLM DMS）"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#: model:ir.model.fields.selection,name:mfg_custom_attachment_version.selection__ir_attachment__mfg_custom_doc_type__internal
+msgid "內部文件"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#: model:ir.model.fields.selection,name:mfg_custom_attachment_version.selection__ir_attachment__mfg_custom_doc_type__other
+msgid "其他"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#: model:ir.model.fields,help:mfg_custom_attachment_version.field_ir_attachment__mfg_custom_doc_state
+#: model:ir.model.fields,help:mfg_custom_attachment_version.field_product_document__mfg_custom_doc_state
+msgid "受控狀態：draft → in_review → released；被新發行版本取代後轉為 obsolete。"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#: model:ir.model.fields,help:mfg_custom_attachment_version.field_ir_attachment__mfg_custom_version
+#: model:ir.model.fields,help:mfg_custom_attachment_version.field_product_document__mfg_custom_version
+msgid "同 res_model+res_id+name 群組內的遞增版本；首版為 1。"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#: model:ir.model.fields.selection,name:mfg_custom_attachment_version.selection__ir_attachment__mfg_custom_doc_type__drawing
+msgid "圖面"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#: model:ir.model.fields.selection,name:mfg_custom_attachment_version.selection__ir_attachment__mfg_custom_doc_type__acknowledgement
+msgid "客戶承認書"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#: model:ir.model.fields.selection,name:mfg_custom_attachment_version.selection__ir_attachment__mfg_custom_doc_type__customer_spec
+msgid "客戶規格書"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#: model:ir.model.fields,help:mfg_custom_attachment_version.field_ir_attachment__mfg_custom_doc_type
+#: model:ir.model.fields,help:mfg_custom_attachment_version.field_product_document__mfg_custom_doc_type
+msgid "客戶規格書、圖面、承認書等業務用途分類。"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#: model:ir.model.fields.selection,name:mfg_custom_attachment_version.selection__ir_attachment__mfg_custom_doc_state__in_review
+#: model_terms:ir.ui.view,arch_db:mfg_custom_attachment_version.view_attachment_search
+msgid "審核中"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#: model:ir.model.fields.selection,name:mfg_custom_attachment_version.selection__ir_attachment__mfg_custom_doc_type__tool_drawing
+msgid "工治具圖"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#: model:ir.model.fields.selection,name:mfg_custom_attachment_version.selection__ir_attachment__mfg_custom_doc_state__obsolete
+#: model_terms:ir.ui.view,arch_db:mfg_custom_attachment_version.mfg_attachment_tag_view_form
+#: model_terms:ir.ui.view,arch_db:mfg_custom_attachment_version.mfg_attachment_tag_view_search
+#: model_terms:ir.ui.view,arch_db:mfg_custom_attachment_version.view_attachment_search
+msgid "已停用"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#: model:ir.model.fields.selection,name:mfg_custom_attachment_version.selection__ir_attachment__mfg_custom_doc_state__released
+#: model_terms:ir.ui.view,arch_db:mfg_custom_attachment_version.view_attachment_search
+msgid "已發行"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#: model:ir.model.fields,help:mfg_custom_attachment_version.field_ir_attachment__mfg_custom_version_reason
+#: model:ir.model.fields,help:mfg_custom_attachment_version.field_product_document__mfg_custom_version_reason
+msgid "建立此版本的原因（例如由 ECO 跳版時的原因）。"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#: model_terms:ir.ui.view,arch_db:mfg_custom_attachment_version.mfg_attachment_tag_view_search
+msgid "搜尋 MFG 附件標籤"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#: model:ir.model.fields,field_description:mfg_custom_attachment_version.field_ir_attachment__mfg_custom_doc_state
+#: model:ir.model.fields,field_description:mfg_custom_attachment_version.field_product_document__mfg_custom_doc_state
+#: model_terms:ir.ui.view,arch_db:mfg_custom_attachment_version.view_attachment_search
+msgid "文件狀態"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#: model:ir.model.fields,field_description:mfg_custom_attachment_version.field_ir_attachment__mfg_custom_doc_type
+#: model:ir.model.fields,field_description:mfg_custom_attachment_version.field_product_document__mfg_custom_doc_type
+#: model_terms:ir.ui.view,arch_db:mfg_custom_attachment_version.view_attachment_form
+#: model_terms:ir.ui.view,arch_db:mfg_custom_attachment_version.view_attachment_search
+msgid "文件類型"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#: model_terms:ir.ui.view,arch_db:mfg_custom_attachment_version.view_attachment_form
+msgid "新增標籤…"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#: model:ir.model.fields,field_description:mfg_custom_attachment_version.field_ir_attachment__mfg_custom_tag_ids
+#: model:ir.model.fields,field_description:mfg_custom_attachment_version.field_product_document__mfg_custom_tag_ids
+msgid "標籤"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#: model:ir.model.fields,field_description:mfg_custom_attachment_version.field_ir_attachment__mfg_custom_version
+#: model:ir.model.fields,field_description:mfg_custom_attachment_version.field_product_document__mfg_custom_version
+msgid "版本"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#: model:ir.model.fields,field_description:mfg_custom_attachment_version.field_ir_attachment__mfg_custom_version_reason
+#: model:ir.model.fields,field_description:mfg_custom_attachment_version.field_product_document__mfg_custom_version_reason
+msgid "版本說明"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#: model:mail.message.subtype,name:mfg_custom_attachment_version.mt_mfg_attachment_version_changed
+msgid "版本變更"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#: model:mail.message.subtype,name:mfg_custom_attachment_version.mt_mfg_attachment_state_changed
+msgid "狀態變更"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#: model_terms:ir.actions.act_window,help:mfg_custom_attachment_version.mfg_attachment_tag_action
+msgid "用於 ir.attachment 的自由標籤字典。"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#: model:ir.model.fields,help:mfg_custom_attachment_version.field_ir_attachment__mfg_custom_superseded_by_id
+#: model:ir.model.fields,help:mfg_custom_attachment_version.field_product_document__mfg_custom_superseded_by_id
+msgid "當自身由新版取代時，由 create / bump_version 反向連結到新版；新版清空自身。"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#: model:mail.message.subtype,description:mfg_custom_attachment_version.mt_mfg_attachment_version_changed
+msgid "當附件版本號遞增或被新版本取代時通知追蹤者。"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#: model:mail.message.subtype,description:mfg_custom_attachment_version.mt_mfg_attachment_state_changed
+msgid "當附件的文件狀態（草稿 / 審核中 / 已發行 / 已停用）改變時通知追蹤者。"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#. odoo-python
+#: code:addons/mfg_custom_attachment_version/models/ir_attachment.py:0
+msgid "目前選取的附件皆不可退回草稿。"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#. odoo-python
+#: code:addons/mfg_custom_attachment_version/models/ir_attachment.py:0
+msgid "目前選取的附件皆不符合發行條件（需為草稿或審核中）。"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#: model:ir.model.fields,help:mfg_custom_attachment_version.field_ir_attachment__mfg_custom_tag_ids
+#: model:ir.model.fields,help:mfg_custom_attachment_version.field_product_document__mfg_custom_tag_ids
+msgid "自由標籤，方便篩選與群組。"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#: model:ir.model.fields.selection,name:mfg_custom_attachment_version.selection__ir_attachment__mfg_custom_doc_state__draft
+msgid "草稿"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#: model:ir.model.fields,field_description:mfg_custom_attachment_version.field_ir_attachment__mfg_custom_superseded_by_id
+#: model:ir.model.fields,field_description:mfg_custom_attachment_version.field_product_document__mfg_custom_superseded_by_id
+msgid "被此版本取代"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#: model:ir.model.fields,field_description:mfg_custom_attachment_version.field_mfg_custom_attachment_tag__description
+msgid "說明"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#: model:ir.ui.menu,name:mfg_custom_attachment_version.menu_mfg_attachment_tag
+msgid "附件標籤"
+msgstr ""
+
+#. module: mfg_custom_attachment_version
+#: model:ir.model.fields,field_description:mfg_custom_attachment_version.field_mfg_custom_attachment_tag__color
+msgid "顏色索引"
+msgstr ""

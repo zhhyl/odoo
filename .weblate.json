@@ -1908,6 +1908,51 @@
                 "new_base": "addons/mass_mailing_themes/i18n/mass_mailing_themes.pot"
             },
             {
+                "name": "mfg_custom_approval",
+                "filemask": "addons/mfg_custom_approval/i18n/*.po",
+                "new_base": "addons/mfg_custom_approval/i18n/mfg_custom_approval.pot"
+            },
+            {
+                "name": "mfg_custom_attachment_version",
+                "filemask": "addons/mfg_custom_attachment_version/i18n/*.po",
+                "new_base": "addons/mfg_custom_attachment_version/i18n/mfg_custom_attachment_version.pot"
+            },
+            {
+                "name": "mfg_custom_base",
+                "filemask": "addons/mfg_custom_base/i18n/*.po",
+                "new_base": "addons/mfg_custom_base/i18n/mfg_custom_base.pot"
+            },
+            {
+                "name": "mfg_custom_component_scrap",
+                "filemask": "addons/mfg_custom_component_scrap/i18n/*.po",
+                "new_base": "addons/mfg_custom_component_scrap/i18n/mfg_custom_component_scrap.pot"
+            },
+            {
+                "name": "mfg_custom_issue",
+                "filemask": "addons/mfg_custom_issue/i18n/*.po",
+                "new_base": "addons/mfg_custom_issue/i18n/mfg_custom_issue.pot"
+            },
+            {
+                "name": "mfg_custom_production_stage",
+                "filemask": "addons/mfg_custom_production_stage/i18n/*.po",
+                "new_base": "addons/mfg_custom_production_stage/i18n/mfg_custom_production_stage.pot"
+            },
+            {
+                "name": "mfg_custom_purchase_approval",
+                "filemask": "addons/mfg_custom_purchase_approval/i18n/*.po",
+                "new_base": "addons/mfg_custom_purchase_approval/i18n/mfg_custom_purchase_approval.pot"
+            },
+            {
+                "name": "mfg_custom_quality",
+                "filemask": "addons/mfg_custom_quality/i18n/*.po",
+                "new_base": "addons/mfg_custom_quality/i18n/mfg_custom_quality.pot"
+            },
+            {
+                "name": "mfg_custom_quote_cost",
+                "filemask": "addons/mfg_custom_quote_cost/i18n/*.po",
+                "new_base": "addons/mfg_custom_quote_cost/i18n/mfg_custom_quote_cost.pot"
+            },
+            {
                 "name": "microsoft_account",
                 "filemask": "addons/microsoft_account/i18n/*.po",
                 "new_base": "addons/microsoft_account/i18n/microsoft_account.pot"
@@ -2121,6 +2166,21 @@
                 "name": "phone_validation",
                 "filemask": "addons/phone_validation/i18n/*.po",
                 "new_base": "addons/phone_validation/i18n/phone_validation.pot"
+            },
+            {
+                "name": "plm_custom_bom_version",
+                "filemask": "addons/plm_custom_bom_version/i18n/*.po",
+                "new_base": "addons/plm_custom_bom_version/i18n/plm_custom_bom_version.pot"
+            },
+            {
+                "name": "plm_custom_eco",
+                "filemask": "addons/plm_custom_eco/i18n/*.po",
+                "new_base": "addons/plm_custom_eco/i18n/plm_custom_eco.pot"
+            },
+            {
+                "name": "plm_custom_feasibility",
+                "filemask": "addons/plm_custom_feasibility/i18n/*.po",
+                "new_base": "addons/plm_custom_feasibility/i18n/plm_custom_feasibility.pot"
             },
             {
                 "name": "point_of_sale",

@@ -1,0 +1,927 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* plm_custom_feasibility
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 20.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 09:42+0000\n"
+"PO-Revision-Date: 2026-10-26 09:42+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: plm_custom_feasibility
+#: model:ir.module.module,description:base.module_plm_custom_feasibility
+msgid ""
+"\n"
+"PLM Custom - Feasibility Assessment\n"
+"====================================\n"
+"\n"
+"跨部門可行性評估模組，於產品/訂單階段彙整業務、工程、產線、品保、採購、法規\n"
+"六個部門評分，自動產出可行性決策結論。\n"
+"\n"
+"核心模型\n"
+"--------\n"
+"\n"
+"* ``plm_custom.feasibility``     — 評估主檔（含五項分數、自動彙總與決策）\n"
+"* ``plm_custom.feasibility.score`` — 各部門評分明細（每部門一筆、不可重複）\n"
+"* ``plm_custom.feasibility.wizard`` — 從銷售訂單/明細一鍵開立評估\n"
+"\n"
+"決策規則\n"
+"--------\n"
+"\n"
+"* 五項分數各 0-10，總分 = (sum × 2)，最高 100\n"
+"* 80 分以上 → 可行 (feasible)\n"
+"* 60-79   → 可行但有風險 (feasible_with_risk)\n"
+"* 60 以下 → 不可行 (infeasible)\n"
+"\n"
+"來源單據\n"
+"--------\n"
+"\n"
+"可從「銷售訂單 / 銷售明細 / CRM 機會」建立，亦可手動建立（不限特定來源）。\n"
+"\n"
+"依賴\n"
+"----\n"
+"\n"
+"* ``mfg_custom_base`` — 共用群組（user / manager / engineering / quality）\n"
+"* ``sale``            — 銷售訂單（從 SO / SO line 建立）\n"
+"* ``mrp``             — BOM 候選\n"
+"* ``purchase``        — 採購 / 料況評估\n"
+"\n"
+"安裝\n"
+"----\n"
+"\n"
+"安裝後選單位於「PLM Custom > 可行性評估」。\n"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#. odoo-python
+#: code:addons/plm_custom_feasibility/models/plm_feasibility_score.py:0
+msgid "%(dept)s / %(user)s"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,help:plm_custom_feasibility.field_plm_custom_feasibility_score__score
+msgid "0 = 完全不可行、10 = 完全可行。"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:mail.template,body_html:plm_custom_feasibility.mail_template_plm_feasibility_decided
+msgid ""
+"<div style=\"margin: 0px; padding: 0px;\">\n"
+"    <p style=\"margin: 0 0 12px 0; font-size: 13px;\">\n"
+"        你好，\n"
+"        <br/><br/>\n"
+"        可行性評估 <strong t-out=\"object.name or ''\">FEA/2026/00001</strong> 已做出結論：\n"
+"        <strong t-out=\"dict(object._fields['state'].selection).get(object.state) or ''\">state</strong>\n"
+"        （決策：\n"
+"        <strong t-out=\"dict(object._fields['decision'].selection).get(object.decision) or ''\">decision</strong>）。\n"
+"        <br/><br/>\n"
+"        客戶：<t t-out=\"object.partner_id.display_name or ''\">客戶</t>\n"
+"        <br/>\n"
+"        產品：<t t-out=\"object.product_id.display_name or ''\">產品</t>\n"
+"        <br/>\n"
+"        總分：<t t-out=\"object.score_total or 0\">總分</t>\n"
+"    </p>\n"
+"</div>\n"
+"        "
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:mail.template,body_html:plm_custom_feasibility.mail_template_plm_feasibility_submit
+msgid ""
+"<div style=\"margin: 0px; padding: 0px;\">\n"
+"    <p style=\"margin: 0 0 12px 0; font-size: 13px;\">\n"
+"        你好，\n"
+"        <br/><br/>\n"
+"        業務 <t t-out=\"object.user_id.display_name or ''\">負責業務</t> 已送出可行性評估\n"
+"        <strong t-out=\"object.name or ''\">FEA/2026/00001</strong>。\n"
+"        <br/>\n"
+"        客戶：<t t-out=\"object.partner_id.display_name or ''\">客戶</t>\n"
+"        <br/>\n"
+"        產品：<t t-out=\"object.product_id.display_name or ''\">產品</t>\n"
+"        <br/>\n"
+"        數量：<t t-out=\"object.product_qty or 0\">數量</t>\n"
+"        <br/>\n"
+"        客戶要求交期：<t t-out=\"object.requested_date or ''\">交期</t>\n"
+"        <br/><br/>\n"
+"        請至系統填寫您所屬部門的評分與意見。\n"
+"    </p>\n"
+"</div>\n"
+"        "
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__message_needaction
+msgid "Action Needed"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__message_attachment_count
+msgid "Attachment Count"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields.selection,name:plm_custom_feasibility.selection__plm_custom_feasibility__source_model__crm_lead
+msgid "CRM 機會"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__create_uid
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility_score__create_uid
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility_wizard__create_uid
+msgid "Created by"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__create_date
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility_score__create_date
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility_wizard__create_date
+msgid "Created on"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__decision
+msgid "Decision"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,help:plm_custom_feasibility.field_plm_custom_feasibility__uom_id
+msgid "Default unit of measure used for all stock operations."
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__display_name
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility_score__display_name
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility_wizard__display_name
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_sale_order__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__message_follower_ids
+msgid "Followers"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__message_partner_ids
+msgid "Followers (Partners)"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__has_message
+msgid "Has Message"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__id
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility_score__id
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility_wizard__id
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_sale_order__id
+msgid "ID"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,help:plm_custom_feasibility.field_plm_custom_feasibility__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,help:plm_custom_feasibility.field_plm_custom_feasibility__message_has_error
+#: model:ir.model.fields,help:plm_custom_feasibility.field_plm_custom_feasibility__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__message_is_follower
+msgid "Is Follower"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__write_uid
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility_score__write_uid
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility_wizard__write_uid
+msgid "Last Updated by"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__write_date
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility_score__write_date
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility_wizard__write_date
+msgid "Last Updated on"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__message_has_error
+msgid "Message Delivery error"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__message_ids
+msgid "Messages"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__message_needaction_counter
+msgid "Number of Actions"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__message_has_error_counter
+msgid "Number of errors"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,help:plm_custom_feasibility.field_plm_custom_feasibility__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,help:plm_custom_feasibility.field_plm_custom_feasibility__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.module.module,shortdesc:base.module_plm_custom_feasibility
+msgid "PLM Custom - Feasibility Assessment"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model,name:plm_custom_feasibility.model_plm_custom_feasibility
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_form
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_tree
+msgid "PLM Custom 可行性評估"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model,name:plm_custom_feasibility.model_plm_custom_feasibility_wizard
+msgid "PLM Custom 可行性評估建立 wizard"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model,name:plm_custom_feasibility.model_plm_custom_feasibility_score
+msgid "PLM Custom 可行性評分明細"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_score_view_form
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_score_view_tree
+msgid "PLM Custom 評分明細"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:mail.template,name:plm_custom_feasibility.mail_template_plm_feasibility_decided
+msgid "PLM Feasibility: Decision"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:mail.template,name:plm_custom_feasibility.mail_template_plm_feasibility_submit
+msgid "PLM Feasibility: Submit for Review"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__rating_ids
+msgid "Ratings"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model,name:plm_custom_feasibility.model_sale_order
+msgid "Sales Order"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__state
+msgid "State"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:mail.template,subject:plm_custom_feasibility.mail_template_plm_feasibility_decided
+msgid "{{ object.name }}：可行性評估結論 - {{ object.decision }}"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:mail.template,subject:plm_custom_feasibility.mail_template_plm_feasibility_submit
+msgid "{{ object.name }}：請各部門完成可行性評分"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields.selection,name:plm_custom_feasibility.selection__plm_custom_feasibility__decision__infeasible
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_search
+msgid "不可行"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields.selection,name:plm_custom_feasibility.selection__plm_custom_feasibility__state__rejected
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_form
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_search
+msgid "不通過"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#. odoo-python
+#: code:addons/plm_custom_feasibility/models/plm_feasibility.py:0
+msgid "仍有以下部門未評分，無法核准：%s"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,help:plm_custom_feasibility.field_plm_custom_feasibility_score__attachment_ids
+msgid "佐證此評分的附件（規格書、料況報告等）。"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility_score__attachment_ids
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_score_view_form
+msgid "佐證附件"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility_wizard__source_model
+msgid "來源"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_form
+msgid "來源 / 交期 / 成本"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility_wizard__source_id
+msgid "來源 ID"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__source_id
+msgid "來源單據 ID"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__source_model
+msgid "來源模型"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_search
+msgid "依客戶"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_search
+msgid "依決策"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_search
+msgid "依狀態"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_search
+msgid "依產品"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,help:plm_custom_feasibility.field_plm_custom_feasibility__approval_rule_id
+msgid "依目前單據內容符合的簽核規則（尚未送出簽核時也能預覽）。"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_score_view_search
+msgid "依評分者"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_score_view_search
+msgid "依部門"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__bom_id
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility_wizard__bom_id
+msgid "候選 BOM"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,help:plm_custom_feasibility.field_plm_custom_feasibility__bom_id
+msgid "候選的 BOM，僅顯示屬於選定產品模板的版本。"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__notes
+msgid "備註"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#. odoo-python
+#: code:addons/plm_custom_feasibility/models/plm_feasibility.py:0
+msgid "僅有 draft 狀態可送出評估，目前狀態為 %s"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#. odoo-python
+#: code:addons/plm_custom_feasibility/models/plm_feasibility.py:0
+msgid "僅有 in_review 狀態可送出簽核，目前狀態為 %s"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__company_id
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility_score__company_id
+msgid "公司"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility_score__score
+msgid "分數 (0-10)"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#. odoo-python
+#: code:addons/plm_custom_feasibility/models/plm_feasibility_score.py:0
+msgid "分數需介於 0 到 10 之間，目前為 %s"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields.selection,name:plm_custom_feasibility.selection__plm_custom_feasibility__state__cancelled
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_form
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_search
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_wizard_view_form
+msgid "取消"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_form
+msgid "取消簽核"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields.selection,name:plm_custom_feasibility.selection__plm_custom_feasibility__decision__feasible
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_search
+msgid "可行"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields.selection,name:plm_custom_feasibility.selection__plm_custom_feasibility__decision__feasible_with_risk
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_search
+msgid "可行但有風險"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.actions.act_window,name:plm_custom_feasibility.plm_feasibility_action
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility_score__feasibility_id
+#: model:ir.ui.menu,name:plm_custom_feasibility.menu_plm_feasibility
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.sale_order_view_form_inherit_feasibility
+msgid "可行性評估"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:mail.template,description:plm_custom_feasibility.mail_template_plm_feasibility_decided
+msgid "可行性評估做出決策時通知客戶業務與相關部門"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_sale_order__feasibility_count
+msgid "可行性評估數"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:mfg_custom.approval.rule,name:plm_custom_feasibility.plm_feasibility_approval_rule_default
+msgid "可行性評估簽核"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_form
+msgid "可記錄客戶特殊要求、技術瓶頸、備援方案等..."
+msgstr ""
+
+#. module: plm_custom_feasibility
+#. odoo-python
+#: code:addons/plm_custom_feasibility/models/plm_feasibility_score.py:0
+msgid "同一張評估單的「%s」部門只能有一筆評分。"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.constraint,message:plm_custom_feasibility.constraint_plm_custom_feasibility_score_score_dept_uniq
+msgid "同一部門對同一張評估單只能評分一次。"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields.selection,name:plm_custom_feasibility.selection__plm_custom_feasibility_score__department__qa
+msgid "品保"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__uom_id
+msgid "單位"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__name
+msgid "單號"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_form
+msgid "基本資料"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__partner_id
+msgid "客戶"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__target_price
+msgid "客戶目標價"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__requested_date
+msgid "客戶要求交期"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,help:plm_custom_feasibility.field_plm_custom_feasibility__source_id
+msgid "對應來源模型的 res_id。"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields.selection,name:plm_custom_feasibility.selection__plm_custom_feasibility_score__department__engineering
+msgid "工程"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:mfg_custom.approval.step,name:plm_custom_feasibility.plm_feasibility_approval_rule_default_step1
+msgid "工程部核准"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_form
+msgid "已取消"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_search
+msgid "已核准"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#. odoo-python
+#: code:addons/plm_custom_feasibility/models/plm_feasibility.py:0
+msgid "已送出評估，等待各部門完成評分。"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__currency_id
+msgid "幣別"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_wizard_view_form
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.sale_order_view_form_inherit_feasibility_create
+msgid "建立可行性評估"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_form
+msgid "建立時間"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,help:plm_custom_feasibility.field_plm_custom_feasibility__source_model
+msgid "建立本評估單的來源業務單據。"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_form
+msgid "建立者"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_form
+msgid "彙總分數"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_search
+msgid "待簽核"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility_score__comment
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_score_view_form
+msgid "意見"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_search
+msgid "我負責的"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.actions.act_window,name:plm_custom_feasibility.plm_feasibility_action_my
+#: model:ir.ui.menu,name:plm_custom_feasibility.menu_plm_feasibility_my
+msgid "我負責的評估"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields.selection,name:plm_custom_feasibility.selection__plm_custom_feasibility__source_model__manual
+msgid "手動建立"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__score_technical
+msgid "技術分數 (0-10)"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields.selection,name:plm_custom_feasibility.selection__plm_custom_feasibility_score__department__procurement
+msgid "採購"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_search
+msgid "搜尋可行性評估"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_score_view_search
+msgid "搜尋評分明細"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__score_material
+msgid "料況分數 (0-10)"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_form
+msgid "最後修改時間"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_form
+msgid "最後修改者"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_form
+msgid "本評估單的所有狀態變更皆會自動記錄於右側 chatter。"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_form
+msgid "核准目前關卡"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields.selection,name:plm_custom_feasibility.selection__plm_custom_feasibility_score__department__sales
+msgid "業務"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#. odoo-python
+#: code:addons/plm_custom_feasibility/models/sale_order_inherit_feasibility.py:0
+msgid "此銷售訂單尚未建立可行性評估"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#. odoo-python
+#: code:addons/plm_custom_feasibility/models/sale_order_inherit_feasibility.py:0
+msgid "此銷售訂單未指定客戶，無法建立可行性評估"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_form
+msgid "決策"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields.selection,name:plm_custom_feasibility.selection__plm_custom_feasibility_score__department__legal
+msgid "法規"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__score_regulatory
+msgid "法規分數 (0-10)"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__product_id
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility_wizard__product_id
+msgid "產品"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields.selection,name:plm_custom_feasibility.selection__plm_custom_feasibility_score__department__production
+msgid "產線"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__score_capacity
+msgid "產能分數 (0-10)"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#. odoo-python
+#: code:addons/plm_custom_feasibility/models/plm_feasibility.py:0
+msgid "由可行性評估駁回"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model_terms:ir.actions.act_window,help:plm_custom_feasibility.plm_feasibility_action_my
+msgid "由當前使用者擔任負責業務的所有可行性評估。"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:mail.message.subtype,description:plm_custom_feasibility.mt_plm_feasibility_state_changed
+msgid "當可行性評估的狀態改變時通知追蹤者。"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_form
+msgid "確定要駁回此簽核流程？"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:mfg_custom.approval.step,name:plm_custom_feasibility.plm_feasibility_approval_rule_default_step2
+msgid "管理部核准"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__approval_request_id
+msgid "簽核單"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#. odoo-python
+#: code:addons/plm_custom_feasibility/models/plm_feasibility.py:0
+msgid "簽核已取消，評估單退回草稿。"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__approval_state
+msgid "簽核狀態"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_form
+msgid "簽核紀錄"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__approval_rule_id
+msgid "簽核規則"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__score_total
+msgid "總分 (0-100)"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields.selection,name:plm_custom_feasibility.selection__plm_custom_feasibility__state__draft
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_search
+msgid "草稿"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#. odoo-python
+#: code:addons/plm_custom_feasibility/models/plm_feasibility.py:0
+msgid "評估不通過。"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields.selection,name:plm_custom_feasibility.selection__plm_custom_feasibility__state__in_review
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_search
+msgid "評估中"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#. odoo-python
+#: code:addons/plm_custom_feasibility/models/plm_feasibility_score.py:0
+msgid "評估單 %s 的「%s」部門只能有一筆評分。"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#. odoo-python
+#: code:addons/plm_custom_feasibility/models/plm_feasibility.py:0
+msgid "評估單已取消。"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:mail.message.subtype,name:plm_custom_feasibility.mt_plm_feasibility_state_changed
+msgid "評估狀態變更"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#. odoo-python
+#: code:addons/plm_custom_feasibility/models/plm_feasibility.py:0
+msgid "評估通過，決策結論：%s"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_form
+msgid "評分"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__score_ids
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_form
+msgid "評分明細"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility_score__reviewer_id
+msgid "評分者"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#. odoo-python
+#: code:addons/plm_custom_feasibility/models/plm_feasibility_score.py:0
+msgid "評分者 %s 已停用，請改派其他評分者"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__user_id
+msgid "負責業務"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model_terms:ir.actions.act_window,help:plm_custom_feasibility.plm_feasibility_action
+msgid "跨部門可行性評估主檔（產能 / 技術 / 料況 / 法規 / 風險）。"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.module.module,summary:base.module_plm_custom_feasibility
+msgid "跨部門可行性評估（產能/技術/料況/法規/風險五面向評分）"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#. odoo-python
+#: code:addons/plm_custom_feasibility/models/plm_feasibility.py:0
+msgid "送出前請至少建立 1 筆評分明細"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_form
+msgid "送出簽核"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_form
+msgid "送出評估"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:mail.template,description:plm_custom_feasibility.mail_template_plm_feasibility_submit
+msgid "送出評估時通知相關部門與負責業務"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields.selection,name:plm_custom_feasibility.selection__plm_custom_feasibility__state__approved
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_form
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_search
+msgid "通過"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility_score__department
+msgid "部門"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields.selection,name:plm_custom_feasibility.selection__plm_custom_feasibility__source_model__sale_order_line
+#: model:ir.model.fields.selection,name:plm_custom_feasibility.selection__plm_custom_feasibility_wizard__source_model__sale_order_line
+msgid "銷售明細"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields.selection,name:plm_custom_feasibility.selection__plm_custom_feasibility__source_model__sale_order
+#: model:ir.model.fields.selection,name:plm_custom_feasibility.selection__plm_custom_feasibility_wizard__source_model__sale_order
+msgid "銷售訂單"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__product_qty
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility_wizard__product_qty
+msgid "預估數量"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model:ir.model.fields,field_description:plm_custom_feasibility.field_plm_custom_feasibility__score_risk
+msgid "風險分數 (0-10)"
+msgstr ""
+
+#. module: plm_custom_feasibility
+#: model_terms:ir.ui.view,arch_db:plm_custom_feasibility.plm_feasibility_view_form
+msgid "駁回"
+msgstr ""

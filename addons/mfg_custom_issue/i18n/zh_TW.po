@@ -1,0 +1,921 @@
+# Chinese (Traditional) translation of Odoo Server module mfg_custom_issue.
+# This file contains the translation of the following modules:
+# 	* mfg_custom_issue
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 20.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 09:42+0000\n"
+"PO-Revision-Date: 2026-10-26 09:42+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: zh_TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: mfg_custom_issue
+#: model:ir.module.module,description:base.module_mfg_custom_issue
+msgid "\nMFG Custom - Production Issue\n=============================\n\n產線問題点管理系統（取代 Enterprise ``helpdesk``）：\n\n* Kanban 看板（依 stage 自動分組）\n* 8D 流程欄位（D1 / D2 / D3 / D5 / D7）與 5Why 根因分析\n* 改善行動追蹤（deadline、負責人、驗證）\n* 從 mrp.production 一鍵新增問題点；品檢單以「對應品檢」欄位互相連結\n* 可升級為 ECO（plm_custom.eco）\n* 多部門協作：MO、工序、工作中心、產品、批號、品檢\n* 多層簽核（透過 mfg_custom_approval）\n"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model_terms:ir.ui.view,arch_db:mfg_custom_issue.mfg_issue_view_form
+msgid "8D 流程"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:mail.template,body_html:mfg_custom_issue.mail_template_mfg_issue_open
+msgid "<p>問題点 <t t-out=\"object.name\"/> 已開立。</p>\n<ul>\n    <li>主旨：<t t-out=\"object.subject\"/></li>\n    <li>負責人：<t t-out=\"object.user_id.name\"/></li>\n    <li>MO：<t t-out=\"object.production_id.name or ''\"/></li>\n</ul>\n        "
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model_terms:ir.ui.view,arch_db:mfg_custom_issue.mfg_issue_view_kanban
+msgid "<span class=\"badge rounded-pill text-bg-info ms-2\">ECO</span>"
+msgstr "<span class=\"badge rounded-pill text-bg-info ms-2\">ECO</span>"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__message_needaction
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__message_needaction
+msgid "Action Needed"
+msgstr "需要採取行動"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__activity_ids
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__activity_ids
+msgid "Activities"
+msgstr "活動"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__activity_exception_decoration
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "活動異常圖示"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__activity_plans_ids
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__activity_plans_ids
+msgid "Activity Plans"
+msgstr "活動計劃"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__activity_state
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__activity_state
+msgid "Activity State"
+msgstr "活動狀態"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__activity_type_icon
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "活動類型圖示"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__message_attachment_count
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__message_attachment_count
+msgid "Attachment Count"
+msgstr "附件數目"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__rating_avg
+msgid "Average Rating"
+msgstr "平均評分"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__code
+msgid "Code"
+msgstr "代碼"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_stage__color
+msgid "Color"
+msgstr "顏色"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__create_uid
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__create_uid
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_stage__create_uid
+msgid "Created by"
+msgstr "創建者"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__create_date
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__create_date
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_stage__create_date
+msgid "Created on"
+msgstr "創建時間"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__d1_team
+msgid "D1 成立小組"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__d2_problem
+msgid "D2 問題描述"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__d3_containment
+msgid "D3 圍堵措施"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__d5_corrective
+msgid "D5 永久對策"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__d7_prevent
+msgid "D7 防再發"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__display_name
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__display_name
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_stage__display_name
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mrp_production__display_name
+msgid "Display Name"
+msgstr "顯示名稱"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields.selection,name:mfg_custom_issue.selection__mfg_custom_issue__eco_id__plm_custom_eco
+msgid "ECO"
+msgstr "ECO"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__message_follower_ids
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__message_follower_ids
+msgid "Followers"
+msgstr "關注人"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__message_partner_ids
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "關注人（業務夥伴）"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__has_message
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__has_message
+msgid "Has Message"
+msgstr "有訊息"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__id
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__id
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_stage__id
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mrp_production__id
+msgid "ID"
+msgstr "ID"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__activity_exception_icon
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__activity_exception_icon
+msgid "Icon"
+msgstr "圖示"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,help:mfg_custom_issue.field_mfg_custom_issue__activity_exception_icon
+#: model:ir.model.fields,help:mfg_custom_issue.field_mfg_custom_issue_action__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "用於指示異常活動的圖示。"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,help:mfg_custom_issue.field_mfg_custom_issue__message_needaction
+#: model:ir.model.fields,help:mfg_custom_issue.field_mfg_custom_issue_action__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "勾選代表有新訊息需要您留意。"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,help:mfg_custom_issue.field_mfg_custom_issue__message_has_error
+#: model:ir.model.fields,help:mfg_custom_issue.field_mfg_custom_issue__message_has_sms_error
+#: model:ir.model.fields,help:mfg_custom_issue.field_mfg_custom_issue_action__message_has_error
+#: model:ir.model.fields,help:mfg_custom_issue.field_mfg_custom_issue_action__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "勾選代表有訊息發生傳送錯誤。"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__message_is_follower
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__message_is_follower
+msgid "Is Follower"
+msgstr "是關注人"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__issue_id
+msgid "Issue"
+msgstr "問題"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__issue_type
+msgid "Issue Type"
+msgstr "問題類型"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__write_uid
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__write_uid
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_stage__write_uid
+msgid "Last Updated by"
+msgstr "最後更新人"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__write_date
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__write_date
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_stage__write_date
+msgid "Last Updated on"
+msgstr "最後更新於"
+
+#. module: mfg_custom_issue
+#: model:ir.module.module,shortdesc:base.module_mfg_custom_issue
+msgid "MFG Custom - Production Issue"
+msgstr "MFG Custom - Production Issue"
+
+#. module: mfg_custom_issue
+#: model:ir.model,name:mfg_custom_issue.model_mfg_custom_issue_action
+msgid "MFG Custom 問題点改善行動"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model,name:mfg_custom_issue.model_mfg_custom_issue_stage
+msgid "MFG Custom 問題点階段"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model,name:mfg_custom_issue.model_mfg_custom_issue
+msgid "MFG Custom 產線問題点"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model,name:mfg_custom_issue.model_mrp_production
+msgid "Manufacturing Order"
+msgstr "製造訂單"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,help:mfg_custom_issue.field_mfg_custom_issue__activity_type_icon
+#: model:ir.model.fields,help:mfg_custom_issue.field_mfg_custom_issue_action__activity_type_icon
+msgid "Material Symbols icon e.g. checklist"
+msgstr "Material 符號圖示，例如：檢查清單"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__message_has_error
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__message_has_error
+msgid "Message Delivery error"
+msgstr "訊息遞送錯誤"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__message_ids
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__message_ids
+msgid "Messages"
+msgstr "訊息"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__my_activity_date_deadline
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "我的活動截止時間"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__name
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_stage__name
+msgid "Name"
+msgstr "名稱"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__activity_date_deadline
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "下一活動截止日期"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__activity_summary
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__activity_summary
+msgid "Next Activity Summary"
+msgstr "下一活動摘要"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__activity_type_id
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__activity_type_id
+msgid "Next Activity Type"
+msgstr "下一活動類型"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__message_needaction_counter
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__message_needaction_counter
+msgid "Number of Actions"
+msgstr "動作數量"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__message_has_error_counter
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__message_has_error_counter
+msgid "Number of errors"
+msgstr "錯誤數量"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,help:mfg_custom_issue.field_mfg_custom_issue__message_needaction_counter
+#: model:ir.model.fields,help:mfg_custom_issue.field_mfg_custom_issue_action__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "需要採取行動的訊息數目"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,help:mfg_custom_issue.field_mfg_custom_issue__message_has_error_counter
+#: model:ir.model.fields,help:mfg_custom_issue.field_mfg_custom_issue_action__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "有發送錯誤的郵件數量"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__priority
+msgid "Priority"
+msgstr "優先等級"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__rating_avg_text
+msgid "Rating Avg Text"
+msgstr "平均評分文字"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__rating_last_feedback
+msgid "Rating Last Feedback"
+msgstr "最新回饋評分"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__rating_last_image
+msgid "Rating Last Image"
+msgstr "最新評分圖像"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__rating_last_value
+msgid "Rating Last Value"
+msgstr "最新評分值"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__rating_percentage_satisfaction
+msgid "Rating Satisfaction"
+msgstr "評級滿意度"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__rating_last_text
+msgid "Rating Text"
+msgstr "評分文字"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__rating_count
+msgid "Rating count"
+msgstr "評分數"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__rating_ids
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__rating_ids
+msgid "Ratings"
+msgstr "評分"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__activity_user_id
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__activity_user_id
+msgid "Responsible User"
+msgstr "負責使用者"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__message_has_sms_error
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "簡訊發送錯誤"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_stage__sequence
+msgid "Sequence"
+msgstr "序列"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__state
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__state
+msgid "State"
+msgstr "州/省"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,help:mfg_custom_issue.field_mfg_custom_issue__activity_state
+#: model:ir.model.fields,help:mfg_custom_issue.field_mfg_custom_issue_action__activity_state
+msgid "Status based on activities\nOverdue: Due date is already passed\nToday: Activity date is today\nPlanned: Future activities."
+msgstr "根據活動的狀態 \n 逾期：已經超過截止日期 \n 現今：活動日期是當天 \n 計劃：未來活動。"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,help:mfg_custom_issue.field_mfg_custom_issue__activity_exception_decoration
+#: model:ir.model.fields,help:mfg_custom_issue.field_mfg_custom_issue_action__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "記錄的異常活動的類型。"
+
+#. module: mfg_custom_issue
+#: model:mail.template,subject:mfg_custom_issue.mail_template_mfg_issue_open
+msgid "{{ object.name }} {{ object.subject }}"
+msgstr "{{ object.name }} {{ object.subject }}"
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields.selection,name:mfg_custom_issue.selection__mfg_custom_issue__issue_type__defect
+msgid "不良"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields.selection,name:mfg_custom_issue.selection__mfg_custom_issue__priority__1
+msgid "中"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__subject
+msgid "主旨"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields.selection,name:mfg_custom_issue.selection__mfg_custom_issue__priority__0
+msgid "低"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,help:mfg_custom_issue.field_mfg_custom_issue__approval_rule_id
+msgid "依目前單據內容符合的簽核規則（尚未送出簽核時也能預覽）。"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model_terms:ir.ui.view,arch_db:mfg_custom_issue.mfg_issue_view_search
+msgid "依負責人"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model_terms:ir.ui.view,arch_db:mfg_custom_issue.mfg_issue_view_search
+msgid "依階段"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model_terms:ir.ui.view,arch_db:mfg_custom_issue.mfg_issue_view_search
+msgid "依類型"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__notes
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__notes
+msgid "備註"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields.selection,name:mfg_custom_issue.selection__mfg_custom_issue__issue_type__other
+msgid "其他"
+msgstr ""
+
+#. module: mfg_custom_issue
+#. odoo-python
+#: code:addons/mfg_custom_issue/models/mfg_issue.py:0
+#: model:ir.model.fields.selection,name:mfg_custom_issue.selection__mfg_custom_issue__state__analyzing
+#: model:mfg_custom.issue.stage,name:mfg_custom_issue.stage_analyzing
+msgid "分析中"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__eco_id
+#: model:mail.message.subtype,name:mfg_custom_issue.mt_mfg_issue_escalated
+msgid "升級 ECO"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model_terms:ir.ui.view,arch_db:mfg_custom_issue.mfg_issue_view_form
+msgid "升級為 ECO"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields.selection,name:mfg_custom_issue.selection__mfg_custom_issue__state__cancelled
+#: model:ir.model.fields.selection,name:mfg_custom_issue.selection__mfg_custom_issue_action__state__cancelled
+msgid "取消"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model_terms:ir.ui.view,arch_db:mfg_custom_issue.mfg_issue_view_form
+msgid "取消簽核"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mrp_production__mfg_custom_issue_ids
+#: model_terms:ir.ui.view,arch_db:mfg_custom_issue.mfg_issue_view_form
+#: model_terms:ir.ui.view,arch_db:mfg_custom_issue.mfg_issue_view_tree
+#: model_terms:ir.ui.view,arch_db:mfg_custom_issue.mrp_production_form_view_inherit_mfg_issue
+msgid "問題点"
+msgstr ""
+
+#. module: mfg_custom_issue
+#. odoo-python
+#: code:addons/mfg_custom_issue/models/mfg_issue.py:0
+msgid "問題点 %s 已結案，無法再送出簽核。"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mrp_production__mfg_custom_issue_count
+msgid "問題点數"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.ui.menu,name:mfg_custom_issue.menu_mfg_issue_tree
+msgid "問題点清單"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.ui.menu,name:mfg_custom_issue.menu_mfg_issue_kanban
+msgid "問題点看板"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:mail.template,name:mfg_custom_issue.mail_template_mfg_issue_open
+msgid "問題点開立通知"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.actions.act_window,name:mfg_custom_issue.mfg_issue_stage_action
+#: model:ir.ui.menu,name:mfg_custom_issue.menu_mfg_issue_stage
+#: model_terms:ir.ui.view,arch_db:mfg_custom_issue.mfg_issue_stage_view_tree
+msgid "問題点階段"
+msgstr ""
+
+#. module: mfg_custom_issue
+#. odoo-python
+#: code:addons/mfg_custom_issue/models/mfg_issue.py:0
+msgid "問題点需先關聯產品才能升級為 ECO"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.actions.act_window,name:mfg_custom_issue.mfg_issue_action_tree
+msgid "問題点（清單）"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.actions.act_window,name:mfg_custom_issue.mfg_issue_action_kanban
+msgid "問題点（看板）"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:mfg_custom.approval.rule,name:mfg_custom_issue.mfg_issue_approval_rule_default
+msgid "問題點結案審核"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:mfg_custom.issue.stage,name:mfg_custom_issue.stage_containment
+msgid "圍堵中"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields.selection,name:mfg_custom_issue.selection__mfg_custom_issue_action__state__doing
+msgid "執行中"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields.selection,name:mfg_custom_issue.selection__mfg_custom_issue__state__implementing
+msgid "執行改善"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields.selection,name:mfg_custom_issue.selection__mfg_custom_issue__issue_type__safety
+msgid "安全"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__done_date
+msgid "完成日"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__task_id
+msgid "對應任務"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__quality_check_id
+msgid "對應品檢"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__name
+msgid "對策"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__workcenter_id
+msgid "工作中心"
+msgstr ""
+
+#. module: mfg_custom_issue
+#. odoo-python
+#: code:addons/mfg_custom_issue/models/mfg_issue.py:0
+msgid "已升級為 ECO %s"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields.selection,name:mfg_custom_issue.selection__mfg_custom_issue_action__state__done
+msgid "已完成"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model_terms:ir.ui.view,arch_db:mfg_custom_issue.mfg_issue_view_search
+msgid "已核准"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields.selection,name:mfg_custom_issue.selection__mfg_custom_issue__state__closed
+#: model:mfg_custom.issue.stage,name:mfg_custom_issue.stage_closed
+#: model_terms:ir.ui.view,arch_db:mfg_custom_issue.mfg_issue_view_form
+#: model_terms:ir.ui.view,arch_db:mfg_custom_issue.mfg_issue_view_search
+msgid "已結案"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields.selection,name:mfg_custom_issue.selection__mfg_custom_issue_action__state__verified
+msgid "已驗證"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields.selection,name:mfg_custom_issue.selection__mfg_custom_issue_action__state__todo
+msgid "待執行"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model_terms:ir.ui.view,arch_db:mfg_custom_issue.mfg_issue_view_search
+msgid "待簽核"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__lot_id
+msgid "批號"
+msgstr ""
+
+#. module: mfg_custom_issue
+#. odoo-python
+#: code:addons/mfg_custom_issue/models/mfg_issue.py:0
+msgid "找不到「分析中」階段，請先建立問題点階段"
+msgstr ""
+
+#. module: mfg_custom_issue
+#. odoo-python
+#: code:addons/mfg_custom_issue/models/mfg_issue.py:0
+msgid "找不到「開立」階段，請先建立問題点階段"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model_terms:ir.ui.view,arch_db:mfg_custom_issue.mfg_issue_view_search
+msgid "搜尋問題点"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_stage__fold
+msgid "收合"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__action_ids
+#: model_terms:ir.ui.view,arch_db:mfg_custom_issue.mfg_issue_view_form
+msgid "改善行動"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model_terms:ir.ui.view,arch_db:mfg_custom_issue.mrp_production_form_view_inherit_mfg_issue
+msgid "新增問題点"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__deadline
+msgid "期限"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,help:mfg_custom_issue.field_mfg_custom_issue__eco_id
+msgid "本問題被升級為 ECO 時記錄（待 plm_custom_eco 模組安裝後即可使用）。"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model_terms:ir.ui.view,arch_db:mfg_custom_issue.mfg_issue_view_form
+msgid "核准目前關卡"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__root_cause
+msgid "根因分析（5Why）"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,help:mfg_custom_issue.field_mrp_production__mfg_custom_issue_count
+msgid "此 MO 的問題点數（需安裝 mfg_custom_issue 模組，未安裝時為 0）。"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:mfg_custom.issue.stage,name:mfg_custom_issue.stage_implementing
+msgid "永久對策執行中"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields.selection,name:mfg_custom_issue.selection__mfg_custom_issue__issue_type__material
+msgid "物料"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:mail.message.subtype,name:mfg_custom_issue.mt_mfg_issue_state_changed
+msgid "狀態變更"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__description
+#: model_terms:ir.ui.view,arch_db:mfg_custom_issue.mfg_issue_view_form
+msgid "現象描述"
+msgstr ""
+
+#. module: mfg_custom_issue
+#. odoo-python
+#: code:addons/mfg_custom_issue/models/mfg_issue.py:0
+msgid "產品 %s 找不到 BOM，無法升級為 ECO"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.module.module,summary:base.module_mfg_custom_issue
+msgid "產線問題点收集 + 改善追蹤 + 對應 ECO / 8D 報告（取代 Enterprise helpdesk）"
+msgstr ""
+
+#. module: mfg_custom_issue
+#. odoo-python
+#: code:addons/mfg_custom_issue/models/mfg_issue.py:0
+msgid "由問題点 %s 升級"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__production_id
+msgid "相關 MO"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__workorder_id
+msgid "相關工序"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__product_id
+msgid "相關產品"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,help:mfg_custom_issue.field_mfg_custom_issue_stage__fold
+msgid "看板收合狀態。已收合的 stage 在 kanban 預設為摺疊狀態。"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model_terms:ir.ui.view,arch_db:mfg_custom_issue.mfg_issue_view_form
+msgid "確定要駁回此簽核流程？"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:mfg_custom.approval.step,name:mfg_custom_issue.mfg_issue_approval_rule_default_step1
+msgid "管理部核准"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model_terms:ir.ui.view,arch_db:mfg_custom_issue.mfg_issue_view_form
+msgid "簡述問題..."
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__approval_request_id
+msgid "簽核單"
+msgstr ""
+
+#. module: mfg_custom_issue
+#. odoo-python
+#: code:addons/mfg_custom_issue/models/mfg_issue.py:0
+msgid "簽核已取消，問題点退回「%s」。"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__approval_state
+msgid "簽核狀態"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__approval_rule_id
+msgid "簽核規則"
+msgstr ""
+
+#. module: mfg_custom_issue
+#. odoo-python
+#: code:addons/mfg_custom_issue/models/mfg_issue.py:0
+msgid "簽核通過，問題点已結案。"
+msgstr ""
+
+#. module: mfg_custom_issue
+#. odoo-python
+#: code:addons/mfg_custom_issue/models/mfg_issue.py:0
+msgid "簽核駁回，問題点退回「%s」。"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model_terms:ir.ui.view,arch_db:mfg_custom_issue.mfg_issue_view_form
+msgid "結案"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__closed_date
+msgid "結案日"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_stage__is_closed
+msgid "結案階段"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields.selection,name:mfg_custom_issue.selection__mfg_custom_issue__priority__3
+msgid "緊急"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields.selection,name:mfg_custom_issue.selection__mfg_custom_issue__issue_type__process
+msgid "製程"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields.selection,name:mfg_custom_issue.selection__mfg_custom_issue__issue_type__machine
+msgid "設備"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__description
+msgid "說明"
+msgstr ""
+
+#. module: mfg_custom_issue
+#. odoo-python
+#: code:addons/mfg_custom_issue/models/mfg_issue.py:0
+msgid "請先建立一個「結案」階段"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__user_id
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__owner_id
+msgid "負責人"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model_terms:ir.ui.view,arch_db:mfg_custom_issue.mfg_issue_view_form
+msgid "送出簽核"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__reporter_id
+msgid "通報人"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,help:mfg_custom_issue.field_mfg_custom_issue__task_id
+msgid "選填：可連結到 project.task 以納入專案排程。"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model_terms:ir.ui.view,arch_db:mfg_custom_issue.mfg_issue_view_form
+msgid "重啟"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields.selection,name:mfg_custom_issue.selection__mfg_custom_issue__state__open
+#: model:mfg_custom.issue.stage,name:mfg_custom_issue.stage_open
+msgid "開立"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model_terms:ir.ui.view,arch_db:mfg_custom_issue.mfg_issue_view_search
+msgid "開立中"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model_terms:ir.ui.view,arch_db:mfg_custom_issue.mfg_issue_view_form
+msgid "關聯"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue__stage_id
+msgid "階段"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model_terms:ir.ui.view,arch_db:mfg_custom_issue.mfg_issue_view_form
+msgid "駁回"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields.selection,name:mfg_custom_issue.selection__mfg_custom_issue_action__state__verify
+#: model:mfg_custom.issue.stage,name:mfg_custom_issue.stage_verifying
+msgid "驗證中"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields,field_description:mfg_custom_issue.field_mfg_custom_issue_action__verification_note
+msgid "驗證結果"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model:ir.model.fields.selection,name:mfg_custom_issue.selection__mfg_custom_issue__priority__2
+msgid "高"
+msgstr ""
+
+#. module: mfg_custom_issue
+#: model_terms:ir.ui.view,arch_db:mfg_custom_issue.mfg_issue_view_search
+msgid "高/緊急"
+msgstr ""

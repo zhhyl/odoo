@@ -1,0 +1,1279 @@
+# Chinese (Simplified) translation of Odoo Server module mfg_custom_approval.
+# This file contains the translation of the following modules:
+# 	* mfg_custom_approval
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 20.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 09:42+0000\n"
+"PO-Revision-Date: 2026-10-26 09:42+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: mfg_custom_approval
+#: model:ir.module.module,description:base.module_mfg_custom_approval
+msgid "\nMFG Custom - Multi-level Approval\n=================================\n\n通用多層簽核引擎，可掛載到任何業務模型（plm_custom.eco、sale.order、mrp.production 等）。\n取代 Enterprise ``approvals`` 模組。\n\n提供：\n\n* 抽象 mixin ``mfg_custom.approval.mixin`` （可由其他模型繼承）\n* 簽核規則 ``mfg_custom.approval.rule`` （含適用 model 與 domain）\n* 簽核關卡 ``mfg_custom.approval.step`` （支援 user / group / group_all / field 四種 approver_mode）\n* 簽核申請 ``mfg_custom.approval.request`` （state machine：draft/pending/approved/rejected/cancelled）\n* 簽核紀錄 ``mfg_custom.approval.line`` （每關卡的決策與意見）\n\n安裝後即可在「MFG Custom > 設定 > 簽核規則」建立流程，\n並讓 ``plm_custom.eco``、``sale.order`` 等模型透過繼承 mixin 取得簽核按鈕。\n"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_request.py:0
+msgid "\n意見：%s"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_line.py:0
+msgid "%(step)s / %(user)s"
+msgstr "%(step)s / %(user)s"
+
+#. module: mfg_custom_approval
+#: model:mail.template,body_html:mfg_custom_approval.mail_template_mfg_approval_request
+msgid "<div style=\"margin: 0px; padding: 0px;\">\n    <p style=\"margin: 0 0 12px 0; font-size: 13px;\">\n        你好，\n        <br/><br/>\n        <t t-out=\"object.requester_id.display_name or ''\">申請者</t>\n        提出了新的簽核申請 <strong t-out=\"object.name or ''\">APR/2026/00001</strong>。\n        <br/>\n        規則：<t t-out=\"object.rule_id.display_name or ''\">規則</t>\n        <br/>\n        業務單據：<t t-out=\"object.res_model or ''\">model</t> #<t t-out=\"object.res_id or ''\">0</t>\n        <br/>\n        當前關卡：<t t-if=\"object.current_step_id\">\n            <t t-out=\"object.current_step_id.display_name or ''\">關卡</t>\n        </t>\n        <t t-else=\"\">無</t>\n        <br/><br/>\n        請至系統查看並進行簽核。\n    </p>\n</div>\n        "
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:mail.template,body_html:mfg_custom_approval.mail_template_mfg_approval_decided
+msgid "<div style=\"margin: 0px; padding: 0px;\">\n    <p style=\"margin: 0 0 12px 0; font-size: 13px;\">\n        你好，\n        <br/><br/>\n        簽核申請 <strong t-out=\"object.name or ''\">APR/2026/00001</strong> 目前狀態為\n        <strong t-out=\"dict(object._fields['state'].selection).get(object.state) or ''\">state</strong>。\n        <t t-if=\"object.reason\">\n            <br/>原因：<t t-out=\"object.reason or ''\"/>\n        </t>\n        <br/><br/>\n        規則：<t t-out=\"object.rule_id.display_name or ''\"/>\n    </p>\n</div>\n        "
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_mixin__message_needaction
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__message_needaction
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_test_model__message_needaction
+msgid "Action Needed"
+msgstr "待处理"
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_rule__active
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_test_model__active
+msgid "Active"
+msgstr "启用"
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_test_model__amount_total
+msgid "Amount Total"
+msgstr "金额合计"
+
+#. module: mfg_custom_approval
+#: model:ir.model,name:mfg_custom_approval.model_mfg_custom_approval_test_model
+msgid "Approval Test Model"
+msgstr "审批测试模型"
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_step__approver_mode
+msgid "Approver Mode"
+msgstr "核准人模式"
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_test_model__approver_user_id
+msgid "Approver User"
+msgstr "核准人"
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_mixin__message_attachment_count
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__message_attachment_count
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_test_model__message_attachment_count
+msgid "Attachment Count"
+msgstr "附件数量"
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_approval_test_model__state__confirmed
+msgid "Confirmed"
+msgstr "已确认"
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_line__create_uid
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__create_uid
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_rule__create_uid
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_step__create_uid
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_test_model__create_uid
+msgid "Created by"
+msgstr "创建人"
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_line__create_date
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__create_date
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_rule__create_date
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_step__create_date
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_test_model__create_date
+msgid "Created on"
+msgstr "创建于"
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_line__decision
+msgid "Decision"
+msgstr "决策"
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_line__display_name
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_mixin__display_name
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__display_name
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_rule__display_name
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_step__display_name
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_test_model__display_name
+msgid "Display Name"
+msgstr "‎显示名称‎"
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_approval_test_model__state__draft
+msgid "Draft"
+msgstr "草稿"
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_mixin__message_follower_ids
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__message_follower_ids
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_test_model__message_follower_ids
+msgid "Followers"
+msgstr "关注者"
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_mixin__message_partner_ids
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__message_partner_ids
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_test_model__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "关注者(合作伙伴)"
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_mixin__has_message
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__has_message
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_test_model__has_message
+msgid "Has Message"
+msgstr "有消息"
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_line__id
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_mixin__id
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__id
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_rule__id
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_step__id
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_test_model__id
+msgid "ID"
+msgstr "ID"
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_mixin__message_needaction
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_request__message_needaction
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_test_model__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "如果勾选此项，则需要查看新消息。"
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_mixin__message_has_error
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_request__message_has_error
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_test_model__message_has_error
+msgid "If checked, some messages have a delivery error."
+msgstr "如果勾选此项， 某些消息将出现发送错误。"
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_mixin__message_is_follower
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__message_is_follower
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_test_model__message_is_follower
+msgid "Is Follower"
+msgstr "是关注者"
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_line__write_uid
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__write_uid
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_rule__write_uid
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_step__write_uid
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_test_model__write_uid
+msgid "Last Updated by"
+msgstr "上一更新人"
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_line__write_date
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__write_date
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_rule__write_date
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_step__write_date
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_test_model__write_date
+msgid "Last Updated on"
+msgstr "上一更新日期"
+
+#. module: mfg_custom_approval
+#: model:ir.module.module,shortdesc:base.module_mfg_custom_approval
+msgid "MFG Custom - Multi-level Approval"
+msgstr "MFG Custom - Multi-level Approval"
+
+#. module: mfg_custom_approval
+#: model:mail.template,name:mfg_custom_approval.mail_template_mfg_approval_decided
+msgid "MFG Custom Approval: Decision"
+msgstr "MFG Custom 审批：决策"
+
+#. module: mfg_custom_approval
+#: model:mail.template,name:mfg_custom_approval.mail_template_mfg_approval_request
+msgid "MFG Custom Approval: Request Approval"
+msgstr "MFG Custom 审批：送出签核"
+
+#. module: mfg_custom_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_mixin_view_form
+msgid "MFG Custom 簽核"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model,name:mfg_custom_approval.model_mfg_custom_approval_mixin
+msgid "MFG Custom 簽核 mixin"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.actions.act_window,name:mfg_custom_approval.mfg_approval_request_action
+#: model:ir.model,name:mfg_custom_approval.model_mfg_custom_approval_request
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_request_view_form
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_request_view_tree
+msgid "MFG Custom 簽核申請"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model,name:mfg_custom_approval.model_mfg_custom_approval_line
+msgid "MFG Custom 簽核紀錄"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.actions.act_window,name:mfg_custom_approval.mfg_approval_rule_action
+#: model:ir.model,name:mfg_custom_approval.model_mfg_custom_approval_rule
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_rule_view_form
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_rule_view_tree
+msgid "MFG Custom 簽核規則"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model,name:mfg_custom_approval.model_mfg_custom_approval_step
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_step_view_form
+msgid "MFG Custom 簽核關卡"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.actions.server,name:mfg_custom_approval.mfg_approval_notify_overdue_server_action
+msgid "MFG: 提醒逾期的簽核申請"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_mixin__message_has_error
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__message_has_error
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_test_model__message_has_error
+msgid "Message Delivery error"
+msgstr "消息传递错误"
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_mixin__message_ids
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__message_ids
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_test_model__message_ids
+msgid "Messages"
+msgstr "消息"
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_mixin__message_needaction_counter
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__message_needaction_counter
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_test_model__message_needaction_counter
+msgid "Number of Actions"
+msgstr "动作数量"
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_mixin__message_has_error_counter
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__message_has_error_counter
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_test_model__message_has_error_counter
+msgid "Number of errors"
+msgstr "错误数"
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_mixin__message_needaction_counter
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_request__message_needaction_counter
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_test_model__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "需要采取行动的信息数量"
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_mixin__message_has_error_counter
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_request__message_has_error_counter
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_test_model__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "出现发送错误的消息数量"
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_mixin__rating_ids
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__rating_ids
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_test_model__rating_ids
+msgid "Ratings"
+msgstr "点评"
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_rule__sequence
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_step__sequence
+msgid "Sequence"
+msgstr "单号规则"
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__state
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_test_model__state
+msgid "State"
+msgstr "状态"
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_step__user_ids
+msgid "User"
+msgstr "用户"
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_step__group_id
+msgid "approver_mode 為 group / group_all 時使用。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_step__user_ids
+msgid "approver_mode 為 user 時使用；任一人核准即可通過本關卡。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_step__approver_field_id
+msgid "approver_mode 為「由單據欄位決定」時使用；選擇單據上指向使用者（res.users）的欄位，例如「ECO 負責人」。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:mail.template,subject:mfg_custom_approval.mail_template_mfg_approval_request
+msgid "{{ object.name }}：{{ object.res_model }} #{{ object.res_id }} 待您簽核"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:mail.template,subject:mfg_custom_approval.mail_template_mfg_approval_decided
+msgid "{{ object.name }}：簽核結果 - {{ object.state }}"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_request__is_overdue
+msgid "仍在待簽核狀態且已超過簽核期限。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_rule_view_form
+msgid "例：採購單金額 > 100 萬"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_rule__model_name
+msgid "供前端條件建構器使用，指定要對哪個模型建立條件。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_request_view_search
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_rule_view_search
+msgid "依業務模型"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_request_view_search
+msgid "依狀態"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_mixin__approval_rule_id
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_test_model__approval_rule_id
+msgid "依目前單據內容符合的簽核規則（尚未送出簽核時也能預覽）。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_request_view_search
+msgid "依規則"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_test_model__notes
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_rule_view_form
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_step_view_form
+msgid "備註"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_request.py:0
+msgid "僅有「已取消」或「被駁回」狀態可重置為草稿"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_test_model__priority
+msgid "優先順序"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_approval_request__state__approved
+msgid "全部核准"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__company_id
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_rule__company_id
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_test_model__company_id
+msgid "公司"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_approval_request__state__cancelled
+msgid "取消"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_mixin_view_form
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_request_view_form
+msgid "取消簽核"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_request.py:0
+msgid "只有申請人或管理員可以刪除簽核申請"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.constraint,message:mfg_custom_approval.constraint_mfg_custom_approval_line_line_user_uniq
+msgid "同一關卡同一簽核者只能有一筆紀錄。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.constraint,message:mfg_custom_approval.constraint_mfg_custom_approval_rule_rule_model_uniq
+msgid "同公司內同一 model 的規則名稱不可重複。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_rule_view_search
+msgid "啟用中"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_step__amount_field_id
+msgid "單據上用來判斷金額門檻的數值欄位，例如「訂單金額」。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_step__min_amount
+msgid "單據金額大於等於此值才需要走本關卡；留空表示不限制。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_step__max_amount
+msgid "單據金額小於等於此值才需要走本關卡；留空表示不限制。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__name
+msgid "單號"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_request.py:0
+msgid "對應的業務單據已不存在"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_request.py:0
+msgid "對應的業務單據已不存在，無法簽核"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_rule_view_form
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_rule_view_search
+msgid "已停用"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_request_view_search
+msgid "已取消"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_approval_mixin__approval_state__approved
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_approval_test_model__approval_state__approved
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_issue__approval_state__approved
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_quality_check__approval_state__approved
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__plm_custom_eco__approval_state__approved
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__plm_custom_feasibility__approval_state__approved
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__purchase_order__approval_state__approved
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_mixin_view_search
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_request_view_search
+msgid "已核准"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_mixin.py:0
+msgid "已送出簽核申請：%s（%d 個關卡）"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__is_overdue
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_request_view_form
+msgid "已逾期"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_mixin.py:0
+msgid "已重新送出簽核申請：%s（%d 個關卡）"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_approval_mixin__approval_state__rejected
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_approval_test_model__approval_state__rejected
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_issue__approval_state__rejected
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_quality_check__approval_state__rejected
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__plm_custom_eco__approval_state__rejected
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__plm_custom_feasibility__approval_state__rejected
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__purchase_order__approval_state__rejected
+msgid "已駁回"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.actions.act_window,name:mfg_custom_approval.mfg_approval_request_action_my_decision
+#: model:ir.ui.menu,name:mfg_custom_approval.menu_mfg_approval_my_decision
+msgid "待我簽核"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_approval_line__decision__pending
+msgid "待簽"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_approval_mixin__approval_state__pending
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_approval_request__state__pending
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_approval_test_model__approval_state__pending
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_issue__approval_state__pending
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_quality_check__approval_state__pending
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__plm_custom_eco__approval_state__pending
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__plm_custom_feasibility__approval_state__pending
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__purchase_order__approval_state__pending
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_mixin_view_search
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_request_view_search
+msgid "待簽核"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__pending_approver_emails
+msgid "待簽核者信箱"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_step__required
+msgid "必經關卡"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_step__required
+msgid "必經關卡：若解析不到任何簽核者，送出簽核時會直接報錯，避免單據在無人簽核的情況下通過。取消勾選後，解析不到簽核者的關卡會被略過。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_request.py:0
+msgid "您不在本關卡的簽核者名單中，或已簽過"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_line.py:0
+msgid "您只能刪除自己提出的簽核申請之紀錄"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_line.py:0
+msgid "您只能變更自己的簽核紀錄（關卡 %s）"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_line__comment
+msgid "意見"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_request_view_search
+msgid "我待簽"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_request_view_search
+msgid "我提出的"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.actions.act_window,help:mfg_custom_approval.mfg_approval_request_action
+msgid "所有業務模型送出來的簽核申請彙總於此。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_request.py:0
+msgid "所有簽核關卡皆已通過，狀態：已核准"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_request.py:0
+msgid "找不到對應的簽核規則"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_request.py:0
+msgid "找不到當前關卡"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_rule__res_model
+msgid "技術模型名"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_rule__res_model
+msgid "技術模型名稱，如 plm_custom.eco、mrp.production。（由「適用單據類型」自動帶出）"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_approval_step__approver_mode__user
+msgid "指定人員"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_step__group_id
+msgid "指定群組"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_approval_step__approver_mode__group
+msgid "指定群組（任一即可）"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_approval_step__approver_mode__group_all
+msgid "指定群組（全員皆要核可）"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_mixin_view_search
+msgid "搜尋簽核狀態"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_request_view_search
+msgid "搜尋簽核申請"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_rule_view_search
+msgid "搜尋簽核規則"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_step_view_search
+msgid "搜尋簽核關卡"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_request.py:0
+msgid "本關卡已由其他簽核者核准，自動略過。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_approval_line__decision__approved
+msgid "核准"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_mixin_view_form
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_request_view_form
+msgid "核准目前關卡"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__res_display_name
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_request_view_search
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_request_view_tree
+msgid "業務單據"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__res_id
+msgid "業務單據 ID"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__res_model
+msgid "業務模型"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_request.py:0
+msgid "業務模型 %s 不存在"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_test_model__tag_ids
+msgid "標籤"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_rule.py:0
+msgid "模型「%s」尚未掛載簽核功能，無法設定簽核規則。\n可套用的單據類型：%s"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_rule__model_name
+msgid "模型技術名"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_step__approver_field
+msgid "欄位名稱"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_mixin.py:0
+msgid "此單已有進行中的簽核申請：%s"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_request.py:0
+msgid "此單據已有進行中的簽核申請，請先取消或重置後再送出"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_mixin.py:0
+msgid "此單據（%s）尚未設定簽核規則，無法送出簽核。\n請聯絡管理員於【MFG Custom > 設定 > 簽核規則】建立規則。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_test_model__user_id
+msgid "此單的主要負責人；可由 mail.activity 指派給其他人。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_mixin.py:0
+msgid "此單目前沒有簽核申請"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_request.py:0
+msgid "此簽核申請已逾期（簽核期限 %s），請盡速處理。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_line__decision_date
+msgid "決策時間"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.actions.act_window,help:mfg_custom_approval.mfg_approval_rule_action
+msgid "為不同業務模型（PLM ECO、銷售訂單、生產工單等）建立對應的多層簽核規則。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_approval_mixin__approval_state__not_required
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_approval_test_model__approval_state__not_required
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_issue__approval_state__not_required
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_quality_check__approval_state__not_required
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__plm_custom_eco__approval_state__not_required
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__plm_custom_feasibility__approval_state__not_required
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__purchase_order__approval_state__not_required
+msgid "無需簽核"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_step__approver_field
+msgid "由「簽核者欄位」自動帶出的技術欄位名。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_step__amount_field
+msgid "由「金額欄位」自動帶出的技術欄位名。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_approval_step__approver_mode__field
+msgid "由單據欄位決定"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__requester_id
+msgid "申請人"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_rule_view_form
+msgid "留空 = 所有此類單據都適用"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_approval_line__decision__skipped
+msgid "略過"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.actions.act_window,help:mfg_custom_approval.mfg_approval_request_action_my_decision
+msgid "當前使用者在某個關卡中為待簽狀態的申請。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__current_step_id
+msgid "當前關卡"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__current_step_no
+msgid "當前關卡編號"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:mail.message.subtype,description:mfg_custom_approval.mt_mfg_approval_state_changed
+msgid "當單據的簽核狀態改變時通知追蹤者。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:mail.message.subtype,description:mfg_custom_approval.mt_mfg_approval_request_state
+msgid "當簽核申請的狀態或當前關卡變動時通知追蹤者。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_request__pending_approver_emails
+msgid "目前待簽關卡的簽核者信箱，供通知信使用。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_request_view_form
+msgid "目前關卡"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_request_view_form
+msgid "目前關卡名稱"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_mixin_view_form
+msgid "確定要駁回此簽核流程？"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_request_view_form
+msgid "確定要駁回此簽核申請？"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_rule__domain
+msgid "符合條件的單據才走此規則；留空代表所有此類單據都適用。可使用右側的條件建構器設定，不需手寫。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_mixin__approval_request_id
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_test_model__approval_request_id
+msgid "簽核單"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_mixin.py:0
+msgid "簽核單已是 %s 狀態，無法取消"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_mixin.py:0
+msgid "簽核單已被駁回，請直接重新送出簽核以重啟流程。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_request.py:0
+msgid "簽核單狀態為 %s，無法簽核"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__due_date
+msgid "簽核期限"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_rule__due_days
+msgid "簽核期限（天）"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_request.py:0
+msgid "簽核流程欄位（%s）不可直接修改，請使用送出簽核／核准／駁回等操作。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_mixin__approval_state
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_test_model__approval_state
+msgid "簽核狀態"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:mail.message.subtype,name:mfg_custom_approval.mt_mfg_approval_state_changed
+msgid "簽核狀態變更"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_line__request_id
+#: model:ir.ui.menu,name:mfg_custom_approval.menu_mfg_approval_request
+msgid "簽核申請"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_request.py:0
+msgid "簽核申請已取消"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_request.py:0
+msgid "簽核申請必須指定業務單據"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:mail.message.subtype,name:mfg_custom_approval.mt_mfg_approval_request_state
+msgid "簽核申請狀態"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_mixin.py:0
+msgid "簽核申請的 model (%s) 與本單的 model (%s) 不符"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__line_ids
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_request_view_form
+msgid "簽核紀錄"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:mail.template,description:mfg_custom_approval.mail_template_mfg_approval_decided
+msgid "簽核結果出爐時通知申請人"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_line__user_id
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_rule_view_form
+msgid "簽核者"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_line.py:0
+msgid "簽核者 %s 已停用，無法作為潛在簽核者"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_step__approver_field_id
+msgid "簽核者欄位"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_step_view_form
+msgid "簽核者設定"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_mixin__approval_rule_id
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__rule_id
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_step__rule_id
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_test_model__approval_rule_id
+#: model:ir.ui.menu,name:mfg_custom_approval.menu_mfg_approval_rule
+msgid "簽核規則"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_rule.py:0
+msgid "簽核規則 domain 必須是 list 或 tuple"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_rule.py:0
+msgid "簽核規則 domain 語法錯誤：%s"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_request.py:0
+msgid "簽核規則「%s」沒有適用於此單據的簽核關卡，此單據不需簽核。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_request.py:0
+msgid "簽核規則「%s」的關卡「%s」找不到可用的簽核者，請檢查群組成員或單據上的簽核者欄位。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_request.py:0
+msgid "簽核規則「%s」的關卡都沒有設定簽核者，無法送出簽核。請於【MFG Custom > 設定 > 簽核規則】補齊關卡的簽核者。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_rule.py:0
+msgid "簽核規則的適用條件使用了不存在的欄位「%s」（模型：%s）"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_line__step_id
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_rule__step_ids
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_rule_view_form
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_step_view_tree
+msgid "簽核關卡"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_test_model__code
+msgid "編號"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_request_view_form
+msgid "若被駁回，請先在此填寫原因再按駁回"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_approval_request__state__draft
+msgid "草稿"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_request__res_model
+msgid "被簽核的單據所屬技術模型。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_request__res_display_name
+msgid "被簽核的業務單據名稱。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_approval_request__state__rejected
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_mixin_view_search
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_request_view_search
+msgid "被駁回"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_rule__model_id
+msgid "要套用此簽核流程的單據類型。只能選擇已掛載簽核功能的單據。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_rule__name
+msgid "規則名稱"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_rule_view_form
+msgid "規則用途說明"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_rule__note
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_step__note
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_rule_view_form
+msgid "說明"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_test_model__user_id
+msgid "負責人"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:mail.template,description:mfg_custom_approval.mail_template_mfg_approval_request
+msgid "送出新簽核申請時通知相關簽核者"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__submit_date
+msgid "送出時間"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_mixin_view_form
+msgid "送出簽核"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_rule__due_days
+msgid "送出簽核後幾天內必須完成簽核；0 表示不限時。逾期的待簽核申請會由每日 cron 提醒簽核者。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.module.module,summary:base.module_mfg_custom_approval
+msgid "通用多層簽核引擎（state machine + approver chain）"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_request_view_search
+msgid "逾期未簽"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_rule__model_display
+msgid "適用單據"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_rule__model_id
+msgid "適用單據類型"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_rule__domain
+msgid "適用條件 (domain)"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_rule_view_form
+msgid "選擇單據上指向使用者（res.users）的欄位。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_rule_view_form
+msgid "選擇要簽核的單據類型"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_request_view_form
+msgid "重置為草稿"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_step__max_amount
+msgid "金額上限（最大）"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_step__amount_currency_id
+msgid "金額幣別"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_step__amount_field_id
+msgid "金額欄位"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_step__amount_field
+msgid "金額欄位名稱"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_rule_view_form
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_step_view_form
+msgid "金額門檻"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_step__min_amount
+msgid "金額門檻（最小）"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_request_view_form
+msgid "開啟單據"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_request.py:0
+msgid "關卡 %s 已由 %s 簽核"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_step.py:0
+msgid "關卡 %s 採用「指定人員」時必須填寫指定人員"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_step.py:0
+msgid "關卡 %s 採用「由單據欄位決定」時必須選擇簽核者欄位"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_step.py:0
+msgid "關卡 %s 採用群組模式時必須選擇群組"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_step.py:0
+msgid "關卡 %s 的最小金額不可大於最大金額"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_step.py:0
+msgid "關卡 %s 的簽核者欄位不屬於規則適用的單據類型"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_step.py:0
+msgid "關卡 %s 的簽核者欄位必須是指向使用者的欄位"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_request.py:0
+msgid "關卡「%s」已由 %s 核准"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_request.py:0
+msgid "關卡「%s」已由 %s 駁回"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_step__name
+msgid "關卡名稱"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_request__due_date
+msgid "預設依規則的「簽核期限（天）」帶出，可由申請人或管理者調整。逾期仍未簽核時，會由每日 cron 提醒簽核者。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_rule__model_display
+msgid "顯示用的單據名稱。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_approval_line__decision__rejected
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_mixin_view_form
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_request_view_form
+msgid "駁回"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__reason
+msgid "駁回原因"
+msgstr ""

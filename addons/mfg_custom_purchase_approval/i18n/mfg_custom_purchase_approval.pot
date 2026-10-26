@@ -1,0 +1,296 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* mfg_custom_purchase_approval
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 20.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 09:42+0000\n"
+"PO-Revision-Date: 2026-10-26 09:42+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: mfg_custom_purchase_approval
+#: model:ir.module.module,description:base.module_mfg_custom_purchase_approval
+msgid ""
+"\n"
+"MFG Custom - Purchase Approval\n"
+"===============================\n"
+"\n"
+"把 ``purchase.order``（RFQ）掛上本專案的通用簽核引擎\n"
+"``mfg_custom.approval.mixin``，讓採購單可以直接送出多層簽核。\n"
+"\n"
+"提供\n"
+"----\n"
+"\n"
+"* 採購單表單上的「送出簽核 / 核准目前關卡 / 駁回 / 取消簽核」按鈕與「簽核狀態」statusbar\n"
+"* 送出簽核前的業務檢查（單據狀態、是否有料、是否已指定供應商）\n"
+"* 未完成簽核時**無法**按「確認訂單」轉為正式訂單\n"
+"* 簽核引擎既有的能力一併適用：簽核關卡金額門檻、簽核期限、每日逾期提醒、\n"
+"  chatter 與 email 通知、重新送出簽核以重啟流程\n"
+"\n"
+"與 Odoo 內建「to approve」的關係\n"
+"--------------------------------\n"
+"\n"
+"Odoo 內建的採購單雙人覆核（``res.company.po_double_validation``，狀態 ``to approve``）\n"
+"**完全保留不動**。兩者定位不同：\n"
+"\n"
+"* Odoo 內建：金額覆核，1~2 關，核准者限 ``purchase.group_purchase_manager``\n"
+"* 本模組：多部門業務簽核，關卡數與核准人由「MFG Custom > 設定 > 簽核規則」定義\n"
+"\n"
+"順序為「先完成本模組的簽核 → 再按確認訂單」。若公司同時啟用了內建的\n"
+"「Levels of Approvals = Get 2 levels of approvals」，按確認訂單後仍會進入\n"
+"``to approve`` 狀態需採購經理再核一次；只要一者可把該設定改為\n"
+"「Confirm purchase orders in one step」。\n"
+"\n"
+"安裝\n"
+"----\n"
+"\n"
+"安裝後在「MFG Custom > 設定 > 簽核規則」建立規則，\n"
+"「適用單據類型」下拉會多出「採購訂單」。\n"
+"\n"
+"規則的「適用條件 (domain)」可用 ``purchase.order`` 上的欄位，例如：\n"
+"\n"
+"    [(\"amount_total\", \">=\", 500000)]\n"
+"\n"
+"關卡的「最小金額 / 最大金額」預設會對應到 ``purchase.order`` 的 ``amount_total``。\n"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model:ir.model.fields,field_description:mfg_custom_purchase_approval.field_purchase_order__message_needaction
+msgid "Action Needed"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model:ir.model.fields,field_description:mfg_custom_purchase_approval.field_purchase_order__message_attachment_count
+msgid "Attachment Count"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model:ir.model.fields,field_description:mfg_custom_purchase_approval.field_purchase_order__display_name
+msgid "Display Name"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model:ir.model.fields,field_description:mfg_custom_purchase_approval.field_purchase_order__message_follower_ids
+msgid "Followers"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model:ir.model.fields,field_description:mfg_custom_purchase_approval.field_purchase_order__message_partner_ids
+msgid "Followers (Partners)"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model:ir.model.fields,field_description:mfg_custom_purchase_approval.field_purchase_order__has_message
+msgid "Has Message"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model:ir.model.fields,field_description:mfg_custom_purchase_approval.field_purchase_order__id
+msgid "ID"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model:ir.model.fields,help:mfg_custom_purchase_approval.field_purchase_order__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model:ir.model.fields,help:mfg_custom_purchase_approval.field_purchase_order__message_has_error
+#: model:ir.model.fields,help:mfg_custom_purchase_approval.field_purchase_order__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model:ir.model.fields,field_description:mfg_custom_purchase_approval.field_purchase_order__message_is_follower
+msgid "Is Follower"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model:ir.module.module,shortdesc:base.module_mfg_custom_purchase_approval
+msgid "MFG Custom - Purchase Approval"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model:res.groups.privilege,name:mfg_custom_purchase_approval.res_groups_privilege_mfg_purchase_approval
+msgid "MFG Purchase Approval"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model:ir.model.fields,field_description:mfg_custom_purchase_approval.field_purchase_order__message_has_error
+msgid "Message Delivery error"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model:ir.model.fields,field_description:mfg_custom_purchase_approval.field_purchase_order__message_ids
+msgid "Messages"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model:res.groups.privilege,placeholder:mfg_custom_purchase_approval.res_groups_privilege_mfg_purchase_approval
+msgid "No"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model:ir.model.fields,field_description:mfg_custom_purchase_approval.field_purchase_order__message_needaction_counter
+msgid "Number of Actions"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model:ir.model.fields,field_description:mfg_custom_purchase_approval.field_purchase_order__message_has_error_counter
+msgid "Number of errors"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model:ir.model.fields,help:mfg_custom_purchase_approval.field_purchase_order__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model:ir.model.fields,help:mfg_custom_purchase_approval.field_purchase_order__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model:ir.model,name:mfg_custom_purchase_approval.model_purchase_order
+msgid "Purchase Order"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model:ir.model.fields,field_description:mfg_custom_purchase_approval.field_purchase_order__rating_ids
+msgid "Ratings"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model:ir.model.fields,field_description:mfg_custom_purchase_approval.field_purchase_order__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model:ir.model.fields,help:mfg_custom_purchase_approval.field_purchase_order__approval_rule_id
+msgid "依目前單據內容符合的簽核規則（尚未送出簽核時也能預覽）。"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_purchase_approval.mfg_purchase_order_view_form
+msgid "取消簽核"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#. odoo-python
+#: code:addons/mfg_custom_purchase_approval/models/purchase_order.py:0
+msgid "只有草稿或已寄出的採購單可以送出簽核。"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model:res.groups,comment:mfg_custom_purchase_approval.group_purchase_approver
+msgid "可核准採購單（RFQ）簽核關卡的使用者。可在簽核規則的關卡中選用。"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_purchase_approval.mfg_purchase_order_view_search
+#: model_terms:ir.ui.view,arch_db:mfg_custom_purchase_approval.mfg_purchase_order_view_search_rfq
+msgid "待簽核"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#. odoo-python
+#: code:addons/mfg_custom_purchase_approval/models/purchase_order.py:0
+msgid "採購單 %s 尚未指定供應商，無法送出簽核。"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#. odoo-python
+#: code:addons/mfg_custom_purchase_approval/models/purchase_order.py:0
+msgid "採購單 %s 沒有任何明細，無法送出簽核。"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#. odoo-python
+#: code:addons/mfg_custom_purchase_approval/models/purchase_order.py:0
+msgid "採購單 %s 需先完成簽核才能確認訂單（目前簽核狀態：%s）。"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#. odoo-python
+#: code:addons/mfg_custom_purchase_approval/models/purchase_order.py:0
+msgid "採購單簽核已全部通過，可按「確認訂單」轉為正式訂單。"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#. odoo-python
+#: code:addons/mfg_custom_purchase_approval/models/purchase_order.py:0
+msgid "採購單簽核已取消。"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#. odoo-python
+#: code:addons/mfg_custom_purchase_approval/models/purchase_order.py:0
+msgid "採購單簽核已被駁回，請修正後重新送出簽核。"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model:res.groups,name:mfg_custom_purchase_approval.group_purchase_approver
+msgid "採購簽核者"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_purchase_approval.mfg_purchase_order_view_form
+msgid "核准目前關卡"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_purchase_approval.mfg_purchase_order_view_form
+msgid "確定要駁回此簽核流程？"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model:ir.model.fields,field_description:mfg_custom_purchase_approval.field_purchase_order__approval_request_id
+msgid "簽核單"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_purchase_approval.mfg_purchase_order_view_search
+msgid "簽核已通過"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model:ir.model.fields,field_description:mfg_custom_purchase_approval.field_purchase_order__approval_state
+msgid "簽核狀態"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model:ir.model.fields,field_description:mfg_custom_purchase_approval.field_purchase_order__approval_rule_id
+msgid "簽核規則"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model:ir.module.module,summary:base.module_mfg_custom_purchase_approval
+msgid "讓採購單（RFQ）可走通用多層簽核引擎"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_purchase_approval.mfg_purchase_order_view_form
+msgid "送出簽核"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_purchase_approval.mfg_purchase_order_view_search
+msgid "顯示已送出簽核但尚未完成審核的採購單"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_purchase_approval.mfg_purchase_order_view_search_rfq
+msgid "顯示已送出簽核但尚未完成審核的詢價單"
+msgstr ""
+
+#. module: mfg_custom_purchase_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_purchase_approval.mfg_purchase_order_view_form
+msgid "駁回"
+msgstr ""

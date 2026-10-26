@@ -1,0 +1,919 @@
+# Chinese (Traditional) translation of Odoo Server module plm_custom_eco.
+# This file contains the translation of the following modules:
+# 	* plm_custom_eco
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 20.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 09:42+0000\n"
+"PO-Revision-Date: 2026-10-26 09:42+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: zh_TW\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: plm_custom_eco
+#: model:ir.module.module,description:base.module_plm_custom_eco
+msgid "\nPLM Custom - Engineering Change Order\n=====================================\n\n完整的工程變更單 (ECO/ECN) 系統（取代 Enterprise ``plm``）：\n\n* 申請 → 影響分析 → 待簽核 → 核准/駁回 → 套用 → 取消\n* 自動影響分析（展開未完成 SO / 庫存 / 未關 MO / 相關附件）\n* 觸發來源：客戶/內部/供應商/問題点/法規\n* 套用時自動：\n    - 凍結舊 BOM 快照\n    - 升版 BOM version\n    - 升版附件版本（透過 mfg_custom_attachment_version）\n* 可從問題点升級\n* 多層簽核（透過 mfg_custom_approval）\n"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:mail.template,body_html:plm_custom_eco.mail_template_plm_eco_apply
+msgid "<p>ECO <t t-out=\"object.name\"/> 已套用。</p>\n<ul>\n    <li>主旨：<t t-out=\"object.subject\"/></li>\n    <li>產品：<t t-out=\"object.product_id.display_name\"/></li>\n    <li>BOM 版本：<t t-out=\"object.from_version\"/> → <t t-out=\"object.to_version\"/></li>\n    <li>影響清單：<t t-out=\"len(object.line_ids)\"/> 筆</li>\n</ul>\n        "
+msgstr ""
+
+#. module: plm_custom_eco
+#: model_terms:ir.ui.view,arch_db:plm_custom_eco.mrp_bom_form_view_inherit_plm_eco
+msgid "<span class=\"o_stat_text\">ECO</span>"
+msgstr "<span class=\"o_stat_text\">ECO</span>"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__message_needaction
+msgid "Action Needed"
+msgstr "需要採取行動"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__activity_ids
+msgid "Activities"
+msgstr "活動"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr "活動異常圖示"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__activity_plans_ids
+msgid "Activity Plans"
+msgstr "活動計劃"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__activity_state
+msgid "Activity State"
+msgstr "活動狀態"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__activity_type_icon
+msgid "Activity Type Icon"
+msgstr "活動類型圖示"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__message_attachment_count
+msgid "Attachment Count"
+msgstr "附件數目"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__code
+msgid "Code"
+msgstr "代碼"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__create_uid
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco_attachment__create_uid
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco_line__create_uid
+msgid "Created by"
+msgstr "創建者"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__create_date
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco_attachment__create_date
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco_line__create_date
+msgid "Created on"
+msgstr "創建時間"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__currency_id
+msgid "Currency"
+msgstr "貨幣"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__display_name
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco_attachment__display_name
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco_line__display_name
+msgid "Display Name"
+msgstr "顯示名稱"
+
+#. module: plm_custom_eco
+#: model:ir.ui.menu,name:plm_custom_eco.menu_plm_eco_root
+#: model_terms:ir.ui.view,arch_db:plm_custom_eco.plm_eco_view_tree
+#: model_terms:ir.ui.view,arch_db:plm_custom_eco.sale_order_view_form_inherit_plm_eco
+msgid "ECO"
+msgstr "ECO"
+
+#. module: plm_custom_eco
+#: model:mfg_custom.approval.rule,name:plm_custom_eco.plm_eco_approval_rule_normal
+msgid "ECO 一般變更"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:mail.template,name:plm_custom_eco.mail_template_plm_eco_apply
+msgid "ECO 套用通知"
+msgstr ""
+
+#. module: plm_custom_eco
+#. odoo-python
+#: code:addons/plm_custom_eco/models/plm_eco.py:0
+msgid "ECO 已取消"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:mail.message.subtype,name:plm_custom_eco.mt_plm_eco_applied
+msgid "ECO 已套用"
+msgstr ""
+
+#. module: plm_custom_eco
+#. odoo-python
+#: code:addons/plm_custom_eco/models/plm_eco.py:0
+msgid "ECO 已套用過，請勿重複套用"
+msgstr ""
+
+#. module: plm_custom_eco
+#. odoo-python
+#: code:addons/plm_custom_eco/models/plm_eco.py:0
+msgid "ECO 已套用：BOM 升至 %s"
+msgstr ""
+
+#. module: plm_custom_eco
+#. odoo-python
+#: code:addons/plm_custom_eco/models/plm_eco.py:0
+msgid "ECO 已核准"
+msgstr ""
+
+#. module: plm_custom_eco
+#. odoo-python
+#: code:addons/plm_custom_eco/models/plm_eco.py:0
+msgid "ECO 已送出簽核，等待核准"
+msgstr ""
+
+#. module: plm_custom_eco
+#. odoo-python
+#: code:addons/plm_custom_eco/models/plm_eco.py:0
+msgid "ECO 已駁回"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model_terms:ir.ui.view,arch_db:plm_custom_eco.plm_eco_line_view_tree
+msgid "ECO 影響清單"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model_terms:ir.ui.view,arch_db:plm_custom_eco.plm_eco_line_view_form
+msgid "ECO 影響項"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:mail.message.subtype,name:plm_custom_eco.mt_plm_eco_state_changed
+msgid "ECO 狀態變更"
+msgstr ""
+
+#. module: plm_custom_eco
+#. odoo-python
+#: code:addons/plm_custom_eco/models/plm_eco.py:0
+msgid "ECO 簽核已取消，退回影響分析"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__owner_id
+msgid "ECO 負責人"
+msgstr ""
+
+#. module: plm_custom_eco
+#. odoo-python
+#: code:addons/plm_custom_eco/models/plm_eco.py:0
+msgid "ECO 進入影響分析階段"
+msgstr ""
+
+#. module: plm_custom_eco
+#. odoo-python
+#: code:addons/plm_custom_eco/models/plm_eco.py:0
+msgid "ECO 重設為草稿"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model_terms:ir.ui.view,arch_db:plm_custom_eco.plm_eco_attachment_view_tree
+msgid "ECO 附件"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:mfg_custom.approval.rule,name:plm_custom_eco.plm_eco_approval_rule_high_risk
+msgid "ECO 高風險變更"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.actions.act_window,name:plm_custom_eco.plm_eco_action_all
+msgid "ECO（全部）"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco_attachment__eco_id
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco_line__eco_id
+msgid "Eco"
+msgstr "ECO"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__message_follower_ids
+msgid "Followers"
+msgstr "關注人"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "關注人（業務夥伴）"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__has_message
+msgid "Has Message"
+msgstr "有訊息"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__id
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco_attachment__id
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco_line__id
+msgid "ID"
+msgstr "ID"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__activity_exception_icon
+msgid "Icon"
+msgstr "圖示"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,help:plm_custom_eco.field_plm_custom_eco__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr "用於指示異常活動的圖示。"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,help:plm_custom_eco.field_plm_custom_eco__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "勾選代表有新訊息需要您留意。"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,help:plm_custom_eco.field_plm_custom_eco__message_has_error
+#: model:ir.model.fields,help:plm_custom_eco.field_plm_custom_eco__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "勾選代表有訊息發生傳送錯誤。"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco_line__impact_type
+msgid "Impact Type"
+msgstr "影響類型"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__message_is_follower
+msgid "Is Follower"
+msgstr "是關注人"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__write_uid
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco_attachment__write_uid
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco_line__write_uid
+msgid "Last Updated by"
+msgstr "最後更新人"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__write_date
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco_attachment__write_date
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco_line__write_date
+msgid "Last Updated on"
+msgstr "最後更新於"
+
+#. module: plm_custom_eco
+#. odoo-python
+#: code:addons/plm_custom_eco/models/plm_eco.py:0
+msgid "MO %s 預計 %s 開工"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,help:plm_custom_eco.field_plm_custom_eco__activity_type_icon
+msgid "Material Symbols icon e.g. checklist"
+msgstr "Material 符號圖示，例如：檢查清單"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__message_has_error
+msgid "Message Delivery error"
+msgstr "訊息遞送錯誤"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__message_ids
+msgid "Messages"
+msgstr "訊息"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr "我的活動截止時間"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__name
+msgid "Name"
+msgstr "名稱"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr "下一活動截止日期"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__activity_summary
+msgid "Next Activity Summary"
+msgstr "下一活動摘要"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__activity_type_id
+msgid "Next Activity Type"
+msgstr "下一活動類型"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__message_needaction_counter
+msgid "Number of Actions"
+msgstr "動作數量"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__message_has_error_counter
+msgid "Number of errors"
+msgstr "錯誤數量"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,help:plm_custom_eco.field_plm_custom_eco__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "需要採取行動的訊息數目"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,help:plm_custom_eco.field_plm_custom_eco__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "有發送錯誤的郵件數量"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__origin
+msgid "Origin"
+msgstr "原始"
+
+#. module: plm_custom_eco
+#: model:ir.module.module,shortdesc:base.module_plm_custom_eco
+msgid "PLM Custom - Engineering Change Order"
+msgstr "PLM Custom - Engineering Change Order"
+
+#. module: plm_custom_eco
+#: model:ir.model,name:plm_custom_eco.model_plm_custom_eco_line
+msgid "PLM Custom ECO 影響清單"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model,name:plm_custom_eco.model_plm_custom_eco_attachment
+msgid "PLM Custom ECO 附件"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model,name:plm_custom_eco.model_plm_custom_eco
+msgid "PLM Custom 工程變更單"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__rating_ids
+msgid "Ratings"
+msgstr "評分"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__activity_user_id
+msgid "Responsible User"
+msgstr "負責使用者"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__risk_level
+msgid "Risk Level"
+msgstr "風險等級"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco_attachment__role
+msgid "Role"
+msgstr "角色"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "簡訊發送錯誤"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__state
+msgid "State"
+msgstr "州/省"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,help:plm_custom_eco.field_plm_custom_eco__activity_state
+msgid "Status based on activities\nOverdue: Due date is already passed\nToday: Activity date is today\nPlanned: Future activities."
+msgstr "根據活動的狀態 \n 逾期：已經超過截止日期 \n 現今：活動日期是當天 \n 計劃：未來活動。"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__type
+msgid "Type"
+msgstr "地圖類型"
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,help:plm_custom_eco.field_plm_custom_eco__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr "記錄的異常活動的類型。"
+
+#. module: plm_custom_eco
+#: model:mail.template,subject:plm_custom_eco.mail_template_plm_eco_apply
+msgid "{{ object.name }} 已套用：BOM 升至 {{ object.to_version }}"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields.selection,name:plm_custom_eco.selection__plm_custom_eco__risk_level__medium
+msgid "中"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__subject
+msgid "主旨"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields.selection,name:plm_custom_eco.selection__plm_custom_eco__risk_level__low
+msgid "低"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields.selection,name:plm_custom_eco.selection__plm_custom_eco_attachment__role__evidence
+msgid "佐證"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields.selection,name:plm_custom_eco.selection__plm_custom_eco_line__impact_type__supplier
+msgid "供應商"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields.selection,name:plm_custom_eco.selection__plm_custom_eco__origin__supplier
+msgid "供應商通知"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model_terms:ir.ui.view,arch_db:plm_custom_eco.plm_eco_view_search
+msgid "依來源"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model_terms:ir.ui.view,arch_db:plm_custom_eco.plm_eco_view_search
+msgid "依狀態"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,help:plm_custom_eco.field_plm_custom_eco__approval_rule_id
+msgid "依目前單據內容符合的簽核規則（尚未送出簽核時也能預覽）。"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model_terms:ir.ui.view,arch_db:plm_custom_eco.plm_eco_view_search
+msgid "依類型"
+msgstr ""
+
+#. module: plm_custom_eco
+#. odoo-python
+#: code:addons/plm_custom_eco/models/plm_eco.py:0
+msgid "倉位 %s 庫存 %.2f"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__notes
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco_attachment__note
+msgid "備註"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields.selection,name:plm_custom_eco.selection__plm_custom_eco__origin__internal
+msgid "內部改善"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.ui.menu,name:plm_custom_eco.menu_plm_eco_all
+msgid "全部 ECO"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields.selection,name:plm_custom_eco.selection__plm_custom_eco_line__impact_type__other
+#: model_terms:ir.ui.view,arch_db:plm_custom_eco.plm_eco_view_form
+msgid "其他"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields.selection,name:plm_custom_eco.selection__plm_custom_eco__state__cancelled
+#: model_terms:ir.ui.view,arch_db:plm_custom_eco.plm_eco_view_form
+msgid "取消"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model_terms:ir.ui.view,arch_db:plm_custom_eco.plm_eco_view_form
+msgid "取消簽核"
+msgstr ""
+
+#. module: plm_custom_eco
+#. odoo-python
+#: code:addons/plm_custom_eco/models/plm_eco.py:0
+msgid "只有完成影響分析的 ECO 可送出簽核"
+msgstr ""
+
+#. module: plm_custom_eco
+#. odoo-python
+#: code:addons/plm_custom_eco/models/plm_eco.py:0
+msgid "只有已核准的 ECO 可以套用"
+msgstr ""
+
+#. module: plm_custom_eco
+#. odoo-python
+#: code:addons/plm_custom_eco/models/plm_eco.py:0
+msgid "只有草稿狀態的 ECO 可以開始影響分析"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:mfg_custom.approval.step,name:plm_custom_eco.plm_eco_approval_rule_high_risk_step2
+msgid "品保部核准"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields.selection,name:plm_custom_eco.selection__plm_custom_eco__origin__issue
+msgid "問題点升級"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model_terms:ir.ui.view,arch_db:plm_custom_eco.plm_eco_view_form
+msgid "套用"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields.selection,name:plm_custom_eco.selection__plm_custom_eco_attachment__role__acknowledgement
+msgid "客戶回簽"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields.selection,name:plm_custom_eco.selection__plm_custom_eco__origin__customer
+msgid "客戶要求"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__applied_date
+msgid "實際套用日"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields.selection,name:plm_custom_eco.selection__plm_custom_eco__type__tooling
+msgid "工治具變更"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model_terms:ir.ui.view,arch_db:plm_custom_eco.plm_eco_view_form
+msgid "工程變更單"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.module.module,summary:base.module_plm_custom_eco
+msgid "工程變更單 + BOM/路線/客戶規格影響分析 + 多層簽核 + 自動升版"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:mfg_custom.approval.step,name:plm_custom_eco.plm_eco_approval_rule_high_risk_step1
+msgid "工程部核准"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields.selection,name:plm_custom_eco.selection__plm_custom_eco__state__applied
+#: model_terms:ir.ui.view,arch_db:plm_custom_eco.plm_eco_view_form
+#: model_terms:ir.ui.view,arch_db:plm_custom_eco.plm_eco_view_search
+msgid "已套用"
+msgstr ""
+
+#. module: plm_custom_eco
+#. odoo-python
+#: code:addons/plm_custom_eco/models/plm_eco.py:0
+msgid "已套用的 ECO 不可取消，請另開新單處理"
+msgstr ""
+
+#. module: plm_custom_eco
+#. odoo-python
+#: code:addons/plm_custom_eco/models/plm_eco.py:0
+msgid "已套用的 ECO 不可重設為草稿"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields.selection,name:plm_custom_eco.selection__plm_custom_eco__state__approved
+#: model_terms:ir.ui.view,arch_db:plm_custom_eco.plm_eco_view_search
+msgid "已核准"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco_line__handled
+msgid "已處置"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields.selection,name:plm_custom_eco.selection__plm_custom_eco__state__rejected
+msgid "已駁回"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields.selection,name:plm_custom_eco.selection__plm_custom_eco_line__impact_type__inventory
+msgid "庫存"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__bom_id
+msgid "影響 BOM"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields.selection,name:plm_custom_eco.selection__plm_custom_eco__state__impact_analysis
+#: model_terms:ir.ui.view,arch_db:plm_custom_eco.plm_eco_view_form
+msgid "影響分析"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco_line__res_id
+msgid "影響對象 ID"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco_line__res_model
+msgid "影響對象 Model"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__impact_summary
+msgid "影響摘要"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model_terms:ir.ui.view,arch_db:plm_custom_eco.plm_eco_view_form
+msgid "影響摘要..."
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__line_ids
+msgid "影響清單"
+msgstr ""
+
+#. module: plm_custom_eco
+#. odoo-python
+#: code:addons/plm_custom_eco/models/plm_eco.py:0
+msgid "影響清單為空，請先執行影響分析"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__product_id
+msgid "影響產品"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model_terms:ir.ui.view,arch_db:plm_custom_eco.plm_eco_view_form
+msgid "影響項"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields.selection,name:plm_custom_eco.selection__plm_custom_eco__state__pending_approval
+#: model_terms:ir.ui.view,arch_db:plm_custom_eco.plm_eco_view_search
+msgid "待簽核"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.ui.menu,name:plm_custom_eco.menu_plm_eco_pending
+msgid "待處理"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.actions.act_window,name:plm_custom_eco.plm_eco_action_pending
+msgid "待處理 ECO"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model_terms:ir.ui.view,arch_db:plm_custom_eco.plm_eco_view_search
+msgid "搜尋 ECO"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields.selection,name:plm_custom_eco.selection__plm_custom_eco_line__impact_type__document
+msgid "文件"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields.selection,name:plm_custom_eco.selection__plm_custom_eco__type__document
+msgid "文件變更"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__new_bom_version_id
+msgid "新版快照"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields.selection,name:plm_custom_eco.selection__plm_custom_eco_attachment__role__new_spec
+msgid "新版規格"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields.selection,name:plm_custom_eco.selection__plm_custom_eco__type__material
+msgid "材料變更"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model_terms:ir.ui.view,arch_db:plm_custom_eco.plm_eco_view_form
+msgid "核准目前關卡"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields.selection,name:plm_custom_eco.selection__plm_custom_eco__origin__compliance
+msgid "法規要求"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields.selection,name:plm_custom_eco.selection__plm_custom_eco_line__impact_type__production
+msgid "生產"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields.selection,name:plm_custom_eco.selection__plm_custom_eco__type__product
+msgid "產品變更"
+msgstr ""
+
+#. module: plm_custom_eco
+#. odoo-python
+#: code:addons/plm_custom_eco/models/plm_eco.py:0
+msgid "由 ECO 駁回"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__user_id
+msgid "申請人"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__attachment_ids
+msgid "相關附件"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model_terms:ir.ui.view,arch_db:plm_custom_eco.plm_eco_view_form
+msgid "確定要駁回此簽核流程？"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:mfg_custom.approval.step,name:plm_custom_eco.plm_eco_approval_rule_normal_step1
+msgid "管理部核准"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model_terms:ir.ui.view,arch_db:plm_custom_eco.plm_eco_view_form
+msgid "簡述 ECO 目的..."
+msgstr ""
+
+#. module: plm_custom_eco
+#: model_terms:ir.ui.view,arch_db:plm_custom_eco.plm_eco_view_form
+msgid "簽核"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model_terms:ir.ui.view,arch_db:plm_custom_eco.plm_eco_view_search
+msgid "簽核中"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__approval_request_id
+msgid "簽核單"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model_terms:ir.ui.view,arch_db:plm_custom_eco.plm_eco_view_search
+msgid "簽核已核准"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__approval_state
+msgid "簽核狀態"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__approval_rule_id
+msgid "簽核規則"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__old_bom_version_id
+msgid "舊版快照"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields.selection,name:plm_custom_eco.selection__plm_custom_eco_attachment__role__old_spec
+msgid "舊版規格"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields.selection,name:plm_custom_eco.selection__plm_custom_eco__state__draft
+#: model_terms:ir.ui.view,arch_db:plm_custom_eco.plm_eco_view_search
+msgid "草稿"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco_line__handler_id
+msgid "處置者"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields.selection,name:plm_custom_eco.selection__plm_custom_eco__type__process
+msgid "製程變更"
+msgstr ""
+
+#. module: plm_custom_eco
+#. odoo-python
+#: code:addons/plm_custom_eco/models/plm_eco.py:0
+msgid "規格附件 %s v%s"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__source_feasibility_id
+msgid "觸發可行性評估"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__source_issue_id
+msgid "觸發問題点"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco_line__description
+msgid "說明"
+msgstr ""
+
+#. module: plm_custom_eco
+#. odoo-python
+#: code:addons/plm_custom_eco/models/plm_eco.py:0
+msgid "變更前後版本不可相同：%s"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__from_version
+msgid "變更前版本"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__to_version
+msgid "變更後版本"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model_terms:ir.ui.view,arch_db:plm_custom_eco.plm_eco_view_form
+msgid "送出簽核"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model_terms:ir.ui.view,arch_db:plm_custom_eco.plm_eco_view_form
+msgid "重設為草稿"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields.selection,name:plm_custom_eco.selection__plm_custom_eco_line__impact_type__sale
+msgid "銷售"
+msgstr ""
+
+#. module: plm_custom_eco
+#. odoo-python
+#: code:addons/plm_custom_eco/models/plm_eco.py:0
+msgid "銷售明細 %s 未交 %s %s"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model_terms:ir.ui.view,arch_db:plm_custom_eco.plm_eco_view_form
+msgid "開始影響分析"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields.selection,name:plm_custom_eco.selection__plm_custom_eco__risk_level__critical
+msgid "關鍵"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco_attachment__attachment_id
+#: model_terms:ir.ui.view,arch_db:plm_custom_eco.plm_eco_view_form
+msgid "附件"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__estimated_cost
+msgid "預估變更成本"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields,field_description:plm_custom_eco.field_plm_custom_eco__effective_date
+msgid "預定生效日"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model_terms:ir.ui.view,arch_db:plm_custom_eco.plm_eco_view_form
+msgid "駁回"
+msgstr ""
+
+#. module: plm_custom_eco
+#: model:ir.model.fields.selection,name:plm_custom_eco.selection__plm_custom_eco__risk_level__high
+msgid "高"
+msgstr ""

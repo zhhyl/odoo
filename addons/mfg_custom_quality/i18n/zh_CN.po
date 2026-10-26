@@ -1,0 +1,965 @@
+# Chinese (Simplified) translation of Odoo Server module mfg_custom_quality.
+# This file contains the translation of the following modules:
+# 	* mfg_custom_quality
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 20.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-10-26 09:42+0000\n"
+"PO-Revision-Date: 2026-10-26 09:42+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: mfg_custom_quality
+#: model:ir.module.module,description:base.module_mfg_custom_quality
+msgid "\nMFG Custom - Quality Inspection\n===============================\n\n以 `mfg_custom_base` 為基礎，提供 Community 版缺漏的品質檢驗流程：\n\n* **品檢點 (``mfg_custom.quality.point``)** — 規格書：適用產品／工序／抽樣數，\n  含可逐項定義上下限的檢查項目 (``mfg_custom.quality.point.line``)。\n* **品檢單 (``mfg_custom.quality.check``)** — 檢驗過程單：可連結至 MO、工序、\n  入庫單、批號；支援 ``draft → in_progress → passed / failed / conditional`` 等\n  狀態流轉，放行簽核通過後改為 ``approved``（已放行）；不合格可手動關聯改善單\n  （``mfg_custom.issue``，待該模組上線後生效），不會自動建立。\n* **檢驗結果 (``mfg_custom.quality.check.line``)** — 量測值與合格／不合格判定。\n\n行為\n----\n\n* 啟動品檢時，自動從品檢點帶入檢項規格。\n* 任何關鍵項 (``is_critical``) 不合格 → ``action_pass`` 拋 ``UserError``。\n* 不合格會留下原因，可選擇關聯至 ``mfg_custom.issue`` 模組產生的改善單。\n\n整合點\n------\n\n* **MO** 的 form view：新增「品檢單」智慧按鈕。\n* **入庫單** 的 form view：新增「品檢單」智慧按鈕。\n"
+msgstr ""
+
+#. module: mfg_custom_quality
+#. odoo-python
+#: code:addons/mfg_custom_quality/models/mfg_quality_check.py:0
+msgid "%(name)s 已在「%(state)s」狀態，無法開始檢驗。"
+msgstr ""
+
+#. module: mfg_custom_quality
+#. odoo-python
+#: code:addons/mfg_custom_quality/models/mfg_quality_check.py:0
+msgid "%(name)s 已結案（%(state)s），不可取消；請用調整單據或重開。"
+msgstr ""
+
+#. module: mfg_custom_quality
+#. odoo-python
+#: code:addons/mfg_custom_quality/models/mfg_quality_check.py:0
+msgid "%(name)s 狀態為「%(state)s」，無法判定為不合格。"
+msgstr ""
+
+#. module: mfg_custom_quality
+#. odoo-python
+#: code:addons/mfg_custom_quality/models/mfg_quality_check.py:0
+msgid "%(name)s 狀態為「%(state)s」，無法判定為合格。"
+msgstr ""
+
+#. module: mfg_custom_quality
+#. odoo-python
+#: code:addons/mfg_custom_quality/models/mfg_quality_check.py:0
+msgid "%(name)s 狀態為「%(state)s」，無法改判為特採。"
+msgstr ""
+
+#. module: mfg_custom_quality
+#. odoo-python
+#: code:addons/mfg_custom_quality/models/mfg_quality_check.py:0
+msgid "%(name)s 目前為「%(state)s」狀態，無法送出放行簽核。"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:mail.template,body_html:mfg_custom_quality.mail_template_mfg_quality_check_failed
+msgid "<div style=\"margin: 0px; padding: 0px;\">\n    <p>品檢員 <t t-out=\"object.inspector_id.name or ''\"/> 已將品檢單判定為<strong>不合格</strong>。</p>\n    <ul>\n        <li>單號：<t t-out=\"object.name\"/></li>\n        <li>產品：<t t-out=\"object.product_id.display_name\"/></li>\n        <li>檢驗數量：<t t-out=\"object.qty_to_check\"/></li>\n        <li>時間：<t t-out=\"object.inspection_date\"/></li>\n        <li t-if=\"object.production_id\">相關 MO：<t t-out=\"object.production_id.display_name\"/></li>\n        <li t-if=\"object.picking_id\">入庫單：<t t-out=\"object.picking_id.display_name\"/></li>\n    </ul>\n    <p>請儘速建立／關聯改善單，並回覆不合格原因：</p>\n    <p><t t-out=\"object.failure_reason or ''\"/></p>\n</div>\n        "
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__message_needaction
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point__message_needaction
+msgid "Action Needed"
+msgstr "待处理"
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point__active
+msgid "Active"
+msgstr "启用"
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__message_attachment_count
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point__message_attachment_count
+msgid "Attachment Count"
+msgstr "附件数量"
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__create_uid
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check_line__create_uid
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point__create_uid
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point_line__create_uid
+msgid "Created by"
+msgstr "创建人"
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__create_date
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check_line__create_date
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point__create_date
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point_line__create_date
+msgid "Created on"
+msgstr "创建于"
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__display_name
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check_line__display_name
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point__display_name
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point_line__display_name
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mrp_production__display_name
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_stock_picking__display_name
+msgid "Display Name"
+msgstr "‎显示名称‎"
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__message_follower_ids
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point__message_follower_ids
+msgid "Followers"
+msgstr "关注者"
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__message_partner_ids
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point__message_partner_ids
+msgid "Followers (Partners)"
+msgstr "关注者(合作伙伴)"
+
+#. module: mfg_custom_quality
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_point_view_form
+msgid "HTML / Markdown 規格說明、製程規範、抽樣計畫..."
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__has_message
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point__has_message
+msgid "Has Message"
+msgstr "有消息"
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__id
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check_line__id
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point__id
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point_line__id
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mrp_production__id
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_stock_picking__id
+msgid "ID"
+msgstr "ID"
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,help:mfg_custom_quality.field_mfg_custom_quality_check__message_needaction
+#: model:ir.model.fields,help:mfg_custom_quality.field_mfg_custom_quality_point__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr "如果勾选此项，则需要查看新消息。"
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,help:mfg_custom_quality.field_mfg_custom_quality_check__message_has_error
+#: model:ir.model.fields,help:mfg_custom_quality.field_mfg_custom_quality_check__message_has_sms_error
+#: model:ir.model.fields,help:mfg_custom_quality.field_mfg_custom_quality_point__message_has_error
+#: model:ir.model.fields,help:mfg_custom_quality.field_mfg_custom_quality_point__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr "如果勾选此项， 某些消息将出现发送错误。"
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__message_is_follower
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point__message_is_follower
+msgid "Is Follower"
+msgstr "是关注者"
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__write_uid
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check_line__write_uid
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point__write_uid
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point_line__write_uid
+msgid "Last Updated by"
+msgstr "上一更新人"
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__write_date
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check_line__write_date
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point__write_date
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point_line__write_date
+msgid "Last Updated on"
+msgstr "上一更新日期"
+
+#. module: mfg_custom_quality
+#: model:mail.template,name:mfg_custom_quality.mail_template_mfg_quality_check_failed
+msgid "MFG Custom - Quality Check: Failed Notification"
+msgstr "MFG Custom - 品检单：不合格通知"
+
+#. module: mfg_custom_quality
+#: model:ir.module.module,shortdesc:base.module_mfg_custom_quality
+msgid "MFG Custom - Quality Inspection"
+msgstr "MFG Custom - Quality Inspection"
+
+#. module: mfg_custom_quality
+#: model:ir.model,name:mfg_custom_quality.model_mfg_custom_quality_check
+msgid "MFG 品檢單"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model,name:mfg_custom_quality.model_mfg_custom_quality_check_line
+msgid "MFG 品檢結果"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model,name:mfg_custom_quality.model_mfg_custom_quality_point
+msgid "MFG 品檢點"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model,name:mfg_custom_quality.model_mfg_custom_quality_point_line
+msgid "MFG 品檢點檢項"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields.selection,name:mfg_custom_quality.selection__mfg_custom_quality_point__trigger_on__production_finish
+msgid "MO 完工"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields.selection,name:mfg_custom_quality.selection__mfg_custom_quality_point__trigger_on__production_start
+msgid "MO 開工"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model,name:mfg_custom_quality.model_mrp_production
+msgid "Manufacturing Order"
+msgstr "制造订单"
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__message_has_error
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point__message_has_error
+msgid "Message Delivery error"
+msgstr "消息传递错误"
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__message_ids
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point__message_ids
+msgid "Messages"
+msgstr "消息"
+
+#. module: mfg_custom_quality
+#. odoo-python
+#: code:addons/mfg_custom_quality/models/mfg_quality_point.py:0
+msgid "New"
+msgstr "新"
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__message_needaction_counter
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point__message_needaction_counter
+msgid "Number of Actions"
+msgstr "动作数量"
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__message_has_error_counter
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point__message_has_error_counter
+msgid "Number of errors"
+msgstr "错误数"
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,help:mfg_custom_quality.field_mfg_custom_quality_check__message_needaction_counter
+#: model:ir.model.fields,help:mfg_custom_quality.field_mfg_custom_quality_point__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr "需要采取行动的信息数量"
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,help:mfg_custom_quality.field_mfg_custom_quality_check__message_has_error_counter
+#: model:ir.model.fields,help:mfg_custom_quality.field_mfg_custom_quality_point__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr "出现发送错误的消息数量"
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__rating_ids
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point__rating_ids
+msgid "Ratings"
+msgstr "点评"
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__message_has_sms_error
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr "短信发送错误"
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check_line__sequence
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point_line__sequence
+msgid "Sequence"
+msgstr "单号规则"
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point__sequence_default
+msgid "Sequence Default"
+msgstr "默认序号"
+
+#. module: mfg_custom_quality
+#: model:ir.model,name:mfg_custom_quality.model_stock_picking
+msgid "Transfer"
+msgstr "调拨"
+
+#. module: mfg_custom_quality
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_form
+msgid "chatter"
+msgstr "讨论区"
+
+#. module: mfg_custom_quality
+#: model:mail.template,subject:mfg_custom_quality.mail_template_mfg_quality_check_failed
+msgid "{{ object.company_id.name }} 品檢單不合格：{{ object.name }}"
+msgstr ""
+
+#. module: mfg_custom_quality
+#. odoo-python
+#: code:addons/mfg_custom_quality/models/mfg_quality_check.py:0
+msgid "「%s」的檢驗數量必須大於 0。"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check_line__max_value
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point_line__max_value
+msgid "上限"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check_line__min_value
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point_line__min_value
+msgid "下限"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields.selection,name:mfg_custom_quality.selection__mfg_custom_quality_check__state__failed
+#: model:ir.model.fields.selection,name:mfg_custom_quality.selection__mfg_custom_quality_check_line__result__fail
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_form
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_search
+msgid "不合格"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__failure_reason
+msgid "不合格原因"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_form
+msgid "不合格處置"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields.selection,name:mfg_custom_quality.selection__mfg_custom_quality_check_line__result__na
+msgid "不適用"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_form
+msgid "來源單據"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_search
+msgid "依狀態"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_search
+msgid "依產品"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,help:mfg_custom_quality.field_mfg_custom_quality_check__approval_rule_id
+msgid "依目前單據內容符合的簽核規則（尚未送出簽核時也能預覽）。"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__notes
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check_line__note
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point__notes
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point_line__notes
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_form
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_point_view_form
+msgid "備註"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields.selection,name:mfg_custom_quality.selection__mfg_custom_quality_point__trigger_on__incoming
+msgid "入庫前"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__picking_id
+msgid "入庫單"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__company_id
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point__company_id
+msgid "公司"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_form
+msgid "其他需要留下來的說明..."
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check_line__result
+msgid "判定"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_form
+msgid "判定不合格"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_form
+msgid "判定合格"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields.selection,name:mfg_custom_quality.selection__mfg_custom_quality_point__method__functional
+msgid "功能測試"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,help:mfg_custom_quality.field_mfg_custom_quality_point_line__is_critical
+msgid "勾選後，若該項不合格則不可「通過」整張品檢單。"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields.selection,name:mfg_custom_quality.selection__mfg_custom_quality_check__state__cancelled
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_form
+msgid "取消"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_form
+msgid "取消簽核"
+msgstr ""
+
+#. module: mfg_custom_quality
+#. odoo-python
+#: code:addons/mfg_custom_quality/models/mfg_quality_check.py:0
+msgid "只有「檢驗中」狀態能重置回「待執行」。"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields.selection,name:mfg_custom_quality.selection__mfg_custom_quality_check__state__passed
+#: model:ir.model.fields.selection,name:mfg_custom_quality.selection__mfg_custom_quality_check_line__result__ok
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_search
+msgid "合格"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.constraint,message:mfg_custom_quality.constraint_mfg_custom_quality_check_check_company_uniq
+msgid "同公司內品檢單號不可重複。"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.constraint,message:mfg_custom_quality.constraint_mfg_custom_quality_point_point_company_uniq
+msgid "同公司內品檢點編號不可重複。"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:mfg_custom.approval.step,name:mfg_custom_quality.mfg_quality_check_approval_rule_default_step1
+msgid "品保部核准"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.ui.menu,name:mfg_custom_quality.menu_mfg_quality_root
+msgid "品檢"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.actions.act_window,name:mfg_custom_quality.mfg_quality_check_action
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check_line__check_id
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mrp_production__mfg_quality_check_ids
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_stock_picking__mfg_quality_check_ids
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_form
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_tree
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mrp_production_view_form_inherit_mfg_quality
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.stock_picking_view_form_inherit_mfg_quality
+msgid "品檢單"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:mfg_custom.approval.rule,name:mfg_custom_quality.mfg_quality_check_approval_rule_default
+msgid "品檢單放行審核"
+msgstr ""
+
+#. module: mfg_custom_quality
+#. odoo-python
+#: code:addons/mfg_custom_quality/models/mfg_quality_check.py:0
+msgid "品檢單放行簽核通過，狀態改為「已放行」。"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mrp_production__mfg_quality_check_count
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_stock_picking__mfg_quality_check_count
+msgid "品檢單數"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:mail.template,description:mfg_custom_quality.mail_template_mfg_quality_check_failed
+msgid "品檢單狀態被改為「不合格」時自動寄發的範本。"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__name
+msgid "品檢單號"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.actions.act_window,name:mfg_custom_quality.mfg_quality_check_action_history
+#: model:ir.ui.menu,name:mfg_custom_quality.menu_mfg_quality_check_history
+msgid "品檢歷史"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point__name
+msgid "品檢項目"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.actions.act_window,name:mfg_custom_quality.mfg_quality_point_action
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__point_id
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point_line__point_id
+#: model:ir.ui.menu,name:mfg_custom_quality.menu_mfg_quality_point
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_point_view_form
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_point_view_tree
+msgid "品檢點"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.module.module,summary:base.module_mfg_custom_quality
+msgid "品檢點 + 品檢單 + 結果（Community 無 quality 模組之替代）"
+msgstr ""
+
+#. module: mfg_custom_quality
+#. odoo-python
+#: code:addons/mfg_custom_quality/models/mfg_quality_point.py:0
+msgid "品檢點「%(name)s」指定的產品分類 (%(cat)s) 與產品實際所屬分類不符。"
+msgstr ""
+
+#. module: mfg_custom_quality
+#. odoo-python
+#: code:addons/mfg_custom_quality/models/mfg_quality_check.py:0
+msgid "品檢點「%(point)s」尚未設定任何檢項。"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields.selection,name:mfg_custom_quality.selection__mfg_custom_quality_check__corrective_action_id__mfg_custom_issue
+msgid "問題点"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check_line__uom_id
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point_line__uom_id
+msgid "單位"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_form
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_point_view_form
+msgid "基本資料"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_search
+msgid "審核中"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_search
+msgid "審核已核准"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,help:mfg_custom_quality.field_mfg_custom_quality_point__operation
+msgid "對應 ``mrp.routing.operation`` 的工序名稱（非必填）。"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__corrective_action_id
+msgid "對應改善單"
+msgstr ""
+
+#. module: mfg_custom_quality
+#. odoo-python
+#: code:addons/mfg_custom_quality/models/mfg_quality_check.py:0
+msgid "尚有 %(count)s 項結果未判定：%(names)s"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields.selection,name:mfg_custom_quality.selection__mfg_custom_quality_point__trigger_on__workorder_finish
+msgid "工序完工"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_point_view_form
+msgid "已停用"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_form
+msgid "已取消"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields.selection,name:mfg_custom_quality.selection__mfg_custom_quality_check__state__approved
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_form
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_search
+msgid "已放行"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model_terms:ir.actions.act_window,help:mfg_custom_quality.mfg_quality_check_action_history
+msgid "已結案的品檢單。"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model_terms:ir.actions.act_window,help:mfg_custom_quality.mfg_quality_point_action
+msgid "建立與管理「品檢點（規格書）」：適用產品／工序／抽樣數／檢驗項目。"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,help:mfg_custom_quality.field_mfg_custom_quality_check__corrective_action_id
+msgid "待 mfg_custom_issue 模組安裝後即可使用。"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields.selection,name:mfg_custom_quality.selection__mfg_custom_quality_check__state__draft
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_search
+msgid "待執行"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.actions.act_window,name:mfg_custom_quality.mfg_quality_check_action_pending
+#: model:ir.ui.menu,name:mfg_custom_quality.menu_mfg_quality_check_pending
+msgid "待執行品檢"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields.selection,name:mfg_custom_quality.selection__mfg_custom_quality_check_line__result__pending
+msgid "待驗"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model_terms:ir.actions.act_window,help:mfg_custom_quality.mfg_quality_check_action
+msgid "從品檢點帶入檢項規格，記錄量測值並判定合格／不合格／特採。"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields.selection,name:mfg_custom_quality.selection__mfg_custom_quality_point__trigger_on__manual
+msgid "手動"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__lot_id
+msgid "批號"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point__sample_qty
+msgid "抽樣數"
+msgstr ""
+
+#. module: mfg_custom_quality
+#. odoo-python
+#: code:addons/mfg_custom_quality/models/mfg_quality_point.py:0
+msgid "抽樣數必須 ≥ 1（%s）"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_form
+msgid "按下「判定合格」／「判定不合格」／「特採」之前，\n                                請確認所有檢項都已填完判定。"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_search
+msgid "搜尋品檢單"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,help:mfg_custom_quality.field_mfg_custom_quality_point__workcenter_id
+msgid "搭配 ``trigger_on='workorder_finish'`` 使用，限制生效工序。"
+msgstr ""
+
+#. module: mfg_custom_quality
+#. odoo-python
+#: code:addons/mfg_custom_quality/models/mfg_quality_check.py:0
+msgid "放行簽核已取消，品檢單退回「待執行」。"
+msgstr ""
+
+#. module: mfg_custom_quality
+#. odoo-python
+#: code:addons/mfg_custom_quality/models/mfg_quality_check.py:0
+msgid "放行簽核被駁回，品檢單退回「檢驗中」。"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields.selection,name:mfg_custom_quality.selection__mfg_custom_quality_point__method__document
+msgid "文件核對"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,help:mfg_custom_quality.field_mfg_custom_quality_point_line__spec_value
+msgid "文字型規格（例如「無刮傷」、「≥ 80」）。"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,help:mfg_custom_quality.field_mfg_custom_quality_point__product_category_id
+msgid "未指定產品時，依分類套用。"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_form
+msgid "核准目前關卡"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check_line__name
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point_line__name
+msgid "檢查項"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point__check_line_ids
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_point_view_form
+msgid "檢查項目"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_point_view_form
+msgid "檢視相關品檢單"
+msgstr ""
+
+#. module: mfg_custom_quality
+#. odoo-python
+#: code:addons/mfg_custom_quality/models/mfg_quality_check_line.py:0
+msgid "檢項「%(name)s」下限 (%(min)s) 不可大於上限 (%(max)s)。"
+msgstr ""
+
+#. module: mfg_custom_quality
+#. odoo-python
+#: code:addons/mfg_custom_quality/models/mfg_quality_point_line.py:0
+msgid "檢項「%(name)s」的下限 (%(min)s) 不可大於上限 (%(max)s)。"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields.selection,name:mfg_custom_quality.selection__mfg_custom_quality_check__state__in_progress
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_search
+msgid "檢驗中"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__inspector_id
+msgid "檢驗員"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__qty_to_check
+msgid "檢驗數量"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point__method
+msgid "檢驗方式"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__inspection_date
+msgid "檢驗時間"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__product_id
+msgid "檢驗產品"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__check_line_ids
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_form
+msgid "檢驗結果"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields.selection,name:mfg_custom_quality.selection__mfg_custom_quality_check__state__conditional
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_form
+msgid "特採"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__state
+msgid "狀態"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:mail.message.subtype,name:mfg_custom_quality.mt_mfg_quality_check_state_changed
+msgid "狀態變更"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,help:mfg_custom_quality.field_mfg_custom_quality_check__production_id
+msgid "由 MO 開工／完工流程自動帶入，可手動調整。"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,help:mfg_custom_quality.field_mfg_custom_quality_point__product_id
+msgid "留空代表適用於「適用分類」內所有產品。"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:mail.message.subtype,description:mfg_custom_quality.mt_mfg_quality_check_state_changed
+msgid "當品檢單狀態改變時通知追蹤者。"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model_terms:ir.actions.act_window,help:mfg_custom_quality.mfg_quality_check_action_pending
+msgid "目前待執行（draft）或檢驗中（in_progress）的品檢單。"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields.selection,name:mfg_custom_quality.selection__mfg_custom_quality_point__method__visual
+msgid "目視"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__production_id
+msgid "相關 MO"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__workorder_id
+msgid "相關工序"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_form
+msgid "確定要駁回此簽核流程？"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:mfg_custom.approval.step,name:mfg_custom_quality.mfg_quality_check_approval_rule_default_step2
+msgid "管理部核准"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__approval_request_id
+msgid "簽核單"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__approval_state
+msgid "簽核狀態"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check__approval_rule_id
+msgid "簽核規則"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point__code
+msgid "編號"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point__trigger_on
+msgid "自動觸發時機"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_form
+msgid "處置"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check_line__spec_value
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point_line__spec_value
+msgid "規格值"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point__spec
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_point_view_form
+msgid "規格說明"
+msgstr ""
+
+#. module: mfg_custom_quality
+#. odoo-python
+#: code:addons/mfg_custom_quality/models/mfg_quality_check.py:0
+msgid "請填寫不合格原因後再判定為不合格。"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_form
+msgid "請填寫不合格原因（HTML 支援）"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_form
+msgid "跳到品檢點"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_form
+msgid "送出簽核"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point__product_category_id
+msgid "適用分類"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point__workcenter_id
+msgid "適用工作中心"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point__operation
+msgid "適用工序"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point__product_id
+msgid "適用產品"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_point_view_form
+msgid "適用範圍"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_form
+msgid "重置回待執行"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields.selection,name:mfg_custom_quality.selection__mfg_custom_quality_point__method__measure
+msgid "量測"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check_line__measured_value
+msgid "量測值"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,help:mfg_custom_quality.field_mfg_custom_quality_point_line__uom_id
+msgid "量測項使用；目視／文件核對可留空。"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_form
+msgid "開始檢驗"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_check_line__is_critical
+#: model:ir.model.fields,field_description:mfg_custom_quality.field_mfg_custom_quality_point_line__is_critical
+msgid "關鍵項"
+msgstr ""
+
+#. module: mfg_custom_quality
+#. odoo-python
+#: code:addons/mfg_custom_quality/models/mfg_quality_check.py:0
+msgid "關鍵項不合格，不可判定整張單為合格：%(names)s"
+msgstr ""
+
+#. module: mfg_custom_quality
+#: model_terms:ir.ui.view,arch_db:mfg_custom_quality.mfg_quality_check_view_form
+msgid "駁回"
+msgstr ""
