@@ -211,7 +211,10 @@ class TestMfgPurchaseApproval(TransactionCase):
 
     def test_11_step_amount_threshold(self):
         """關卡的金額門檻可讓不符金額的關卡不啟用。"""
+        amount_field = self.env["ir.model.fields"]._get("purchase.order", "amount_total")
+        self.assertTrue(amount_field, "purchase.order 應有 amount_total 欄位")
         self.rule.step_ids.write({
+            "amount_field_id": amount_field.id,
             "min_amount": 1000000.0,
         })
         small_order = self._new_order(price=1000.0)
