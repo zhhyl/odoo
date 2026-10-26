@@ -157,20 +157,14 @@ class TestMfgPurchaseApproval(TransactionCase):
         with self.assertRaises(UserError):
             empty_order.action_submit_for_approval()
 
-        # 沒有供應商
+        # 狀態不是 draft / sent
         order = self._new_order()
-        order.partner_id = False
+        order.action_submit_for_approval()
+        self._approve_all(order)
+        order.button_confirm()
+        self.assertEqual(order.state, "purchase")
         with self.assertRaises(UserError):
             order.action_submit_for_approval()
-
-        # 狀態不是 draft / sent
-        order2 = self._new_order()
-        order2.action_submit_for_approval()
-        self._approve_all(order2)
-        order2.button_confirm()
-        self.assertEqual(order2.state, "purchase")
-        with self.assertRaises(UserError):
-            order2.action_submit_for_approval()
 
     def test_09_approval_does_not_change_purchase_state(self):
         """簽核流程不得改動 purchase.order 原生的 state。"""
@@ -179,8 +173,14 @@ class TestMfgPurchaseApproval(TransactionCase):
         self.assertEqual(order.state, "draft")
         self._approve_all(order)
         self.assertEqual(order.state, "draft")
-        order.with_user(self.approver).action_reject_current_step(reason="退回")
-        self.assertEqual(order.state, "draft")
+        self.assertEqual(order.approval_state, "approved")
+
+        # 駁回路徑另開一張單：已核准的簽核單不可再駁回
+        rejected = self._new_order()
+        rejected.action_submit_for_approval()
+        rejected.with_user(self.approver).action_reject_current_step(reason="退回")
+        self.assertEqual(rejected.state, "draft")
+        self.assertEqual(rejected.approval_state, "rejected")
 
     def test_10_rule_domain_limits_which_orders_need_approval(self):
         """規則的適用條件可限定只有大額採購單需要簽核。"""

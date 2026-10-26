@@ -72,6 +72,8 @@ class PurchaseOrder(models.Model):
                                order.display_name),
                 )
             if not order.partner_id:
+                # 防禦性檢查：purchase_order.partner_id 有 NOT NULL 約束，
+                # 正常流程走不到這裡；保留以防資料庫約束被調整。
                 raise UserError(
                     self.env._("採購單 %s 尚未指定供應商，無法送出簽核。",
                                order.display_name),
