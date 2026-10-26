@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record model="res.groups.privilege" id="res_groups_privilege_mfg_purchase_approval">
+        <field name="name">MFG Purchase Approval</field>
+        <field name="category_id" ref="base.module_category_supply_chain"/>
+    </record>
+
+    <!--
+        採購簽核者群組：可作為簽核關卡的「指定群組（任一即可）」核准人。
+        刻意不與 purchase.group_purchase_manager / group_purchase_user 綁定，
+        讓管理者在「MFG Custom > 設定 > 簽核規則」裡可自由選擇
+        「採購簽核者」這個專屬群組，而不必改動 Odoo 原生群組的授權範圍。
+
+        注意：本群組只影響「誰被視為簽核關卡的核准者」，
+        不影響採購單本身的讀寫權限（那由 purchase 模組原生群組控制）。
+    -->
+    <record id="group_purchase_approver" model="res.groups">
+        <field name="name">採購簽核者</field>
+        <field name="sequence">10</field>
+        <field name="privilege_id" ref="res_groups_privilege_mfg_purchase_approval"/>
+        <field name="implied_ids" eval="[(4, ref('mfg_custom_base.group_user'))]"/>
+        <field name="comment">可核准採購單（RFQ）簽核關卡的使用者。可在簽核規則的關卡中選用。</field>
+    </record>
+
+</odoo>

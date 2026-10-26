@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- =============================================================== -->
+    <!--  採購單表單：加入簽核按鈕與簽核狀態                           -->
+    <!-- =============================================================== -->
+    <record id="mfg_purchase_order_view_form" model="ir.ui.view">
+        <field name="name">purchase.order.form.inherit.mfg_approval</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <!-- 以 header 內 state statusbar 為錨點（依 name 屬性定位） -->
+            <xpath expr="//header/field[@name='state']" position="before">
+                <button name="action_submit_for_approval" string="送出簽核" type="object"
+                        class="btn-primary"
+                        invisible="not approval_rule_id or state not in ('draft', 'sent') or approval_state == 'pending'"/>
+                <button name="action_approve_current_step" string="核准目前關卡" type="object"
+                        class="btn-primary"
+                        invisible="approval_state != 'pending'"/>
+                <button name="action_reject_current_step" string="駁回" type="object"
+                        class="btn-danger"
+                        invisible="approval_state != 'pending'"
+                        confirm="確定要駁回此簽核流程？"/>
+                <button name="action_cancel_approval" string="取消簽核" type="object"
+                        invisible="approval_state != 'pending'"/>
+                <field name="approval_state" widget="statusbar"
+                       statusbar_visible="pending,approved,rejected"
+                       readonly="1"
+                       invisible="approval_state == 'not_required'"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- =============================================================== -->
+    <!--  採購單清單：顯示簽核狀態                                       -->
+    <!-- =============================================================== -->
+    <record id="mfg_purchase_order_view_list" model="ir.ui.view">
+        <field name="name">purchase.order.list.inherit.mfg_approval</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_view_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//list/field[@name='state']" position="after">
+                <field name="approval_state" widget="badge" optional="show"
+                       decoration-info="approval_state == 'pending'"
+                       decoration-success="approval_state == 'approved'"
+                       decoration-danger="approval_state == 'rejected'"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- =============================================================== -->
+    <!--  篩選器：待簽核 / 簽核中                                        -->
+    <!-- =============================================================== -->
+    <record id="mfg_purchase_order_view_search" model="ir.ui.view">
+        <field name="name">purchase.order.search.inherit.mfg_approval</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_view_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='my_Orders']" position="after">
+                <separator/>
+                <filter name="mfg_pending_approval" string="待簽核"
+                        domain="[('approval_state', '=', 'pending')]"
+                        help="顯示已送出簽核但尚未完成審核的採購單"/>
+                <filter name="mfg_approved_approval" string="簽核已通過"
+                        domain="[('approval_state', '=', 'approved')]"/>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="mfg_purchase_order_view_search_rfq" model="ir.ui.view">
+        <field name="name">request.quotation.select.inherit.mfg_approval</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.view_purchase_order_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='starred']" position="after">
+                <separator/>
+                <filter name="mfg_pending_approval" string="待簽核"
+                        domain="[('approval_state', '=', 'pending')]"
+                        help="顯示已送出簽核但尚未完成審核的詢價單"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
