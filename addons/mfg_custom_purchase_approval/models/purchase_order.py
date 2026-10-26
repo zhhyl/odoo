@@ -25,7 +25,18 @@ class PurchaseOrder(models.Model):
     * **不覆寫 ``button_approve`` / ``_approval_allowed``**，避免與內建機制打架。
     """
 
-    _inherit = ["purchase.order", "mfg_custom.approval.mixin"]
+    # 順序有意義：簽核 mixin 必須排在 ``purchase.order`` 之前。
+    #
+    # ``purchase.order`` 本身已直接繼承 ``mail.thread``，而
+    # ``mfg_custom.approval.mixin`` 也繼承 ``mail.thread``。若把 mixin 排在
+    # ``purchase.order`` 之後，基底清單會變成
+    # ``... mail.thread ... base, mfg_custom.approval.mixin``，與 mixin 自身
+    # MRO（mixin → mail.thread → base）形成循環，Odoo 會在載入 registry 時拋出
+    # ``TypeError: Cannot create a consistent method resolution order``。
+    #
+    # 把 mixin 排在最前面即與 Odoo 核心的做法一致 —— 例如 ``account.move``
+    # 把 ``mail.thread.main.attachment``（同樣繼承 mail.thread）排在基底清單前段。
+    _inherit = ["mfg_custom.approval.mixin", "purchase.order"]
 
     # ------------------------------------------------------------------
     # 判斷是否需要簽核
