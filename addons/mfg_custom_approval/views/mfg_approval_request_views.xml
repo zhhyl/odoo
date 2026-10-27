@@ -39,7 +39,10 @@
         <field name="name">mfg_custom.approval.request.view.tree</field>
         <field name="model">mfg_custom.approval.request</field>
         <field name="arch" type="xml">
-            <list string="MFG Custom 簽核申請" decoration-danger="state == 'rejected' or is_overdue"
+            <!-- create="0"：簽核單是由業務單據送出簽核時自動建立的，不開放手動新增。
+                 手動新增會得到一張沒有 rule_id / res_model / res_id 的空殼單據。 -->
+            <list string="MFG Custom 簽核申請" create="0"
+                  decoration-danger="state == 'rejected' or is_overdue"
                   decoration-success="state == 'approved'" decoration-muted="state == 'cancelled'">
                 <field name="name"/>
                 <field name="rule_id"/>
@@ -155,7 +158,26 @@
         <field name="view_mode">list,form</field>
         <field name="search_view_id" ref="mfg_approval_request_view_search"/>
         <field name="context">{'search_default_pending': 1}</field>
-        <field name="help">所有業務模型送出來的簽核申請彙總於此。</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">目前沒有待簽核的簽核申請。</p>
+            <p>
+                簽核單是由<strong>業務單據送出簽核</strong>時自動產生的，這裡是彙總檢視，
+                不需要（也不能）手動新增。
+            </p>
+            <p>兩種常見情境：</p>
+            <ul>
+                <li>
+                    要讓某張單據（例如採購單 PO）可以送審：
+                    請到 <strong>MFG Custom > 設定 > 簽核規則</strong>
+                    建立一條規則，「適用單據類型」選該單據類型。
+                </li>
+                <li>
+                    要送出簽核：請開啟該筆業務單據，按右上角的
+                    <strong>「送出簽核」</strong>按鈕。
+                    送審後這裡就會出現紀錄，也會出現在「待我簽核」。
+                </li>
+            </ul>
+        </field>
     </record>
 
     <!-- Request: My Decision action (僅顯示當前使用者為潛在簽核者的申請) -->
@@ -166,7 +188,13 @@
         <field name="search_view_id" ref="mfg_approval_request_view_search"/>
         <field name="context">{'search_default_my_decision': 1, 'search_default_pending': 1}</field>
         <field name="domain">[('state', '=', 'pending')]</field>
-        <field name="help">當前使用者在某個關卡中為待簽狀態的申請。</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">目前沒有待您簽核的申請。</p>
+            <p>
+                待簽核的申請會出現在這裡。簽核單是由業務單據送出簽核時自動產生的，
+                請到該業務單據按「送出簽核」開始流程。
+            </p>
+        </field>
     </record>
 
 </odoo>

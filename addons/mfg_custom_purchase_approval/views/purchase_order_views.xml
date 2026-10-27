@@ -53,6 +53,8 @@
                                decoration-success="approval_state == 'approved'"
                                decoration-danger="approval_state == 'rejected'"
                                readonly="1"/>
+                        <field name="approval_rule_id" nolabel="1" readonly="1"
+                               invisible="not approval_rule_id"/>
                     </div>
                     <field name="approval_line_ids" readonly="1" nolabel="1">
                         <list string="審批紀錄"
