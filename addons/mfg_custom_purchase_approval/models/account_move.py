@@ -1,6 +1,6 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import fields, models
+from odoo import api, fields, models
 from odoo.exceptions import UserError
 
 
@@ -34,6 +34,19 @@ class AccountMove(models.Model):
         compute="_compute_mfg_approval_blocked",
         string="PO 審批未通過原因",
     )
+
+    # 宣告相依性：採購單的審批狀態一變，帳單上的警示就要跟著重算。
+    # 沒有這個 depends，非 stored 的 compute 會在快取中留著舊值，
+    # 導致「PO 已核准但帳單仍顯示被擋」。
+    @api.depends("line_ids.purchase_line_id.order_id.approval_state")
+    def _compute_mfg_approval_blocked(self):
+        for move in self:
+            blocked_orders = move._mfg_approval_blocked_purchase_orders()
+            move.mfg_approval_blocked = bool(blocked_orders)
+            move.mfg_approval_blocked_message = (
+                move._mfg_approval_blocked_message(blocked_orders)
+                if blocked_orders else False
+            )
 
     # ------------------------------------------------------------------
     # 找出阻擋付款的採購單
@@ -136,11 +149,3 @@ class AccountMove(models.Model):
     # ------------------------------------------------------------------
     # 警示欄位
     # ------------------------------------------------------------------
-    def _compute_mfg_approval_blocked(self):
-        for move in self:
-            blocked_orders = move._mfg_approval_blocked_purchase_orders()
-            move.mfg_approval_blocked = bool(blocked_orders)
-            move.mfg_approval_blocked_message = (
-                move._mfg_approval_blocked_message(blocked_orders)
-                if blocked_orders else False
-            )

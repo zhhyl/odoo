@@ -474,3 +474,18 @@ class TestMfgPurchasePaymentApproval(TransactionCase):
         self.assertEqual(action["res_model"], "mfg_custom.approval.request")
         self.assertEqual(action["res_id"], order.approval_request_id.id)
         self.assertEqual(action["view_mode"], "form")
+
+    def test_11_alert_refreshes_after_approval(self):
+        """PO 核准後，帳單上的警示要跟著解除（compute 相依性）。
+
+        沒有宣告 @api.depends 時，非 stored 的 compute 會在快取中留著舊值，
+        導致「PO 已核准但帳單仍顯示被擋」。
+        """
+        order = self._new_order()
+        order.action_submit_for_approval()
+        bill = self._new_bill(order)
+        self.assertTrue(bill.mfg_approval_blocked)
+        order.with_user(self.approver).action_approve_current_step()
+        # 同一個 transaction 內重讀 → 相依性必須讓警示跟著更新
+        self.assertEqual(order.approval_state, "approved")
+        self.assertFalse(bill.mfg_approval_blocked)
