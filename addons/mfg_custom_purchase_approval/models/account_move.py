@@ -79,9 +79,11 @@ class AccountMove(models.Model):
         )
         lines = []
         for po in blocked_orders:
+            # 用 sudo 讀取顯示名稱：付款者可能沒有採購單的讀取權限，
+            # 但帳單的 invoice_origin 本來就會顯示採購單編號，不構成額外揭露。
             lines.append("%s：%s" % (
-                po.display_name,
-                state_labels.get(po.approval_state, po.approval_state),
+                po.sudo().display_name,
+                state_labels.get(po.sudo().approval_state, po.approval_state),
             ))
         return self.env._(
             "以下採購單尚未通過審批，無法付款：\n%s\n\n"

@@ -336,9 +336,14 @@ class TestMfgPurchasePaymentApproval(TransactionCase):
     # 案例
     # ------------------------------------------------------------------
     def test_01_no_rule_payment_unaffected(self):
-        """沒有簽核規則的採購單 → 付款完全不受管制（既有流程零影響）。"""
+        """沒有簽核規則的採購單 → 付款完全不受管制（既有流程零影響）。
+
+        沒有規則時連「送出簽核」都會被引擎擋下（正確行為），
+        所以這裡的採購單維持 draft、從未進入審批流程。
+        """
         self.rule.active = False
-        order = self._approved_order()
+        order = self._new_order()
+        self.assertFalse(order.approval_rule_id)
         bill = self._new_bill(order)
         self.assertFalse(bill.mfg_approval_blocked)
         # 不拋錯
@@ -386,8 +391,8 @@ class TestMfgPurchasePaymentApproval(TransactionCase):
 
     def test_05_gate_can_be_disabled_by_config(self):
         """系統參數可全域停用閘門。"""
-        self.env["ir.config_parameter"].sudo().set_param(
-            "mfg_custom_purchase_approval.block_payment_without_approval", "False",
+        self.env["ir.config_parameter"].sudo().set_bool(
+            "mfg_custom_purchase_approval.block_payment_without_approval", False,
         )
         order = self._new_order()
         order.action_submit_for_approval()
@@ -403,7 +408,11 @@ class TestMfgPurchasePaymentApproval(TransactionCase):
         manager = new_test_user(
             self.env,
             login="pay_manager",
-            groups="base.group_user,mfg_custom_base.group_manager",
+            groups=(
+                "base.group_user",
+                "account.group_account_readonly",
+                "mfg_custom_base.group_manager",
+            ),
         )
         bill.with_user(manager)._mfg_check_payment_approval()
         self.assertTrue(

@@ -42,12 +42,17 @@
             <!-- 以既有分頁的 name 為錨點（依 name 屬性定位，不用 position 繼承） -->
             <xpath expr="//notebook/page[@name='purchase_delivery_invoice']" position="after">
                 <page string="審批紀錄" name="mfg_approval_lines">
-                    <div class="oe_button_box" name="mfg_approval_button_box">
+                    <div class="d-flex align-items-center gap-2 mb-2" name="mfg_approval_header">
                         <button name="action_open_approval_request" type="object"
-                                class="oe_stat_button" icon="fa-check-circle-o"
+                                class="btn-secondary btn-sm"
                                 invisible="not approval_request_id">
-                            <field name="approval_state" widget="statinfo" string="簽核狀態"/>
+                            開啟簽核單
                         </button>
+                        <field name="approval_state" widget="badge" nolabel="1"
+                               decoration-info="approval_state == 'pending'"
+                               decoration-success="approval_state == 'approved'"
+                               decoration-danger="approval_state == 'rejected'"
+                               readonly="1"/>
                     </div>
                     <field name="approval_line_ids" readonly="1" nolabel="1">
                         <list string="審批紀錄"
