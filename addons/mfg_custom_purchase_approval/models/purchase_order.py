@@ -1,6 +1,6 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
-from odoo import models
+from odoo import fields, models
 from odoo.exceptions import UserError
 
 
@@ -14,7 +14,7 @@ class PurchaseOrder(models.Model):
     --------
 
     * **不動 Odoo 原生的 ``state``**。``purchase.order`` 的狀態只有
-      ``draft / sent / to approve / purchase / done / cancel``，若塞入自訂的
+      ``draft / sent / to approve / purchase / cancel``，若塞入自訂的
       「已核准 / 已駁回」會污染原生狀態機（``button_cancel`` 的可取消集合是寫死的、
       報表與 portal 模板都依賴原生 state）。簽核進度改由 mixin 既有的
       ``approval_state`` 欄位對外呈現。
@@ -37,6 +37,38 @@ class PurchaseOrder(models.Model):
     # 把 mixin 排在最前面即與 Odoo 核心的做法一致 —— 例如 ``account.move``
     # 把 ``mail.thread.main.attachment``（同樣繼承 mail.thread）排在基底清單前段。
     _inherit = ["mfg_custom.approval.mixin", "purchase.order"]
+
+    # ------------------------------------------------------------------
+    # 審批紀錄（攤開簽核單既有的簽核紀錄，供使用者在 PO 上直接查看）
+    # ------------------------------------------------------------------
+    approval_line_ids = fields.One2many(
+        "mfg_custom.approval.line",
+        compute="_compute_approval_line_ids",
+        string="審批紀錄",
+    )
+
+    def _compute_approval_line_ids(self):
+        """把簽核單上的簽核紀錄明細攤到採購單上。
+
+        每筆記錄 = 一個 (關卡, 核准人) 的決策槽位，含 ``decision`` /
+        ``decision_date`` / ``comment``（審批意見）。
+
+        非 stored → 不需要資料庫遷移，也不影響任何既有欄位。
+        """
+        for order in self:
+            order.approval_line_ids = order.approval_request_id.line_ids
+
+    def action_open_approval_request(self):
+        """開啟本單對應的簽核申請（審批狀態與審批意見的來源）。"""
+        self.ensure_one()
+        return {
+            "type": "ir.actions.act_window",
+            "name": self.env._("簽核申請"),
+            "res_model": "mfg_custom.approval.request",
+            "res_id": self.approval_request_id.id,
+            "view_mode": "form",
+            "target": "current",
+        }
 
     # ------------------------------------------------------------------
     # 判斷是否需要簽核

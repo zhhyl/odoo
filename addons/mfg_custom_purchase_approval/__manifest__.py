@@ -52,6 +52,7 @@ Odoo 內建的採購單雙人覆核（``res.company.po_double_validation``，狀
     "data": [
         "security/mfg_purchase_security.xml",
         "views/purchase_order_views.xml",
+        "views/account_move_views.xml",
     ],
     "installable": True,
     "auto_install": False,

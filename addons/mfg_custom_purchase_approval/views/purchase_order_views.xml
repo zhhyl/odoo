@@ -32,6 +32,48 @@
     </record>
 
     <!-- =============================================================== -->
+    <!--  採購單表單：審批紀錄分頁 + 開啟簽核單                            -->
+    <!-- =============================================================== -->
+    <record id="mfg_purchase_order_view_form_approval_lines" model="ir.ui.view">
+        <field name="name">purchase.order.form.inherit.mfg_approval_lines</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <!-- 以既有分頁的 name 為錨點（依 name 屬性定位，不用 position 繼承） -->
+            <xpath expr="//notebook/page[@name='purchase_delivery_invoice']" position="after">
+                <page string="審批紀錄" name="mfg_approval_lines">
+                    <div class="oe_button_box" name="mfg_approval_button_box">
+                        <button name="action_open_approval_request" type="object"
+                                class="oe_stat_button" icon="fa-check-circle-o"
+                                invisible="not approval_request_id">
+                            <field name="approval_state" widget="statinfo" string="簽核狀態"/>
+                        </button>
+                    </div>
+                    <field name="approval_line_ids" readonly="1" nolabel="1">
+                        <list string="審批紀錄"
+                              decoration-success="decision == 'approved'"
+                              decoration-danger="decision == 'rejected'"
+                              decoration-muted="decision in ('pending', 'skipped')">
+                            <field name="step_id"/>
+                            <field name="user_id"/>
+                            <field name="decision" widget="badge"
+                                   decoration-success="decision == 'approved'"
+                                   decoration-danger="decision == 'rejected'"
+                                   decoration-warning="decision == 'pending'"
+                                   decoration-muted="decision == 'skipped'"/>
+                            <field name="decision_date"/>
+                            <field name="comment"/>
+                        </list>
+                    </field>
+                    <p class="text-muted" colspan="1" invisible="approval_line_ids">
+                        本採購單尚未送出簽核，沒有審批紀錄。
+                    </p>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- =============================================================== -->
     <!--  採購單清單：顯示簽核狀態                                       -->
     <!-- =============================================================== -->
     <record id="mfg_purchase_order_view_list" model="ir.ui.view">
