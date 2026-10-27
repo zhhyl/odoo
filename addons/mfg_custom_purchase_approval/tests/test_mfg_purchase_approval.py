@@ -409,9 +409,9 @@ class TestMfgPurchasePaymentApproval(TransactionCase):
             self.env,
             login="pay_manager",
             groups=(
-                "base.group_user",
-                "account.group_account_readonly",
-                "mfg_custom_base.group_manager",
+                "base.group_user,"
+                "account.group_account_readonly,"
+                "mfg_custom_base.group_manager"
             ),
         )
         bill.with_user(manager)._mfg_check_payment_approval()
