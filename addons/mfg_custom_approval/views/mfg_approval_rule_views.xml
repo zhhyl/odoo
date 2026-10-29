@@ -85,6 +85,9 @@
                                     <field name="approver_field_id" optional="show"
                                            domain="[('model', '=', parent.res_model), ('relation', '=', 'res.users')]"
                                            invisible="approver_mode != 'field'"/>
+                                    <field name="department_id" optional="show"
+                                           invisible="approver_mode not in ('department', 'department_manager')"/>
+                                    <field name="preview_approver_info" optional="hide"/>
                                     <field name="min_amount" optional="hide"/>
                                     <field name="max_amount" optional="hide"/>
                                     <field name="amount_field_id" optional="hide"
@@ -112,6 +115,8 @@
                                                        domain="[('model', '=', parent.res_model), ('relation', '=', 'res.users')]"
                                                        invisible="approver_mode != 'field'"
                                                        help="選擇單據上指向使用者（res.users）的欄位。"/>
+                                                <field name="department_id"
+                                                       invisible="approver_mode not in ('department', 'department_manager')"/>
                                             </group>
                                             <group string="金額門檻">
                                                 <field name="min_amount"/>
@@ -120,6 +125,10 @@
                                                        domain="[('model', '=', parent.res_model), ('ttype', 'in', ('float', 'monetary'))]"/>
                                                 <field name="amount_currency_id"/>
                                             </group>
+                                        </group>
+                                        <group string="簽核者預覽">
+                                            <field name="preview_approver_info" nolabel="1"
+                                                   placeholder="選擇簽核者設定後，這裡會顯示解析結果與員工狀態"/>
                                         </group>
                                         <group>
                                             <field name="note" placeholder="備註"/>

@@ -6,3 +6,4 @@ from . import mfg_approval_step
 from . import mfg_approval_line
 from . import mfg_approval_request
 from . import mfg_approval_test_model
+from . import res_users

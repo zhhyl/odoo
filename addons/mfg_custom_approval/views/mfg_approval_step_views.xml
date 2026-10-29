@@ -17,6 +17,9 @@
                        invisible="approver_mode not in ('group', 'group_all')"/>
                 <field name="approver_field_id" optional="show"
                        invisible="approver_mode != 'field'"/>
+                <field name="department_id" optional="show"
+                       invisible="approver_mode not in ('department', 'department_manager')"/>
+                <field name="preview_approver_info" optional="hide"/>
                 <field name="min_amount" optional="hide"/>
                 <field name="max_amount" optional="hide"/>
                 <field name="amount_field_id" optional="hide"/>
@@ -49,7 +52,13 @@
                                    invisible="approver_mode not in ('group', 'group_all')"/>
                             <field name="approver_field_id"
                                    invisible="approver_mode != 'field'"/>
+                            <field name="department_id"
+                                   invisible="approver_mode not in ('department', 'department_manager')"/>
                         </group>
+                    </group>
+                    <group string="簽核者預覽">
+                        <field name="preview_approver_info" nolabel="1"
+                               placeholder="選擇簽核者設定後，這裡會顯示解析結果與員工狀態"/>
                     </group>
                     <group>
                         <group string="金額門檻">

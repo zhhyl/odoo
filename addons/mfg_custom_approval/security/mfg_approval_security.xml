@@ -10,4 +10,13 @@
          細部 ACL 請見 security/ir.access.csv。
     -->
 
+    <!-- 刻意「不」把 hr.group_hr_user 隱含給 mfg_custom_base.group_manager。
+         部門簽核功能不需要這個權限：
+           * 挑選部門只需要讀 hr.department，而 base.group_user 本來就有
+             （addons/hr/security/ir.access.csv 的 access_hr_department_employee）
+           * 讀 hr.employee（算在職員工、部門）走的是程式內的 sudo()，
+             不依賴使用者群組
+         而若給了 HR Officer，管理員就能改 hr.department.manager_id 與
+         hr.employee.department_id —— 等於能把自己設成簽核關卡的簽核者，
+         破壞簽核的獨立性。因此權限維持在 base.group_user 的水準。 -->
 </odoo>

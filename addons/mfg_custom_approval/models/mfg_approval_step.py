@@ -15,7 +15,15 @@ class MfgApprovalStep(models.Model):
         - ``group``：``group_id`` 任一成員核准即可
         - ``group_all``：``group_id`` 全體成員皆要核可
         - ``field``：由單據上 ``approver_field`` 指定的 Many2one res.users 決定
-    * 金額門檻：當單據上的 ``amount_field`` 落在 ``[min_amount, max_amount]`` 之間才啟用。
+        - ``department``：``department_id`` 的在職員工任一人核准即可（不含部門經理）
+        - ``department_manager``：``department_id`` 的經理核准
+    * 金額門檻：當單據上的 ``amount_field`` 落在 ``[min_amount, max_amount]``
+      之間才啟用。
+
+    簽核者一律以 ``res.users`` 表示：簽核是「某人按下按鈕」的動作與稽核軌跡，
+    必須綁在能登入、有權限的身分上。``department`` / ``department_manager``
+    只是用來推導「哪些帳號合格」的設定來源，資料仍來自 Odoo 內建的
+    ``hr.department``，不會另建一套員工資料。
     """
 
     _name = "mfg_custom.approval.step"
@@ -37,6 +45,8 @@ class MfgApprovalStep(models.Model):
             ("group", "指定群組（任一即可）"),
             ("group_all", "指定群組（全員皆要核可）"),
             ("field", "由單據欄位決定"),
+            ("department", "部門人員（任一即可）"),
+            ("department_manager", "部門經理"),
         ],
         required=True,
         default="user",
@@ -52,6 +62,15 @@ class MfgApprovalStep(models.Model):
         "res.groups",
         "指定群組",
         help="approver_mode 為 group / group_all 時使用。",
+    )
+    department_id = fields.Many2one(
+        "hr.department",
+        "指定部門",
+        help=(
+            "approver_mode 為 department / department_manager 時使用。"
+            "部門人員取該部門的在職員工（不含部門經理本人），"
+            "部門經理則取該部門設定的經理。"
+        ),
     )
     approver_field_id = fields.Many2one(
         "ir.model.fields",
@@ -109,6 +128,11 @@ class MfgApprovalStep(models.Model):
         ),
     )
     note = fields.Char("說明")
+    preview_approver_info = fields.Char(
+        "解析出的簽核者",
+        compute="_compute_preview_approver_info",
+        help="依目前關卡設定即時解析出的簽核者，供設定時確認人選是否正確。",
+    )
 
     _step_rule_idx = models.Index("(rule_id, sequence)")
 
@@ -141,7 +165,13 @@ class MfgApprovalStep(models.Model):
                     )
                 )
 
-    @api.constrains("approver_mode", "user_ids", "group_id", "approver_field_id")
+    @api.constrains(
+        "approver_mode",
+        "user_ids",
+        "group_id",
+        "approver_field_id",
+        "department_id",
+    )
     def _check_approver_config(self):
         for step in self:
             if step.approver_mode == "user" and not step.user_ids:
@@ -157,6 +187,16 @@ class MfgApprovalStep(models.Model):
                         "關卡 %s 採用群組模式時必須選擇群組",
                         step.display_name,
                     )
+                )
+            if (
+                step.approver_mode in ("department", "department_manager")
+                and not step.department_id
+            ):
+                raise ValidationError(
+                    self.env._(
+                        "關卡 %s 採用部門模式時必須選擇部門",
+                        step.display_name,
+                    ),
                 )
             if step.approver_mode == "field" and not step.approver_field_id:
                 raise ValidationError(
@@ -182,13 +222,14 @@ class MfgApprovalStep(models.Model):
                         )
                     )
 
-    def _resolve_approver_users(self, record):
+    def _resolve_approver_users(self, record=None):
         """依 ``approver_mode`` 解析出本關卡的所有潛在簽核者。
 
-        已停用（离职）的帳號不列入簽核者，否則一位員工離職就會永久卡住
+        已停用（離職）的帳號不列入簽核者，否則一位員工離職就會永久卡住
         該群組的所有送簽流程。
 
-        :param record: 對應的業務單據 recordset
+        :param record: 對應的業務單據 recordset；``field`` 模式需要它，
+                       其他模式可省略
         :return: ``res.users`` recordset
         """
         self.ensure_one()
@@ -199,7 +240,7 @@ class MfgApprovalStep(models.Model):
             users = self.group_id.all_user_ids
         elif self.approver_mode == "field":
             field_name = self.approver_field
-            if not field_name or field_name not in record._fields:
+            if not field_name or record is None or field_name not in record._fields:
                 return self.env["res.users"]
             field = record._fields[field_name]
             # 簽核者欄位必須是指向 res.users 的單值欄位
@@ -209,7 +250,133 @@ class MfgApprovalStep(models.Model):
             if not value or len(value) != 1:
                 return self.env["res.users"]
             users = value
-        return users.filtered(lambda u: u.active)
+        elif self.approver_mode == "department":
+            users = self._department_member_users()
+        elif self.approver_mode == "department_manager":
+            users = self._department_manager_users()
+        # 去掉 sudo 旗標：部門模式讀 hr.employee 時用了 sudo()，若原樣回傳，
+        # 日後有人對回傳值寫值會繞過 ACL。
+        return self.env["res.users"].browse(users.ids).filtered(lambda u: u.active)
+
+    def _department_member_users(self):
+        """回傳部門內在職員工所綁定的帳號（不含部門經理本人）。
+
+        部門成員任一人核准即可通過本關卡；部門經理請另外設定
+        「部門經理」關卡，避免部門成員互相代簽。
+
+        已封存的部門、已離職的員工、以及其他公司的員工都不列入。
+        """
+        self.ensure_one()
+        department = self.department_id.sudo()
+        if not department or not department.active:
+            return self.env["res.users"]
+        manager = department.manager_id
+        employees = department.member_ids.filtered(
+            lambda employee: employee.active
+            and employee != manager
+            and employee.company_id == self.env.company,
+        )
+        return employees.mapped("user_id")
+
+    def _department_manager_users(self):
+        """回傳部門經理所綁定的帳號（經理已離職時視為沒有簽核者）。
+
+        封存員工不會清掉 ``hr.department.manager_id``（Odoo 只會清掉
+        ``parent_id`` / ``coach_id``），因此這裡要另外檢查 ``active``。
+        """
+        self.ensure_one()
+        department = self.department_id.sudo()
+        if not department or not department.active:
+            return self.env["res.users"]
+        manager = department.manager_id
+        if not manager or not manager.active:
+            return self.env["res.users"]
+        return manager.user_id
+
+    def _approver_missing_hint(self):
+        """回傳解析不到簽核者時，該提示使用者檢查什麼。"""
+        self.ensure_one()
+        dept = self.department_id.sudo()
+        if self.approver_mode in ("department", "department_manager") and not dept:
+            return self.env._(
+                "此關卡的簽核者模式是部門，但沒有指定部門（部門可能已被刪除）。",
+            )
+        if self.approver_mode == "department_manager":
+            manager = dept.manager_id
+            if not manager:
+                return self.env._(
+                    "部門「%s」尚未設定經理。",
+                    dept.display_name,
+                )
+            if not manager.user_id:
+                return self.env._(
+                    "部門「%s」的經理「%s」尚未綁定 Odoo 使用者帳號，"
+                    "請先於【員工】中為其建立帳號。",
+                    dept.display_name,
+                    manager.display_name,
+                )
+            return self.env._(
+                "部門「%s」的經理「%s」已離職或帳號已停用。",
+                dept.display_name,
+                manager.display_name,
+            )
+        if self.approver_mode == "department":
+            return self.env._(
+                "部門「%s」沒有可用的在職員工（部門經理本人不列入本模式，"
+                "請改用「部門經理」模式，或補上其他在職員工）。",
+                dept.display_name,
+            )
+        return self.env._("請檢查群組成員或單據上的簽核者欄位。")
+
+    @api.depends("approver_mode", "department_id", "user_ids", "group_id")
+    def _compute_preview_approver_info(self):
+        """解析出目前設定會讓哪些人簽核，並標示其部門與員工狀態。
+
+        讓管理者在設定關卡時就能看出人選是不是在職員工，
+        避免把系統／測試／Portal 帳號指派成簽核者。
+
+        依賴只列到本模組的設定欄位；群組成員或部門成員的異動不會即時反映，
+        需要重整頁面才會重算（這是設定畫面的輔助資訊，不影響實際簽核解析）。
+        """
+        for step in self:
+            if step.approver_mode == "field":
+                step.preview_approver_info = step.env._(
+                    "（由單據欄位決定，無法預覽）",
+                )
+                continue
+            users = step._resolve_approver_users()
+            if not users:
+                step.preview_approver_info = step.env._("（解析不到簽核者）")
+                continue
+            employee_map = users._mfg_employee_map()
+            descriptions = []
+            for user in users:
+                employee = employee_map.get(user)
+                if not employee:
+                    state = self.env._("非員工帳號")
+                elif employee.active:
+                    state = self.env._("在職員工")
+                else:
+                    state = self.env._("已離職")
+                descriptions.append(
+                    self.env._(
+                        "%(name)s（%(department)s／%(state)s）",
+                        name=user.display_name,
+                        department=(
+                            employee.department_id.display_name
+                            if employee and employee.department_id
+                            else self.env._("無部門")
+                        ),
+                        state=state,
+                    ),
+                )
+            # 部門可能有幾十人，全部列出會讓欄位長到讀不了；只留前幾個並標明總數
+            visible = descriptions[:5]
+            if len(descriptions) > len(visible):
+                visible.append(
+                    self.env._("…等 %d 位", len(descriptions)),
+                )
+            step.preview_approver_info = ", ".join(visible)
 
     def _is_active_for_record(self, record):
         """依金額區間判斷本關卡是否對 ``record`` 啟用。"""

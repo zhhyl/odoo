@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Odoo Server 20.0\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-26 09:42+0000\n"
-"PO-Revision-Date: 2026-10-26 09:42+0000\n"
+"POT-Creation-Date: 2026-10-28 07:09+0000\n"
+"PO-Revision-Date: 2026-10-28 07:09+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -29,9 +29,14 @@ msgid ""
 "\n"
 "* 抽象 mixin ``mfg_custom.approval.mixin`` （可由其他模型繼承）\n"
 "* 簽核規則 ``mfg_custom.approval.rule`` （含適用 model 與 domain）\n"
-"* 簽核關卡 ``mfg_custom.approval.step`` （支援 user / group / group_all / field 四種 approver_mode）\n"
+"* 簽核關卡 ``mfg_custom.approval.step``\n"
+"  （支援 user / group / group_all / field / department / department_manager 六種 approver_mode）\n"
 "* 簽核申請 ``mfg_custom.approval.request`` （state machine：draft/pending/approved/rejected/cancelled）\n"
 "* 簽核紀錄 ``mfg_custom.approval.line`` （每關卡的決策與意見）\n"
+"\n"
+"簽核者一律以 ``res.users`` 記錄（能登入、有權限、留得下稽核軌跡）；\n"
+"``department`` / ``department_manager`` 兩種模式則以 Odoo 內建的\n"
+"``hr.department`` 推導出哪些帳號合格，不會另建一套「員工」資料。\n"
 "\n"
 "安裝後即可在「MFG Custom > 設定 > 簽核規則」建立流程，\n"
 "並讓 ``plm_custom.eco``、``sale.order`` 等模型透過繼承 mixin 取得簽核按鈕。\n"
@@ -43,6 +48,12 @@ msgstr ""
 msgid ""
 "\n"
 "意見：%s"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_step.py:0
+msgid "%(name)s（%(department)s／%(state)s）"
 msgstr ""
 
 #. module: mfg_custom_approval
@@ -63,7 +74,7 @@ msgid ""
 "        <br/>\n"
 "        規則：<t t-out=\"object.rule_id.display_name or ''\">規則</t>\n"
 "        <br/>\n"
-"        業務單據：<t t-out=\"object.res_model or ''\">model</t> #<t t-out=\"object.res_id or ''\">0</t>\n"
+"        業務單據：<t t-out=\"object.res_display_name or object.res_model\">model</t>\n"
 "        <br/>\n"
 "        當前關卡：<t t-if=\"object.current_step_id\">\n"
 "            <t t-out=\"object.current_step_id.display_name or ''\">關卡</t>\n"
@@ -170,6 +181,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_rule__display_name
 #: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_step__display_name
 #: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_test_model__display_name
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_res_users__display_name
 msgid "Display Name"
 msgstr ""
 
@@ -206,6 +218,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_rule__id
 #: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_step__id
 #: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_test_model__id
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_res_users__id
 msgid "ID"
 msgstr ""
 
@@ -218,8 +231,11 @@ msgstr ""
 
 #. module: mfg_custom_approval
 #: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_mixin__message_has_error
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_mixin__message_has_sms_error
 #: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_request__message_has_error
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_request__message_has_sms_error
 #: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_test_model__message_has_error
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_test_model__message_has_sms_error
 msgid "If checked, some messages have a delivery error."
 msgstr ""
 
@@ -355,6 +371,13 @@ msgid "Ratings"
 msgstr ""
 
 #. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_mixin__message_has_sms_error
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__message_has_sms_error
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_test_model__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr ""
+
+#. module: mfg_custom_approval
 #: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_rule__sequence
 #: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_step__sequence
 msgid "Sequence"
@@ -367,8 +390,16 @@ msgid "State"
 msgstr ""
 
 #. module: mfg_custom_approval
+#: model:ir.model,name:mfg_custom_approval.model_res_users
 #: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_step__user_ids
 msgid "User"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_step__department_id
+msgid ""
+"approver_mode 為 department / department_manager "
+"時使用。部門人員取該部門的在職員工（不含部門經理本人），部門經理則取該部門設定的經理。"
 msgstr ""
 
 #. module: mfg_custom_approval
@@ -388,12 +419,15 @@ msgstr ""
 
 #. module: mfg_custom_approval
 #: model:mail.template,subject:mfg_custom_approval.mail_template_mfg_approval_request
-msgid "{{ object.name }}：{{ object.res_model }} #{{ object.res_id }} 待您簽核"
+msgid ""
+"{{ object.name }}：{{ object.res_display_name or object.res_model }} 待您簽核"
 msgstr ""
 
 #. module: mfg_custom_approval
 #: model:mail.template,subject:mfg_custom_approval.mail_template_mfg_approval_decided
-msgid "{{ object.name }}：簽核結果 - {{ object.state }}"
+msgid ""
+"{{ object.name }}：簽核結果 - {{ "
+"dict(object._fields['state'].selection).get(object.state) or object.state }}"
 msgstr ""
 
 #. module: mfg_custom_approval
@@ -412,6 +446,16 @@ msgid "供前端條件建構器使用，指定要對哪個模型建立條件。"
 msgstr ""
 
 #. module: mfg_custom_approval
+#: model:ir.model.fields,help:mfg_custom_approval.field_res_users__mfg_employee_state
+msgid "依【員工】模組的員工檔案判斷此帳號是否為在職員工。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_line__approver_employee_state
+msgid "依【員工】模組的員工檔案判斷簽核者是否為在職員工。"
+msgstr ""
+
+#. module: mfg_custom_approval
 #: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_request_view_search
 #: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_rule_view_search
 msgid "依業務模型"
@@ -426,6 +470,11 @@ msgstr ""
 #: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_mixin__approval_rule_id
 #: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_test_model__approval_rule_id
 msgid "依目前單據內容符合的簽核規則（尚未送出簽核時也能預覽）。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_step__preview_approver_info
+msgid "依目前關卡設定即時解析出的簽核者，供設定時確認人選是否正確。"
 msgstr ""
 
 #. module: mfg_custom_approval
@@ -454,6 +503,11 @@ msgstr ""
 #. module: mfg_custom_approval
 #: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_approval_request__state__approved
 msgid "全部核准"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.actions.act_window,help:mfg_custom_approval.mfg_approval_request_action
+msgid "兩種常見情境："
 msgstr ""
 
 #. module: mfg_custom_approval
@@ -491,6 +545,11 @@ msgid "同公司內同一 model 的規則名稱不可重複。"
 msgstr ""
 
 #. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_res_users__mfg_employee_state
+msgid "員工狀態"
+msgstr ""
+
+#. module: mfg_custom_approval
 #: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_rule_view_search
 msgid "啟用中"
 msgstr ""
@@ -513,6 +572,19 @@ msgstr ""
 #. module: mfg_custom_approval
 #: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__name
 msgid "單號"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_step.py:0
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_approval_line__approver_employee_state__active_employee
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__res_users__mfg_employee_state__active_employee
+msgid "在職員工"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:mail.template,description:mfg_custom_approval.mail_template_mfg_approval_decided
+msgid "審核結果出爐時通知申請人"
 msgstr ""
 
 #. module: mfg_custom_approval
@@ -570,6 +642,14 @@ msgid "已重新送出簽核申請：%s（%d 個關卡）"
 msgstr ""
 
 #. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_step.py:0
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_approval_line__approver_employee_state__inactive_employee
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__res_users__mfg_employee_state__inactive_employee
+msgid "已離職"
+msgstr ""
+
+#. module: mfg_custom_approval
 #: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_approval_mixin__approval_state__rejected
 #: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_approval_test_model__approval_state__rejected
 #: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_issue__approval_state__rejected
@@ -603,6 +683,13 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_mixin_view_search
 #: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_request_view_search
 msgid "待簽核"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.actions.act_window,help:mfg_custom_approval.mfg_approval_request_action_my_decision
+msgid ""
+"待簽核的申請會出現在這裡。簽核單是由業務單據送出簽核時自動產生的，\n"
+"                請到該業務單據按「送出簽核」開始流程。"
 msgstr ""
 
 #. module: mfg_custom_approval
@@ -654,11 +741,6 @@ msgid "我提出的"
 msgstr ""
 
 #. module: mfg_custom_approval
-#: model_terms:ir.actions.act_window,help:mfg_custom_approval.mfg_approval_request_action
-msgid "所有業務模型送出來的簽核申請彙總於此。"
-msgstr ""
-
-#. module: mfg_custom_approval
 #. odoo-python
 #: code:addons/mfg_custom_approval/models/mfg_approval_request.py:0
 msgid "所有簽核關卡皆已通過，狀態：已核准"
@@ -704,6 +786,11 @@ msgstr ""
 #. module: mfg_custom_approval
 #: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_approval_step__approver_mode__group_all
 msgid "指定群組（全員皆要核可）"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_step__department_id
+msgid "指定部門"
 msgstr ""
 
 #. module: mfg_custom_approval
@@ -837,6 +924,12 @@ msgid "為不同業務模型（PLM ECO、銷售訂單、生產工單等）建立
 msgstr ""
 
 #. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_step.py:0
+msgid "無部門"
+msgstr ""
+
+#. module: mfg_custom_approval
 #: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_approval_mixin__approval_state__not_required
 #: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_approval_test_model__approval_state__not_required
 #: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_issue__approval_state__not_required
@@ -878,11 +971,6 @@ msgid "略過"
 msgstr ""
 
 #. module: mfg_custom_approval
-#: model_terms:ir.actions.act_window,help:mfg_custom_approval.mfg_approval_request_action_my_decision
-msgid "當前使用者在某個關卡中為待簽狀態的申請。"
-msgstr ""
-
-#. module: mfg_custom_approval
 #: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__current_step_id
 msgid "當前關卡"
 msgstr ""
@@ -905,6 +993,16 @@ msgstr ""
 #. module: mfg_custom_approval
 #: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_request__pending_approver_emails
 msgid "目前待簽關卡的簽核者信箱，供通知信使用。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.actions.act_window,help:mfg_custom_approval.mfg_approval_request_action_my_decision
+msgid "目前沒有待您簽核的申請。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.actions.act_window,help:mfg_custom_approval.mfg_approval_request_action
+msgid "目前沒有待簽核的簽核申請。"
 msgstr ""
 
 #. module: mfg_custom_approval
@@ -948,6 +1046,13 @@ msgstr ""
 #. odoo-python
 #: code:addons/mfg_custom_approval/models/mfg_approval_mixin.py:0
 msgid "簽核單已被駁回，請直接重新送出簽核以重啟流程。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.actions.act_window,help:mfg_custom_approval.mfg_approval_request_action
+msgid ""
+"簽核單是由<strong>業務單據送出簽核</strong>時自動產生的，這裡是彙總檢視，\n"
+"                不需要（也不能）手動新增。"
 msgstr ""
 
 #. module: mfg_custom_approval
@@ -1019,11 +1124,6 @@ msgid "簽核紀錄"
 msgstr ""
 
 #. module: mfg_custom_approval
-#: model:mail.template,description:mfg_custom_approval.mail_template_mfg_approval_decided
-msgid "簽核結果出爐時通知申請人"
-msgstr ""
-
-#. module: mfg_custom_approval
 #: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_line__user_id
 #: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_rule_view_form
 msgid "簽核者"
@@ -1036,6 +1136,16 @@ msgid "簽核者 %s 已停用，無法作為潛在簽核者"
 msgstr ""
 
 #. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_line__approver_employee_state
+msgid "簽核者員工狀態"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_line__approver_department_id
+msgid "簽核者在【員工】模組中所屬的部門。"
+msgstr ""
+
+#. module: mfg_custom_approval
 #: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_step__approver_field_id
 msgid "簽核者欄位"
 msgstr ""
@@ -1043,6 +1153,16 @@ msgstr ""
 #. module: mfg_custom_approval
 #: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_step_view_form
 msgid "簽核者設定"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_line__approver_department_id
+msgid "簽核者部門"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_step_view_form
+msgid "簽核者預覽"
 msgstr ""
 
 #. module: mfg_custom_approval
@@ -1075,7 +1195,7 @@ msgstr ""
 #. module: mfg_custom_approval
 #. odoo-python
 #: code:addons/mfg_custom_approval/models/mfg_approval_request.py:0
-msgid "簽核規則「%s」的關卡「%s」找不到可用的簽核者，請檢查群組成員或單據上的簽核者欄位。"
+msgid "簽核規則「%s」的關卡「%s」找不到可用的簽核者：%s"
 msgstr ""
 
 #. module: mfg_custom_approval
@@ -1136,6 +1256,22 @@ msgid "要套用此簽核流程的單據類型。只能選擇已掛載簽核功�
 msgstr ""
 
 #. module: mfg_custom_approval
+#: model_terms:ir.actions.act_window,help:mfg_custom_approval.mfg_approval_request_action
+msgid ""
+"要讓某張單據（例如採購單 PO）可以送審：\n"
+"                    請到 <strong>MFG Custom &gt; 設定 &gt; 簽核規則</strong>\n"
+"                    建立一條規則，「適用單據類型」選該單據類型。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model_terms:ir.actions.act_window,help:mfg_custom_approval.mfg_approval_request_action
+msgid ""
+"要送出簽核：請開啟該筆業務單據，按右上角的\n"
+"                    <strong>「送出簽核」</strong>按鈕。\n"
+"                    送審後這裡就會出現紀錄，也會出現在「待我簽核」。"
+msgstr ""
+
+#. module: mfg_custom_approval
 #: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_rule__name
 msgid "規則名稱"
 msgstr ""
@@ -1146,10 +1282,21 @@ msgid "規則用途說明"
 msgstr ""
 
 #. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_step__preview_approver_info
+msgid "解析出的簽核者"
+msgstr ""
+
+#. module: mfg_custom_approval
 #: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_rule__note
 #: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_step__note
 #: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_rule_view_form
 msgid "說明"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_step.py:0
+msgid "請檢查群組成員或單據上的簽核者欄位。"
 msgstr ""
 
 #. module: mfg_custom_approval
@@ -1208,8 +1355,52 @@ msgid "選擇單據上指向使用者（res.users）的欄位。"
 msgstr ""
 
 #. module: mfg_custom_approval
+#: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_step_view_form
+msgid "選擇簽核者設定後，這裡會顯示解析結果與員工狀態"
+msgstr ""
+
+#. module: mfg_custom_approval
 #: model_terms:ir.ui.view,arch_db:mfg_custom_approval.mfg_approval_rule_view_form
 msgid "選擇要簽核的單據類型"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields,field_description:mfg_custom_approval.field_res_users__mfg_employee_department_id
+msgid "部門"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_step.py:0
+msgid "部門「%s」尚未設定經理。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_step.py:0
+msgid "部門「%s」沒有已綁定帳號的在職員工。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_step.py:0
+msgid "部門「%s」的經理「%s」尚未綁定 Odoo 使用者帳號，請先於【員工】中為其建立帳號。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_step.py:0
+msgid "部門「%s」的經理「%s」已離職或帳號已停用。"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_approval_step__approver_mode__department
+msgid "部門人員（任一即可）"
+msgstr ""
+
+#. module: mfg_custom_approval
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_approval_step__approver_mode__department_manager
+msgid "部門經理"
 msgstr ""
 
 #. module: mfg_custom_approval
@@ -1280,6 +1471,12 @@ msgstr ""
 #. module: mfg_custom_approval
 #. odoo-python
 #: code:addons/mfg_custom_approval/models/mfg_approval_step.py:0
+msgid "關卡 %s 採用部門模式時必須選擇部門"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_step.py:0
 msgid "關卡 %s 的最小金額不可大於最大金額"
 msgstr ""
 
@@ -1313,6 +1510,14 @@ msgid "關卡名稱"
 msgstr ""
 
 #. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_step.py:0
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__mfg_custom_approval_line__approver_employee_state__no_employee
+#: model:ir.model.fields.selection,name:mfg_custom_approval.selection__res_users__mfg_employee_state__no_employee
+msgid "非員工帳號"
+msgstr ""
+
+#. module: mfg_custom_approval
 #: model:ir.model.fields,help:mfg_custom_approval.field_mfg_custom_approval_request__due_date
 msgid "預設依規則的「簽核期限（天）」帶出，可由申請人或管理者調整。逾期仍未簽核時，會由每日 cron 提醒簽核者。"
 msgstr ""
@@ -1332,4 +1537,16 @@ msgstr ""
 #. module: mfg_custom_approval
 #: model:ir.model.fields,field_description:mfg_custom_approval.field_mfg_custom_approval_request__reason
 msgid "駁回原因"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_step.py:0
+msgid "（由單據欄位決定，無法預覽）"
+msgstr ""
+
+#. module: mfg_custom_approval
+#. odoo-python
+#: code:addons/mfg_custom_approval/models/mfg_approval_step.py:0
+msgid "（解析不到簽核者）"
 msgstr ""

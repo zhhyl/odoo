@@ -488,10 +488,10 @@ class MfgApprovalRequest(models.Model):
                 if step.required:
                     raise UserError(
                         self.env._(
-                            "簽核規則「%s」的關卡「%s」找不到可用的簽核者，"
-                            "請檢查群組成員或單據上的簽核者欄位。",
+                            "簽核規則「%s」的關卡「%s」找不到可用的簽核者：%s",
                             rule.display_name,
                             step.display_name,
+                            step._approver_missing_hint(),
                         )
                     )
                 # 非必要關卡：找不到簽核者時略過

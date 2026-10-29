@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- 使用者表單：顯示員工身分（是否在職員工、所屬部門）。
+         這兩個欄位是唯讀的衍生欄位，資料來自【員工】模組的員工檔案；
+         員工檔案由 HR 維護，帳號由 IT 維護，兩邊靠 hr.employee.user_id 綁定。 -->
+    <record id="mfg_custom_approval_res_users_form_view" model="ir.ui.view">
+        <field name="name">res.users.form.mfg.custom.approval</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="base.view_users_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='partner_id' and @groups='base.group_no_one']" position="after">
+                <field name="mfg_employee_state" readonly="1"
+                       invisible="mfg_employee_state == 'no_employee'"/>
+                <field name="mfg_employee_department_id" readonly="1"
+                       invisible="mfg_employee_state == 'no_employee'"/>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>

@@ -2,7 +2,7 @@
 
 {
     "name": "MFG Custom - Multi-level Approval",
-    "version": "20.0.1.1.0",
+    "version": "20.0.1.2.0",
     "category": "Manufacturing/MFG Custom",
     "sequence": 351,
     "summary": "通用多層簽核引擎（state machine + approver chain）",
@@ -17,14 +17,19 @@ MFG Custom - Multi-level Approval
 
 * 抽象 mixin ``mfg_custom.approval.mixin`` （可由其他模型繼承）
 * 簽核規則 ``mfg_custom.approval.rule`` （含適用 model 與 domain）
-* 簽核關卡 ``mfg_custom.approval.step`` （支援 user / group / group_all / field 四種 approver_mode）
+* 簽核關卡 ``mfg_custom.approval.step``
+  （支援 user / group / group_all / field / department / department_manager 六種 approver_mode）
 * 簽核申請 ``mfg_custom.approval.request`` （state machine：draft/pending/approved/rejected/cancelled）
 * 簽核紀錄 ``mfg_custom.approval.line`` （每關卡的決策與意見）
+
+簽核者一律以 ``res.users`` 記錄（能登入、有權限、留得下稽核軌跡）；
+``department`` / ``department_manager`` 兩種模式則以 Odoo 內建的
+``hr.department`` 推導出哪些帳號合格，不會另建一套「員工」資料。
 
 安裝後即可在「MFG Custom > 設定 > 簽核規則」建立流程，
 並讓 ``plm_custom.eco``、``sale.order`` 等模型透過繼承 mixin 取得簽核按鈕。
 """,
-    "depends": ["mfg_custom_base", "mail"],
+    "depends": ["mfg_custom_base", "mail", "hr"],
     "data": [
         "security/mfg_approval_security.xml",
         "security/ir.access.csv",
@@ -37,6 +42,7 @@ MFG Custom - Multi-level Approval
         "views/mfg_approval_request_views.xml",
         "views/mfg_approval_request_menus.xml",
         "views/mfg_approval_mixin_views.xml",
+        "views/res_users_views.xml",
     ],
     "installable": True,
     "auto_install": False,

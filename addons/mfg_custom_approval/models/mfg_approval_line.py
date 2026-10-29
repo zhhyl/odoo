@@ -3,6 +3,8 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import AccessError, ValidationError
 
+from .res_users import EMPLOYEE_STATE_SELECTION
+
 
 class MfgApprovalLine(models.Model):
     """簽核紀錄.
@@ -46,12 +48,44 @@ class MfgApprovalLine(models.Model):
     )
     decision_date = fields.Datetime("決策時間")
     comment = fields.Text("意見")
+    approver_department_id = fields.Many2one(
+        "hr.department",
+        "簽核者部門",
+        compute="_compute_approver_info",
+        help="簽核者在【員工】模組中所屬的部門。",
+    )
+    approver_employee_state = fields.Selection(
+        EMPLOYEE_STATE_SELECTION,
+        string="簽核者員工狀態",
+        compute="_compute_approver_info",
+        help="依【員工】模組的員工檔案判斷簽核者是否為在職員工。",
+    )
 
     _line_req_idx = models.Index("(request_id, decision)")
     _line_user_uniq = models.Constraint(
         "UNIQUE(request_id, step_id, user_id)",
         "同一關卡同一簽核者只能有一筆紀錄。",
     )
+
+    @api.depends("user_id")
+    @api.depends_context("company")
+    def _compute_approver_info(self):
+        """由簽核者的帳號推導出其部門與員工狀態。
+
+        讓審批紀錄可以一眼看出簽核者是哪個部門的人、是否還在職。
+        """
+        users = self.user_id
+        employee_map = users._mfg_employee_map()
+        for line in self:
+            employee = employee_map.get(line.user_id)
+            if not employee:
+                line.approver_employee_state = "no_employee"
+                line.approver_department_id = self.env["hr.department"]
+                continue
+            line.approver_employee_state = (
+                "active_employee" if employee.active else "inactive_employee"
+            )
+            line.approver_department_id = employee.department_id
 
     @api.constrains("user_id")
     def _check_user_active(self):

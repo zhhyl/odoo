@@ -140,6 +140,8 @@
                                            decoration-muted="decision == 'skipped'"
                                            decoration-warning="decision == 'pending'"/>
                                     <field name="decision_date"/>
+                                    <field name="approver_department_id" optional="hide"/>
+                                    <field name="approver_employee_state" optional="hide"/>
                                     <field name="comment" optional="hide"/>
                                 </list>
                             </field>
