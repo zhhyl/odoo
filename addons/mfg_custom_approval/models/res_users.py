@@ -61,6 +61,28 @@ class ResUsers(models.Model):
             if employee.user_id
         }
 
+    def _mfg_employee_info_map(self):
+        """批次回傳 ``self`` 這些帳號的（員工狀態, 所屬部門）。
+
+        這是「員工檔案 → 員工狀態／部門」的唯一推導來源，
+        ``res.users`` 的衍生欄位與 ``mfg_custom.approval.line`` 的簽核者
+        資訊都走這裡，避免同一套邏輯寫兩份、兩邊走樣。
+
+        整批只查一次 ``hr.employee``（不會逐帳號各查一次）。
+
+        :return: ``{res.users: (狀態, 部門)}`` 對應表
+        """
+        employee_map = self._mfg_employee_map()
+        info_map = {}
+        for user in self:
+            employee = employee_map.get(user)
+            if not employee:
+                info_map[user] = ("no_employee", self.env["hr.department"])
+                continue
+            state = "active_employee" if employee.active else "inactive_employee"
+            info_map[user] = (state, employee.department_id)
+        return info_map
+
     @api.depends_context("company")
     def _compute_mfg_employee_info(self):
         """由員工檔案推導出員工狀態與所屬部門。
@@ -72,14 +94,6 @@ class ResUsers(models.Model):
         因此同一個環境內不會因為員工異動而自動重算；
         實務上每次請求都是新的環境，讀到的都是最新狀態。
         """
-        employee_map = self._mfg_employee_map()
-        for user in self:
-            employee = employee_map.get(user)
-            if not employee:
-                user.mfg_employee_state = "no_employee"
-                user.mfg_employee_department_id = self.env["hr.department"]
-                continue
-            user.mfg_employee_state = (
-                "active_employee" if employee.active else "inactive_employee"
-            )
-            user.mfg_employee_department_id = employee.department_id
+        for user, (state, department) in self._mfg_employee_info_map().items():
+            user.mfg_employee_state = state
+            user.mfg_employee_department_id = department

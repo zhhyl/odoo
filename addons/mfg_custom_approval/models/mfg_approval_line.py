@@ -72,20 +72,17 @@ class MfgApprovalLine(models.Model):
     def _compute_approver_info(self):
         """由簽核者的帳號推導出其部門與員工狀態。
 
-        讓審批紀錄可以一眼看出簽核者是哪個部門的人、是否還在職。
+        直接重用 ``res.users._mfg_employee_info_map()``（那裡才是唯一的
+        推導來源），避免同一套「員工 → 狀態／部門」邏輯寫兩份、兩邊走樣，
+        也確保整批簽核者只查一次 ``hr.employee``。
         """
-        users = self.user_id
-        employee_map = users._mfg_employee_map()
+        info_map = self.user_id._mfg_employee_info_map()
         for line in self:
-            employee = employee_map.get(line.user_id)
-            if not employee:
-                line.approver_employee_state = "no_employee"
-                line.approver_department_id = self.env["hr.department"]
-                continue
-            line.approver_employee_state = (
-                "active_employee" if employee.active else "inactive_employee"
+            state, department = info_map.get(
+                line.user_id, ("no_employee", self.env["hr.department"]),
             )
-            line.approver_department_id = employee.department_id
+            line.approver_employee_state = state
+            line.approver_department_id = department
 
     @api.constrains("user_id")
     def _check_user_active(self):

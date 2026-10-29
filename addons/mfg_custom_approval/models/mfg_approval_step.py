@@ -348,26 +348,28 @@ class MfgApprovalStep(models.Model):
             if not users:
                 step.preview_approver_info = step.env._("（解析不到簽核者）")
                 continue
-            employee_map = users._mfg_employee_map()
+            # 重用 res.users 上的單一推導來源，避免這裡再寫一份
+            info_map = users._mfg_employee_info_map()
+            state_labels = {
+                "active_employee": self.env._("在職員工"),
+                "inactive_employee": self.env._("已離職"),
+                "no_employee": self.env._("非員工帳號"),
+            }
             descriptions = []
             for user in users:
-                employee = employee_map.get(user)
-                if not employee:
-                    state = self.env._("非員工帳號")
-                elif employee.active:
-                    state = self.env._("在職員工")
-                else:
-                    state = self.env._("已離職")
+                state, department = info_map.get(
+                    user, ("no_employee", self.env["hr.department"]),
+                )
                 descriptions.append(
                     self.env._(
                         "%(name)s（%(department)s／%(state)s）",
                         name=user.display_name,
                         department=(
-                            employee.department_id.display_name
-                            if employee and employee.department_id
+                            department.display_name
+                            if department
                             else self.env._("無部門")
                         ),
-                        state=state,
+                        state=state_labels.get(state, state),
                     ),
                 )
             # 部門可能有幾十人，全部列出會讓欄位長到讀不了；只留前幾個並標明總數

@@ -24,6 +24,7 @@ class TestMfgApprovalDepartment(TransactionCase):
         cls.Rule = cls.env["mfg_custom.approval.rule"]
         cls.Step = cls.env["mfg_custom.approval.step"]
         cls.Request = cls.env["mfg_custom.approval.request"]
+        cls.Line = cls.env["mfg_custom.approval.line"]
         cls.Employee = cls.env["hr.employee"]
         cls.Department = cls.env["hr.department"]
         cls.TestModel = cls.env["mfg_custom.approval.test.model"]
@@ -32,6 +33,14 @@ class TestMfgApprovalDepartment(TransactionCase):
         cls.other_department = cls.Department.create({"name": "品保部"})
         cls.no_account_department = cls.Department.create({"name": "無帳號部門"})
 
+        # 沒有對應員工檔案的帳號（系統 / 測試 / Portal 帳號）。
+        # **刻意第一個建立**：簽核紀錄的 _order 是 "step_id, user_id, id"，
+        # 帳號 id 越小越前面，測試才能確定性地抓到「部門配錯人」的問題。
+        cls.user_no_employee = new_test_user(
+            cls.env,
+            login="dept_no_employee",
+            groups="base.group_user,mfg_custom_base.group_user",
+        )
         cls.user_member = new_test_user(
             cls.env,
             login="dept_member",
@@ -45,12 +54,6 @@ class TestMfgApprovalDepartment(TransactionCase):
         cls.user_outside = new_test_user(
             cls.env,
             login="dept_outside",
-            groups="base.group_user,mfg_custom_base.group_user",
-        )
-        # 沒有對應員工檔案的帳號（系統 / 測試 / Portal 帳號）
-        cls.user_no_employee = new_test_user(
-            cls.env,
-            login="dept_no_employee",
             groups="base.group_user,mfg_custom_base.group_user",
         )
 
@@ -299,3 +302,102 @@ class TestMfgApprovalDepartment(TransactionCase):
         users = step.with_user(self.user_member)._resolve_approver_users()
         self.assertTrue(users)
         self.assertFalse(users.env.su)
+
+    def test_16_multiple_approvers_keep_their_own_department(self):
+        """多位簽核者時，每人的部門不能配錯到別人身上。
+
+        迴歸測試：曾經用 ``mapped()`` 取關聯欄位，而 ORM 的 ``mapped()``
+        對 relational 欄位回傳的是「聯集 recordset」，會讓沒有員工檔案的
+        簽核者「偷走」別人的部門。
+        """
+        self._make_rule([
+            {
+                "name": "兩人核准",
+                "approver_mode": "user",
+                "user_ids": [
+                    Command.set([self.user_member.id, self.user_no_employee.id]),
+                ],
+            },
+        ])
+        req = self._submit()
+        self.assertEqual(len(req.line_ids), 2)
+        line_by_user = {line.user_id: line for line in req.line_ids}
+
+        member_line = line_by_user[self.user_member]
+        self.assertEqual(member_line.approver_employee_state, "active_employee")
+        self.assertEqual(member_line.approver_department_id, self.department)
+
+        no_employee_line = line_by_user[self.user_no_employee]
+        self.assertEqual(no_employee_line.approver_employee_state, "no_employee")
+        self.assertFalse(no_employee_line.approver_department_id)
+
+    def test_17_approvers_in_different_departments(self):
+        """兩位簽核者分屬不同部門時，各拿自己的部門。"""
+        other_user = new_test_user(
+            self.env,
+            login="dept_member_other",
+            groups="base.group_user,mfg_custom_base.group_user",
+        )
+        self.Employee.create({
+            "name": "品保部小張",
+            "user_id": other_user.id,
+            "department_id": self.other_department.id,
+        })
+        self._make_rule([
+            {
+                "name": "兩人核准",
+                "approver_mode": "user",
+                "user_ids": [
+                    Command.set([self.user_member.id, other_user.id]),
+                ],
+            },
+        ])
+        req = self._submit()
+        line_by_user = {line.user_id: line for line in req.line_ids}
+        self.assertEqual(
+            line_by_user[self.user_member].approver_department_id,
+            self.department,
+        )
+        self.assertEqual(
+            line_by_user[other_user].approver_department_id,
+            self.other_department,
+        )
+
+    def test_18_approver_department_is_not_stolen_from_another_user(self):
+        """簽核紀錄的部門必須是「該簽核者自己的」，不能被別人借用。
+
+        迴歸測試：曾經用 ``mapped()`` 取關聯欄位，而 ORM 的 ``mapped()``
+        對 relational 欄位回傳的是「聯集 recordset」（去重後依首次出現排序），
+        於是排在前面、但沒有員工檔案的簽核者會「偷走」後面那個人的部門。
+
+        這裡刻意讓「沒有員工檔案」的簽核紀錄排在前面，讓錯配必然發生。
+        """
+        rule = self.Rule.create({
+            "name": "先簽沒有員工檔案的人",
+            "model_id": self.env["ir.model"]._get(
+                "mfg_custom.approval.test.model",
+            ).id,
+            "step_ids": [Command.create({
+                "name": "第一關",
+                "approver_mode": "user",
+                "user_ids": [Command.set([self.user_no_employee.id])],
+            })],
+        })
+        record = self.TestModel.create({})
+        request = self.Request.create({
+            "rule_id": rule.id,
+            "res_model": "mfg_custom.approval.test.model",
+            "res_id": record.id,
+        })
+        # 再補一筆「有部門」的簽核紀錄，排在後面
+        self.Line.create({
+            "request_id": request.id,
+            "step_id": rule.step_ids.id,
+            "user_id": self.user_member.id,
+        })
+        line_by_user = {line.user_id: line for line in request.line_ids}
+        self.assertFalse(line_by_user[self.user_no_employee].approver_department_id)
+        self.assertEqual(
+            line_by_user[self.user_member].approver_department_id,
+            self.department,
+        )
